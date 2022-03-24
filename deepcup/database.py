@@ -5,6 +5,8 @@ import sqlite3
 import os
 import errno
 import warnings
+import pandas as pd
+from deepcup import util
 
 class DataBaseOperations():
     '''Class for functions to work with the database'''
@@ -57,7 +59,7 @@ class DataBaseOperations():
                 'VALUES (?,?)', [(first_name, last_name)])
             self.conn.commit()
 
-    def get_individual_id(self, first_name, last_name):
+    def _get_individual_id(self, first_name, last_name):
         '''Return the primary key from the database for the individual'''
         try:
             individual_id = self.cursor.execute('SELECT individualID FROM Individuals '\
@@ -66,3 +68,44 @@ class DataBaseOperations():
             individual_id = None
             warnings.warn(f'{first_name} {last_name} does not exist in the database')
         return individual_id
+
+    def _get_individual_from_id(self, individual_id):
+        '''Return the individual's name from their individual ID in the database'''
+        try:
+            first_name, last_name = self.cursor.execute(
+                'SELECT FirstName, LastName FROM Individuals '\
+                f'WHERE IndividualID={individual_id}').fetchall()[0]
+            individual = f'{first_name} {last_name}'
+        except IndexError:
+            individual = None
+            warnings.warn(f'Individual ID of {individual_id} does not exist in the database')
+        return individual
+
+    def add_stanley_cup_selection(self,
+        first_name, last_name, year, east_pick, west_pick, stanley_pick, games_pick=None):
+        '''Add the Stanley Cup pick for an individual to the database'''
+        # checks on inputs
+        util.is_year_valid(year)
+        if not self._check_if_individual_exists(first_name, last_name):
+            warnings.warn(f'{first_name} {last_name} does not exist in the Individuals table')
+        # add checks for valid team names
+
+        individual_id = self._get_individual_id(first_name, last_name)
+        stanley_cup_data = [(individual_id, year, east_pick, west_pick, stanley_pick, games_pick)]
+        self.cursor.executemany(\
+            'INSERT INTO StanleyCupSelections '\
+            'VALUES (?,?,?,?,?,?)',\
+            stanley_cup_data)
+        self.conn.commit()
+
+    def get_stanley_cup_selections(self, year):
+        '''Return the Stanley Cup picks for the requested year
+        in a pandas dataframe'''
+        util.is_year_valid(year)
+        sc_selections = pd.read_sql_query(
+                f'SELECT * FROM StanleyCupSelections WHERE Year={year}', self.conn)
+        individuals = sc_selections.loc[:,'IndividualID'].apply(self._get_individual_from_id)
+        sc_selections.drop('IndividualID', axis='columns', inplace=True)
+        sc_selections.insert(0,'Individual', individuals)
+        sc_selections.set_index('Individual', inplace=True)
+        return sc_selections

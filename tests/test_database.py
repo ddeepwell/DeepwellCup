@@ -30,9 +30,32 @@ def create_individuals_table(open_database):
     yield cursor
 
 @pytest.fixture
-def temp_database(create_individuals_table):
-    '''Return the database class object'''
+def create_stanley_cup_table(create_individuals_table):
+    '''Create and populate the Stanley Cup table'''
     cursor = create_individuals_table
+    cursor.execute('''
+        CREATE TABLE StanleyCupSelections (
+            IndividualID INTEGER REFERENCES Individuals (IndividualID) NOT NULL,
+            Year INTEGER NOT NULL,
+            EastSelection VARCHAR (40),
+            WestSelection VARCHAR (40),
+            StanleyCupSelection VARCHAR (40),
+            GameSelection INTEGER,
+            PRIMARY KEY (IndividualID, Year)
+        )''')
+    sample_stanley_cup_data = [
+        ('1','2011','Boston Bruins','Vancouver Canucks','Toronto Maple Leafs',6),
+        ('2','2011','Tampa Bay Lightning','Vancouver Canucks','Vancouver Canucks',5)
+    ]
+    cursor.executemany('INSERT INTO StanleyCupSelections '\
+        'VALUES (?,?,?,?,?,?)', sample_stanley_cup_data)
+    cursor.commit()
+    yield cursor
+
+@pytest.fixture
+def temp_database(create_stanley_cup_table):
+    '''Return the database class object'''
+    cursor = create_stanley_cup_table
     yield DataBaseOperations(database_name=temp_file)
     cursor.close()
 
@@ -87,7 +110,7 @@ class TestCheckTarget:
     def test_get_individual_id(self, temp_database):
         '''a test'''
         with temp_database as db:
-            returned_val = db.get_individual_id('David','D')
+            returned_val = db._get_individual_id('David','D')
         expected_val = 1
         assert returned_val == expected_val
 
@@ -95,4 +118,31 @@ class TestCheckTarget:
         '''a test'''
         with pytest.warns(UserWarning, match=r'\bdoes not exist in the database'):
             with temp_database as db:
-                db.get_individual_id('Mark','D')
+                db._get_individual_id('Mark','D')
+
+    def test_get_individual_from_id(self, temp_database):
+        '''a test'''
+        with temp_database as db:
+            returned_val = db._get_individual_from_id(1)
+        expected_val = 'David D'
+        assert returned_val == expected_val
+
+    def test_get_individual_from_id_nonexist(self, temp_database):
+        '''a test'''
+        with pytest.warns(UserWarning, match=r'\bdoes not exist in the database'):
+            with temp_database as db:
+                db._get_individual_from_id(3)
+
+    def test_stanley_cup_selection(self, temp_database):
+        '''a test'''
+        first_name = 'David'
+        last_name = 'D'
+        year = 2012
+        east_pick = 'Montreal Canadiens'
+        west_pick = 'Los Angeles Kings'
+        scc_pick = 'Los Angeles Kings'
+        with temp_database as db:
+            db.add_stanley_cup_selection(
+                first_name, last_name, year, east_pick, west_pick, scc_pick)
+            sc_selections = db.get_stanley_cup_selections(2012)
+        assert len(sc_selections) == 1
