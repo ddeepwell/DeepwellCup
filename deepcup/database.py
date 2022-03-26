@@ -51,7 +51,7 @@ class DataBaseOperations():
         if len(last_name) > 1:
             raise Exception('Last name must be only 1 character long')
         if self._check_if_individual_exists(first_name, last_name):
-            print(f'{first_name} {last_name} is already in the database')
+            warnings.warn(f'{first_name} {last_name} is already in the database')
         else:
             self.cursor.executemany(\
                 'INSERT INTO Individuals('\

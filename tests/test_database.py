@@ -91,9 +91,10 @@ class TestCheckTarget:
 
     def test_add_new_individual_exists(self, temp_database):
         '''a test'''
-        with temp_database as db:
-            returned_val = db.add_new_individual('David','D')
-            returned_individuals = db.get_individuals()
+        with pytest.warns(UserWarning, match=r'\bis already in the database'):
+            with temp_database as db:
+                returned_val = db.add_new_individual('David','D')
+                returned_individuals = db.get_individuals()
         expected_individuals = [('David','D'),('Michael','D')]
         assert returned_val is None
         assert returned_individuals == expected_individuals
