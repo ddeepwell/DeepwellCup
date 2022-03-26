@@ -59,8 +59,8 @@ def temp_database(create_stanley_cup_table):
     yield DataBaseOperations(database_name=temp_file)
     cursor.close()
 
-class TestCheckTarget:
-    '''Class for tests of check_target'''
+class TestDatabase:
+    '''Class for tests of the database module'''
 
     def test_check_if_individual_exists_true(self, temp_database):
         '''a test'''
