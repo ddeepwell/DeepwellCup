@@ -146,4 +146,5 @@ class TestCheckTarget:
             db.add_stanley_cup_selection(
                 first_name, last_name, year, east_pick, west_pick, scc_pick)
             sc_selections = db.get_stanley_cup_selections(2012)
-        assert len(sc_selections) == 1
+        expected_list = [year, east_pick, west_pick, scc_pick, None]
+        assert all(sc_selections.values[0] == expected_list)
