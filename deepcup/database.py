@@ -97,6 +97,20 @@ class DataBaseOperations():
             stanley_cup_data)
         self.conn.commit()
 
+    def add_stanley_cup_results(self,
+        year, east_pick, west_pick, stanley_pick, games_pick=None):
+        '''Add the Stanley Cup results for a year to the database'''
+        # checks on inputs
+        checks.check_if_year_is_valid(year)
+        # add checks for valid team names
+
+        stanley_cup_data = [(year, east_pick, west_pick, stanley_pick, games_pick)]
+        self.cursor.executemany(\
+            'INSERT INTO StanleyCupResults '\
+            'VALUES (?,?,?,?,?)',\
+            stanley_cup_data)
+        self.conn.commit()
+
     def get_stanley_cup_selections(self, year):
         '''Return the Stanley Cup picks for the requested year
         in a pandas dataframe'''
@@ -107,4 +121,13 @@ class DataBaseOperations():
         sc_selections.drop('IndividualID', axis='columns', inplace=True)
         sc_selections.insert(0,'Individual', individuals)
         sc_selections.set_index('Individual', inplace=True)
+        return sc_selections
+
+    def get_stanley_cup_results(self, year):
+        '''Return the Stanley Cup results for the requested year
+        in a pandas dataframe'''
+        checks.check_if_year_is_valid(year)
+        sc_selections = pd.read_sql_query(
+                f'SELECT * FROM StanleyCupResults WHERE Year={year}', self.conn)
+        sc_selections.drop('Year', axis='columns', inplace=True)
         return sc_selections

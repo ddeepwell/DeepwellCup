@@ -30,7 +30,7 @@ def create_individuals_table(open_database):
     yield cursor
 
 @pytest.fixture
-def create_stanley_cup_table(create_individuals_table):
+def create_stanley_cup_selections_table(create_individuals_table):
     '''Create and populate the Stanley Cup table'''
     cursor = create_individuals_table
     cursor.execute('''
@@ -53,9 +53,28 @@ def create_stanley_cup_table(create_individuals_table):
     yield cursor
 
 @pytest.fixture
-def temp_database(create_stanley_cup_table):
+def create_stanley_cup_results_table(create_stanley_cup_selections_table):
+    '''Create and populate the Stanley Cup table'''
+    cursor = create_stanley_cup_selections_table
+    cursor.execute('''
+        CREATE TABLE StanleyCupResults (
+            Year INT (4) PRIMARY KEY UNIQUE NOT NULL,
+            EastWinner VARCHAR (40) NOT NULL,
+            WestWinner VARCHAR (40) NOT NULL,
+            StanleyCupWinner VARCHAR (40),
+            Games INT (1)
+        )''')
+    sample_stanley_cup_data = [
+        ('2011','Boston Bruins','Vancouver Canucks','Toronto Maple Leafs',None)]
+    cursor.executemany('INSERT INTO StanleyCupResults '\
+        'VALUES (?,?,?,?,?)', sample_stanley_cup_data)
+    cursor.commit()
+    yield cursor
+
+@pytest.fixture
+def temp_database(create_stanley_cup_results_table):
     '''Return the database class object'''
-    cursor = create_stanley_cup_table
+    cursor = create_stanley_cup_results_table
     yield DataBaseOperations(database_name=temp_file)
     cursor.close()
 
@@ -148,3 +167,15 @@ class TestDatabase:
             sc_selections = db.get_stanley_cup_selections(2012)
         expected_list = [year, east_pick, west_pick, scc_pick, None]
         assert all(sc_selections.values[0] == expected_list)
+
+    def test_stanley_cup_results(self, temp_database):
+        '''a test'''
+        year = 2012
+        east_pick = 'Montreal Canadiens'
+        west_pick = 'Los Angeles Kings'
+        scc_pick = 'Los Angeles Kings'
+        with temp_database as db:
+            db.add_stanley_cup_results(year, east_pick, west_pick, scc_pick)
+            sc_results = db.get_stanley_cup_results(2012)
+        expected_list = [east_pick, west_pick, scc_pick, None]
+        assert all(sc_results.values[0] == expected_list)
