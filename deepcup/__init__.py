@@ -8,4 +8,4 @@ __author__ = "David Deepwell"
 __date__   = "March, 2022"
 
 from deepcup.database import DataBaseOperations
-from deepcup import util
+from deepcup import checks
