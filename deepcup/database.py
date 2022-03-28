@@ -82,7 +82,7 @@ class DataBaseOperations():
         return individual
 
     def add_stanley_cup_selection(self,
-        first_name, last_name, year, east_pick, west_pick, stanley_pick, games_pick=None):
+            first_name, last_name, year, east_pick, west_pick, stanley_pick, games_pick=None):
         '''Add the Stanley Cup pick for an individual to the database'''
         # checks on inputs
         checks.check_if_year_is_valid(year)
@@ -98,7 +98,7 @@ class DataBaseOperations():
         self.conn.commit()
 
     def add_stanley_cup_results(self,
-        year, east_pick, west_pick, stanley_pick, games_pick=None):
+            year, east_pick, west_pick, stanley_pick, games_pick=None):
         '''Add the Stanley Cup results for a year to the database'''
         # checks on inputs
         checks.check_if_year_is_valid(year)
@@ -133,8 +133,9 @@ class DataBaseOperations():
         return sc_selections
 
     def add_year_round_series(self,
-        year, playoff_round, conference, series_number,
-        team_higher_seed, team_lower_seed, player_higher_seed=None, player_lower_seed=None):
+            year, playoff_round, conference, series_number,
+            team_higher_seed, team_lower_seed,
+            player_higher_seed=None, player_lower_seed=None):
         '''Add a series ID to the database'''
         # checks on inputs
         checks.check_if_year_is_valid(year)
@@ -142,7 +143,7 @@ class DataBaseOperations():
         # add checks for valid team names
 
         series_data = [(year, playoff_round, conference, series_number,
-        team_higher_seed, team_lower_seed, player_higher_seed, player_lower_seed)]
+            team_higher_seed, team_lower_seed, player_higher_seed, player_lower_seed)]
         self.cursor.executemany(\
             'INSERT INTO Series('\
             'Year, Round, Conference, SeriesNumber, '\
