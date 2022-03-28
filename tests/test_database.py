@@ -72,9 +72,36 @@ def create_stanley_cup_results_table(create_stanley_cup_selections_table):
     yield cursor
 
 @pytest.fixture
-def temp_database(create_stanley_cup_results_table):
-    '''Return the database class object'''
+def create_series_table(create_stanley_cup_results_table):
+    '''Create and populate the Series table'''
     cursor = create_stanley_cup_results_table
+    cursor.execute('''
+        CREATE TABLE Series (
+            YearRoundSeriesID INTEGER PRIMARY KEY UNIQUE NOT NULL,
+            Year INTEGER (4) NOT NULL,
+            Round INTEGER (1) NOT NULL,
+            Conference CHAR (4),
+            SeriesNumber INTEGER (1) NOT NULL,
+            TeamHigherSeed VARCHAR (40) NOT NULL,
+            TeamLowerSeed VARCHAR (40) NOT NULL,
+            PlayerHigherSeed VARCHAR (40),
+            PlayerLowerSeed VARCHAR (40)
+        )''')
+    series_data = [
+        (2020,1,'East',1,'Toronto Maple Leafs','Carolina Hurricanes',None,None),
+        (2020,2,'East',1,'Toronto Maple Leafs','Boston Bruins','John Tavares','Brad Marchand')]
+    cursor.executemany('''
+        INSERT INTO Series(
+        Year, Round, Conference, SeriesNumber,
+        TeamHigherSeed, TeamLowerSeed, PlayerHigherSeed, PlayerLowerSeed)
+        VALUES (?,?,?,?,?,?,?,?)''', series_data)
+    cursor.commit()
+    yield cursor
+
+@pytest.fixture
+def temp_database(create_series_table):
+    '''Return the database class object'''
+    cursor = create_series_table
     yield DataBaseOperations(database_name=temp_file)
     cursor.close()
 
@@ -179,3 +206,18 @@ class TestDatabase:
             sc_results = db.get_stanley_cup_results(2012)
         expected_list = [east_pick, west_pick, scc_pick, None]
         assert all(sc_results.values[0] == expected_list)
+
+    def test_series(self, temp_database):
+        '''a test'''
+        year = 2012
+        playoff_round = 1
+        conference = "West"
+        series_number = 4
+        team_higher_seed = 'Vancouver Canucks'
+        team_lower_seed = 'Anahiem Ducks'
+        expected_list = [year, playoff_round, conference, series_number,
+            team_higher_seed, team_lower_seed]
+        with temp_database as db:
+            db.add_year_round_series(*expected_list)
+            sc_results = db.get_year_round_series(*expected_list[:4])
+        assert all(sc_results.values[0] == expected_list+[None,None])

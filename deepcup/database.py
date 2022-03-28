@@ -131,3 +131,48 @@ class DataBaseOperations():
                 f'SELECT * FROM StanleyCupResults WHERE Year={year}', self.conn)
         sc_selections.drop('Year', axis='columns', inplace=True)
         return sc_selections
+
+    def add_year_round_series(self,
+        year, playoff_round, conference, series_number,
+        team_higher_seed, team_lower_seed, player_higher_seed=None, player_lower_seed=None):
+        '''Add a series ID to the database'''
+        # checks on inputs
+        checks.check_if_year_is_valid(year)
+        checks.check_if_conference_is_valid(conference)
+        # add checks for valid team names
+
+        series_data = [(year, playoff_round, conference, series_number,
+        team_higher_seed, team_lower_seed, player_higher_seed, player_lower_seed)]
+        self.cursor.executemany(\
+            'INSERT INTO Series('\
+            'Year, Round, Conference, SeriesNumber, '\
+            'TeamHigherSeed, TeamLowerSeed, PlayerHigherSeed, PlayerLowerSeed) '\
+            'VALUES (?,?,?,?,?,?,?,?)',\
+            series_data)
+        self.conn.commit()
+
+    def get_year_round_series(self, year, playoff_round, conference, series_number):
+        '''Return the series data for the series
+        in a pandas dataframe'''
+        checks.check_if_year_is_valid(year)
+        checks.check_if_conference_is_valid(conference)
+        series_id = self._get_series_id(year, playoff_round, conference, series_number)
+        series_data = pd.read_sql_query(
+                f'SELECT * FROM Series WHERE YearRoundSeriesID={series_id}', self.conn)
+        series_data.drop('YearRoundSeriesID', axis='columns', inplace=True)
+        return series_data
+
+    def _get_series_id(self, year, playoff_round, conference, series_number):
+        '''Return the primary key from the database for the series'''
+        checks.check_if_year_is_valid(year)
+        checks.check_if_conference_is_valid(conference)
+        try:
+            series_id = self.cursor.execute(
+                'SELECT YearRoundSeriesID FROM Series '\
+                f'WHERE Year="{year}" and Round="{playoff_round}" '\
+                f'and Conference="{conference}" and SeriesNumber="{series_number}"'
+                ).fetchall()[0][0]
+        except IndexError:
+            series_id = None
+            warnings.warn('The series does not exist in the database')
+        return series_id
