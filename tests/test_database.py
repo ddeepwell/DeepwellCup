@@ -99,9 +99,27 @@ def create_series_table(create_stanley_cup_results_table):
     yield cursor
 
 @pytest.fixture
-def temp_database(create_series_table):
-    '''Return the database class object'''
+def create_series_selections_table(create_series_table):
+    '''Create and populate the SeriesSelections table'''
     cursor = create_series_table
+    cursor.execute('''
+        CREATE TABLE SeriesSelections (
+            YearRoundSeriesID INTEGER REFERENCES Series (YearRoundSeriesID) NOT NULL,
+            IndividualID INTEGER REFERENCES Individuals (IndividualID) NOT NULL,
+            TeamSelection VARCHAR (40) NOT NULL,
+            GameSelection INTEGER (1),
+            PlayerSelection VARCHAR (40),
+            PRIMARY KEY (YearRoundSeriesID, IndividualID)
+        )''')
+    series_data = [(1,1,'Toronto Maple Leafs',5,None)]
+    cursor.executemany('INSERT INTO SeriesSelections VALUES (?,?,?,?,?)', series_data)
+    cursor.commit()
+    yield cursor
+
+@pytest.fixture
+def temp_database(create_series_selections_table):
+    '''Return the database class object'''
+    cursor = create_series_selections_table
     yield DataBaseOperations(database_name=temp_file)
     cursor.close()
 
@@ -221,3 +239,25 @@ class TestDatabase:
             db.add_year_round_series(*expected_list)
             sc_results = db.get_year_round_series(*expected_list[:4])
         assert all(sc_results.values[0] == expected_list+[None,None])
+
+    def test_series_selections(self, temp_database):
+        '''a test'''
+        year = 2020
+        playoff_round = 2
+        conference = "East"
+        series_number = 1
+        first_name = 'David'
+        last_name = 'D'
+        team_selection = 'Toronto Maple Leafs'
+        game_selection = 6
+        player_selection = 'John Tavares'
+        expected_list = [
+            year, playoff_round, conference, series_number,
+            first_name, last_name,
+            team_selection, game_selection, player_selection]
+        with temp_database as db:
+            db.add_series_selections(*expected_list)
+            sc_results = db.get_series_selections(*expected_list[:6])
+            print(sc_results.values[0].tolist())
+            print(expected_list[6:])
+        assert sc_results.values[0].tolist() == expected_list[6:]

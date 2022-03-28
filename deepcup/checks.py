@@ -20,3 +20,17 @@ def check_if_conference_is_valid(conference):
     if conference not in ['East', 'West']:
         raise Exception(f'The conference {conference} is invalid.\n'
         'The conference must be either "East" or "West"')
+
+def check_if_selections_are_valid(
+        self, year, playoff_round, conference, series_number,
+        team_selection, game_selection, player_selection):
+    '''Check if the selections match those of the series'''
+    series_data = self.get_year_round_series(year, playoff_round, conference, series_number)
+    if team_selection not in series_data[['TeamHigherSeed','TeamLowerSeed']].values[0]:
+        raise Exception(f'The selected team, {team_selection}, is invalid for this series')
+    if game_selection not in [4,5,6,7]:
+        raise Exception(f'The series length, {game_selection}, is invalid. '\
+            'It must be in {4,5,6,7}')
+    if player_selection not in \
+            series_data[['PlayerHigherSeed','PlayerLowerSeed']].values[0].tolist() + [None]:
+        raise Exception(f'The selected player, {player_selection}, is invalid for this series')

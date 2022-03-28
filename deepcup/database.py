@@ -177,3 +177,42 @@ class DataBaseOperations():
             series_id = None
             warnings.warn('The series does not exist in the database')
         return series_id
+
+    def add_series_selections(self,
+            year, playoff_round, conference, series_number,
+            first_name, last_name,
+            team_selection, game_selection, player_selection=None):
+        '''Add series selections to the database'''
+        # checks on inputs
+        checks.check_if_year_is_valid(year)
+        checks.check_if_conference_is_valid(conference)
+        checks.check_if_selections_are_valid(
+            self, year, playoff_round, conference, series_number,
+            team_selection, game_selection, player_selection)
+        # add checks for valid team names
+
+        series_id = self._get_series_id(year, playoff_round, conference, series_number)
+        individual_id = self._get_individual_id(first_name, last_name)
+
+        series_data = [(series_id, individual_id,
+            team_selection, game_selection, player_selection)]
+        self.cursor.executemany(\
+            'INSERT INTO SeriesSelections '\
+            'VALUES (?,?,?,?,?)',\
+            series_data)
+        self.conn.commit()
+
+    def get_series_selections(self, year, playoff_round, conference, series_number,
+            first_name, last_name):
+        '''Return the series data for the series in a pandas dataframe'''
+        checks.check_if_year_is_valid(year)
+        checks.check_if_conference_is_valid(conference)
+        series_id = self._get_series_id(year, playoff_round, conference, series_number)
+        individual_id = self._get_individual_id(first_name, last_name)
+        series_data = pd.read_sql_query(
+                'SELECT * FROM SeriesSelections '\
+                f'WHERE YearRoundSeriesID={series_id} '\
+                f'AND IndividualID={individual_id}', self.conn)
+        series_data.drop('YearRoundSeriesID', axis='columns', inplace=True)
+        series_data.drop('IndividualID', axis='columns', inplace=True)
+        return series_data
