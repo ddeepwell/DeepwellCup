@@ -117,9 +117,26 @@ def create_series_selections_table(create_series_table):
     yield cursor
 
 @pytest.fixture
-def temp_database(create_series_selections_table):
-    '''Return the database class object'''
+def create_series_results_table(create_series_selections_table):
+    '''Create and populate the SeriesResults table'''
     cursor = create_series_selections_table
+    cursor.execute('''
+        CREATE TABLE SeriesResults (
+            YearRoundSeriesID INTEGER UNIQUE REFERENCES SeriesResults
+            (YearRoundSeriesID) PRIMARY KEY NOT NULL,
+            Winner VARCHAR (40) NOT NULL,
+            Games INTEGER (1) NOT NULL,
+            Player VARCHAR (40)
+        )''')
+    series_data = [(1,'Toronto Maple Leafs',6,None)]
+    cursor.executemany('INSERT INTO SeriesResults VALUES (?,?,?,?)', series_data)
+    cursor.commit()
+    yield cursor
+
+@pytest.fixture
+def temp_database(create_series_results_table):
+    '''Return the database class object'''
+    cursor = create_series_results_table
     yield DataBaseOperations(database_name=temp_file)
     cursor.close()
 
@@ -257,7 +274,22 @@ class TestDatabase:
             team_selection, game_selection, player_selection]
         with temp_database as db:
             db.add_series_selections(*expected_list)
-            sc_results = db.get_series_selections(*expected_list[:6])
-            print(sc_results.values[0].tolist())
-            print(expected_list[6:])
-        assert sc_results.values[0].tolist() == expected_list[6:]
+            series_results = db.get_series_selections(*expected_list[:6])
+        assert series_results.values[0].tolist() == expected_list[6:]
+
+    def test_series_results(self, temp_database):
+        '''a test'''
+        year = 2020
+        playoff_round = 2
+        conference = "East"
+        series_number = 1
+        team_winner = 'Toronto Maple Leafs'
+        game_length = 7
+        player_winner = 'Brad Marchand'
+        expected_list = [
+            year, playoff_round, conference, series_number,
+            team_winner, game_length, player_winner]
+        with temp_database as db:
+            db.add_series_results(*expected_list)
+            series_results = db.get_series_results(*expected_list[:4])
+        assert series_results.values[0].tolist() == expected_list[4:]

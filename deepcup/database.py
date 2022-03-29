@@ -204,7 +204,7 @@ class DataBaseOperations():
 
     def get_series_selections(self, year, playoff_round, conference, series_number,
             first_name, last_name):
-        '''Return the series data for the series in a pandas dataframe'''
+        '''Return the series selection data for the series in a pandas dataframe'''
         checks.check_if_year_is_valid(year)
         checks.check_if_conference_is_valid(conference)
         series_id = self._get_series_id(year, playoff_round, conference, series_number)
@@ -215,4 +215,37 @@ class DataBaseOperations():
                 f'AND IndividualID={individual_id}', self.conn)
         series_data.drop('YearRoundSeriesID', axis='columns', inplace=True)
         series_data.drop('IndividualID', axis='columns', inplace=True)
+        return series_data
+
+    def add_series_results(self,
+            year, playoff_round, conference, series_number,
+            team_winner, game_length, player_winner=None):
+        '''Add series results to the database'''
+        # checks on inputs
+        checks.check_if_year_is_valid(year)
+        checks.check_if_conference_is_valid(conference)
+        checks.check_if_selections_are_valid(
+            self, year, playoff_round, conference, series_number,
+            team_winner, game_length, player_winner)
+        # add checks for valid team names
+
+        series_id = self._get_series_id(year, playoff_round, conference, series_number)
+
+        series_data = [(series_id, team_winner, game_length, player_winner)]
+        self.cursor.executemany(\
+            'INSERT INTO SeriesResults '\
+            'VALUES (?,?,?,?)',\
+            series_data)
+        self.conn.commit()
+
+    def get_series_results(self, year, playoff_round, conference, series_number):
+        '''Return the series result data for the series in a pandas dataframe'''
+        checks.check_if_year_is_valid(year)
+        checks.check_if_conference_is_valid(conference)
+        series_id = self._get_series_id(year, playoff_round, conference, series_number)
+        series_data = pd.read_sql_query(
+                'SELECT * FROM SeriesResults '\
+                f'WHERE YearRoundSeriesID={series_id}',\
+                self.conn)
+        series_data.drop('YearRoundSeriesID', axis='columns', inplace=True)
         return series_data
