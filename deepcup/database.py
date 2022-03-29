@@ -98,13 +98,13 @@ class DataBaseOperations():
         self.conn.commit()
 
     def add_stanley_cup_results(self,
-            year, east_pick, west_pick, stanley_pick, games_pick=None):
+            year, east_winner, west_winner, stanley_winner, games_length=None):
         '''Add the Stanley Cup results for a year to the database'''
         # checks on inputs
         checks.check_if_year_is_valid(year)
         # add checks for valid team names
 
-        stanley_cup_data = [(year, east_pick, west_pick, stanley_pick, games_pick)]
+        stanley_cup_data = [(year, east_winner, west_winner, stanley_winner, games_length)]
         self.cursor.executemany(\
             'INSERT INTO StanleyCupResults '\
             'VALUES (?,?,?,?,?)',\
