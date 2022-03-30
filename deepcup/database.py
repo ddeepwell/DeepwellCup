@@ -6,7 +6,7 @@ import os
 import errno
 import warnings
 import pandas as pd
-from deepcup import checks
+import checks
 
 class DataBaseOperations():
     '''Class for functions to work with the database'''
