@@ -1,7 +1,7 @@
 '''Tests for database interactions'''
 import sqlite3
 import pytest
-from context import DataBaseOperations
+from scripts import DataBaseOperations
 
 temp_file = "file:memfile?mode=memory&cache=shared"
 
@@ -224,8 +224,8 @@ class TestDatabase:
         west_pick = 'Los Angeles Kings'
         scc_pick = 'Los Angeles Kings'
         with temp_database as db:
-            db.add_stanley_cup_selection(
-                first_name, last_name, year, east_pick, west_pick, scc_pick)
+            db.add_stanley_cup_selection(year,
+                first_name, last_name, east_pick, west_pick, scc_pick)
             sc_selections = db.get_stanley_cup_selections(2012)
         expected_list = [year, east_pick, west_pick, scc_pick, None]
         assert all(sc_selections.values[0] == expected_list)

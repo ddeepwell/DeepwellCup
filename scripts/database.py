@@ -6,7 +6,7 @@ import os
 import errno
 import warnings
 import pandas as pd
-import checks
+from scripts import checks
 
 class DataBaseOperations():
     '''Class for functions to work with the database'''
@@ -81,8 +81,8 @@ class DataBaseOperations():
             warnings.warn(f'Individual ID of {individual_id} does not exist in the database')
         return individual
 
-    def add_stanley_cup_selection(self,
-            first_name, last_name, year, east_pick, west_pick, stanley_pick, games_pick=None):
+    def add_stanley_cup_selection(self, year,
+            first_name, last_name, east_pick, west_pick, stanley_pick, games_pick=None):
         '''Add the Stanley Cup pick for an individual to the database'''
         # checks on inputs
         checks.check_if_year_is_valid(year)
@@ -96,6 +96,11 @@ class DataBaseOperations():
             'VALUES (?,?,?,?,?,?)',\
             stanley_cup_data)
         self.conn.commit()
+
+    def add_stanley_cup_selection_for_everyone(self, year, stanley_cup_list):
+        '''Add everyone's stanley cup selections for the year to the database'''
+        for stanley_cup_item in stanley_cup_list:
+            self.add_stanley_cup_selection(year, *stanley_cup_item)
 
     def add_stanley_cup_results(self,
             year, east_winner, west_winner, stanley_winner, games_length=None):
@@ -163,16 +168,30 @@ class DataBaseOperations():
         series_data.drop('YearRoundSeriesID', axis='columns', inplace=True)
         return series_data
 
+    def add_year_round_series_for_conference(self,
+            year, playoff_round, conference, series_list):
+        '''Add all the series for the conference to the database'''
+        for index, series_item in enumerate(series_list, start=1):
+            self.add_year_round_series(
+                year, playoff_round, conference, index, *series_item)
+
     def _get_series_id(self, year, playoff_round, conference, series_number):
         '''Return the primary key from the database for the series'''
         checks.check_if_year_is_valid(year)
         checks.check_if_conference_is_valid(conference)
         try:
-            series_id = self.cursor.execute(
-                'SELECT YearRoundSeriesID FROM Series '\
-                f'WHERE Year="{year}" and Round="{playoff_round}" '\
-                f'and Conference="{conference}" and SeriesNumber="{series_number}"'
-                ).fetchall()[0][0]
+            if conference is None:
+                series_id = self.cursor.execute(
+                    'SELECT YearRoundSeriesID FROM Series '\
+                    f'WHERE Year="{year}" and Round="{playoff_round}" '\
+                    f'and Conference IS NULL and SeriesNumber="{series_number}"'
+                    ).fetchall()[0][0]
+            else:
+                series_id = self.cursor.execute(
+                    'SELECT YearRoundSeriesID FROM Series '\
+                    f'WHERE Year="{year}" and Round="{playoff_round}" '\
+                    f'and Conference="{conference}" and SeriesNumber="{series_number}"'
+                    ).fetchall()[0][0]
         except IndexError:
             series_id = None
             warnings.warn('The series does not exist in the database')
@@ -201,6 +220,17 @@ class DataBaseOperations():
             'VALUES (?,?,?,?,?)',\
             series_data)
         self.conn.commit()
+
+    def add_series_selections_for_conference(self,
+            year, playoff_round, conference, all_players_selections):
+        '''Add everyone's series selections for the conference to the database'''
+        for player_selections in all_players_selections:
+            first_name = player_selections[0]
+            last_name  = player_selections[1]
+            for index, series_items in enumerate(player_selections[2:], start=1):
+                self.add_series_selections(
+                    year, playoff_round, conference, index,
+                    first_name, last_name, *series_items)
 
     def get_series_selections(self, year, playoff_round, conference, series_number,
             first_name, last_name):
@@ -237,6 +267,13 @@ class DataBaseOperations():
             'VALUES (?,?,?,?)',\
             series_data)
         self.conn.commit()
+
+    def add_series_results_for_conference(self,
+            year, playoff_round, conference, series_results):
+        '''Add all the series results for the conference to the database'''
+        for index, series_items in enumerate(series_results, start=1):
+            self.add_series_results(
+                year, playoff_round, conference, index, *series_items)
 
     def get_series_results(self, year, playoff_round, conference, series_number):
         '''Return the series result data for the series in a pandas dataframe'''

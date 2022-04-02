@@ -7,5 +7,5 @@
 __author__ = "David Deepwell"
 __date__   = "March, 2022"
 
-from deepcup.database import DataBaseOperations
-from deepcup import checks
+from scripts.database import DataBaseOperations
+from scripts import checks

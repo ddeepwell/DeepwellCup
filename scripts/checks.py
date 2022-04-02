@@ -17,9 +17,9 @@ def check_if_individual_exists(db_ops, first_name, last_name):
 
 def check_if_conference_is_valid(conference):
     '''Check if the conference is valid'''
-    if conference not in ['East', 'West']:
+    if conference not in ['East', 'West', None]:
         raise Exception(f'The conference {conference} is invalid.\n'
-        'The conference must be either "East" or "West"')
+        'The conference must be either "East", "West", or None')
 
 def check_if_selections_are_valid(
         db_ops, year, playoff_round, conference, series_number,
