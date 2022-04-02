@@ -15,8 +15,10 @@ def check_if_individual_exists(db_ops, first_name, last_name):
     if not db_ops._check_if_individual_exists(first_name, last_name):
         raise Exception(f'{first_name} {last_name} does not exist in the Individuals table')
 
-def check_if_conference_is_valid(conference):
+def check_if_conference_is_valid(conference, playoff_round):
     '''Check if the conference is valid'''
+    if playoff_round == 4 and conference is not None:
+        raise Exception("The conference in the 4th round must be None")
     if conference not in ['East', 'West', None]:
         raise Exception(f'The conference {conference} is invalid.\n'
         'The conference must be either "East", "West", or None')

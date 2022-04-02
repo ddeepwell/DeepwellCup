@@ -144,7 +144,7 @@ class DataBaseOperations():
         '''Add a series ID to the database'''
         # checks on inputs
         checks.check_if_year_is_valid(year)
-        checks.check_if_conference_is_valid(conference)
+        checks.check_if_conference_is_valid(conference, playoff_round)
         # add checks for valid team names
 
         series_data = [(year, playoff_round, conference, series_number,
@@ -161,7 +161,7 @@ class DataBaseOperations():
         '''Return the series data for the series
         in a pandas dataframe'''
         checks.check_if_year_is_valid(year)
-        checks.check_if_conference_is_valid(conference)
+        checks.check_if_conference_is_valid(conference, playoff_round)
         series_id = self._get_series_id(year, playoff_round, conference, series_number)
         series_data = pd.read_sql_query(
                 f'SELECT * FROM Series WHERE YearRoundSeriesID={series_id}', self.conn)
@@ -178,7 +178,7 @@ class DataBaseOperations():
     def _get_series_id(self, year, playoff_round, conference, series_number):
         '''Return the primary key from the database for the series'''
         checks.check_if_year_is_valid(year)
-        checks.check_if_conference_is_valid(conference)
+        checks.check_if_conference_is_valid(conference, playoff_round)
         try:
             if conference is None:
                 series_id = self.cursor.execute(
@@ -204,7 +204,7 @@ class DataBaseOperations():
         '''Add series selections to the database'''
         # checks on inputs
         checks.check_if_year_is_valid(year)
-        checks.check_if_conference_is_valid(conference)
+        checks.check_if_conference_is_valid(conference, playoff_round)
         checks.check_if_selections_are_valid(
             self, year, playoff_round, conference, series_number,
             team_selection, game_selection, player_selection)
@@ -236,7 +236,7 @@ class DataBaseOperations():
             first_name, last_name):
         '''Return the series selection data for the series in a pandas dataframe'''
         checks.check_if_year_is_valid(year)
-        checks.check_if_conference_is_valid(conference)
+        checks.check_if_conference_is_valid(conference, playoff_round)
         series_id = self._get_series_id(year, playoff_round, conference, series_number)
         individual_id = self._get_individual_id(first_name, last_name)
         series_data = pd.read_sql_query(
@@ -253,7 +253,7 @@ class DataBaseOperations():
         '''Add series results to the database'''
         # checks on inputs
         checks.check_if_year_is_valid(year)
-        checks.check_if_conference_is_valid(conference)
+        checks.check_if_conference_is_valid(conference, playoff_round)
         checks.check_if_selections_are_valid(
             self, year, playoff_round, conference, series_number,
             team_winner, game_length, player_winner)
@@ -278,7 +278,7 @@ class DataBaseOperations():
     def get_series_results(self, year, playoff_round, conference, series_number):
         '''Return the series result data for the series in a pandas dataframe'''
         checks.check_if_year_is_valid(year)
-        checks.check_if_conference_is_valid(conference)
+        checks.check_if_conference_is_valid(conference, playoff_round)
         series_id = self._get_series_id(year, playoff_round, conference, series_number)
         series_data = pd.read_sql_query(
                 'SELECT * FROM SeriesResults '\
