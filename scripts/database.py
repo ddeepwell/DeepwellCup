@@ -247,6 +247,26 @@ class DataBaseOperations():
         series_data.drop('IndividualID', axis='columns', inplace=True)
         return series_data
 
+    def get_all_round_selections(self, year, playoff_round):
+        '''Return all the selections for a playoff round in a pandas dataframe'''
+        checks.check_if_year_is_valid(year)
+        series_data = pd.read_sql_query(f'''
+            SELECT Ser.Conference, Ser.SeriesNumber,
+                Ind.FirstName, Ind.LastName,
+                SS.TeamSelection, SS.GameSelection, SS.PlayerSelection
+            FROM Individuals as Ind
+            LEFT JOIN (SeriesSelections as SS
+                Inner JOIN Series as Ser
+                ON Ser.YearRoundSeriesID = SS.YearRoundSeriesID)
+            ON Ind.IndividualID = SS.IndividualID
+            WHERE Ser.Year = {year}
+            AND Ser.Round = {playoff_round}
+            ORDER BY FirstName, LastName, Conference, SeriesNumber
+            ''', self.conn)
+        series_data['Name'] = series_data['FirstName'] + ' ' + series_data['LastName']
+        series_data.drop(['FirstName', 'LastName', 'SeriesNumber'], axis='columns', inplace=True)
+        return series_data
+
     def add_series_results(self,
             year, playoff_round, conference, series_number,
             team_winner, game_length, player_winner=None):
