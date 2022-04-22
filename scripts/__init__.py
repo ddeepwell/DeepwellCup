@@ -5,7 +5,8 @@
    for the annual Deepwell Cup'''
 
 __author__ = "David Deepwell"
-__date__   = "March, 2022"
+__date__   = "April, 2022"
 
 from scripts.database import DataBaseOperations
+from scripts.latex_table import make_latex_file
 from scripts import checks

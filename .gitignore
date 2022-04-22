@@ -3,5 +3,8 @@
 .venv
 .vscode
 __pycache__
+*.log
+*.aux
+*.pdf
 
 DeepwellCup_empty.db

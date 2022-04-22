@@ -1,0 +1,93 @@
+
+%----------------------------------------------------------------------------------------
+%	Settings and packages
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt]{article}
+
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{ctable}
+\usepackage[landscape,margin=0.25in,legalpaper]{geometry}
+
+\newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
+\newcommand{\mccn}[2]{\multicolumn{#1}{c}{#2}}
+\newcommand{\mcl}[1]{\multicolumn{2}{l}{#1}}
+\newcommand{\mclg}[1]{\multicolumn{2}{l}{\gr #1}}
+\newcommand{\mcc}[1]{\multicolumn{2}{c}{#1}}
+\newcommand{\mccg}[1]{\multicolumn{2}{c}{\gr #1}}
+\newcommand{\mr}[1]{\multirow{-2}{*}{#1}}
+\definecolor{Gray}{gray}{0.90}
+\newcommand{\gr}{\cellcolor{Gray}}
+
+\newcommand{\thickline}{\specialrule{.1em}{.05em}{.05em}}
+
+% column colours
+\newcolumntype{g}{>{\columncolor{Gray}}l}
+\newcolumntype{w}{>{\columncolor{white}}l}
+
+
+%\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+%\geometry{letterpaper}                    % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                		% Activate for for rotated page geometry
+
+%----------------------------------------------------------------------------------------
+%	Create new commands
+%----------------------------------------------------------------------------------------
+
+% Commands are in LatexCommands.tex. New commands for this file only can be written here.
+%\input{/Applications/TeX/Latex_ancillary/LatexCommands.tex}
+
+
+%----------------------------------------------------------------------------------------
+%	Table
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\thispagestyle{empty}
+{\bf 2006 Deepwell Cup}
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l g g w w g g w w}
+        \rowcolor{black}\mcn{9}{\color{white}\bf Round 3: Conference Finals} \\
+        \rowcolor{white}\\
+        &  \mccg{Daniel S}&  \mcc{David D}&  \mccg{Kollin H}&  \mcc{Michael D} \\\thickline
+        {\bf East} &&&&&&&&\\\hline
+          Carolina Hurricanes&&&&&&&&\\
+          Buffalo Sabres & \mr{CAR} & \mr{7} & \mr{BUF} & \mr{7} & \mr{BUF} & \mr{7} & \mr{CAR} & \mr{6}\\\hline
+          &&&&&&&& \\
+        {\bf West} &&&&&&&&\\\hline
+          Anaheim Ducks&&&&&&&&\\
+          Edmonton Oilers & \mr{EDM} & \mr{6} & \mr{EDM} & \mr{6} & \mr{ANA} & \mr{6} & \mr{EDM} & \mr{6}\\\hline
+          \rowcolor{white}\\
+        \rowcolor{black} \mcn{9}{\color{white}\bf Conference Champions} \\
+          Eastern & \mclg{CAR} & \mcl{OTT} & \mclg{OTT} & \mcl{CAR}\\
+          Western & \mclg{DAL} & \mcl{DET} & \mclg{SJS} & \mcl{DET}\\
+          Stanley Cup & CAR & 6 & DET & 6 & SJS & 6 & DET & 6
+    \end{tabular}
+\end{table}
+
+\begin{table}[!htb]
+\begin{minipage}[t]{.27\linewidth}
+{\bf Points}\\
+\begin{tabular}{l l}
+    Correct team:	& $10$\\
+    Correct series length (regardless of series winner):	& $7$\\
+    Correct team in a seven game series    & $2$\\
+    Stanley Cup champion:	& 25\\
+    Stanley Cup runner-up:	& 15\\
+\end{tabular}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}[t]{.45\linewidth}
+{\bf Number of picks per team:}\\
+\begin{tabular}{lc | lc }
+    CAR & 2 & ANA & 1 \\
+    BUF & 2 & EDM & 3 \\
+\end{tabular}
+\end{minipage}
+\end{table}
+
+\end{document}

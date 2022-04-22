@@ -123,7 +123,7 @@ class DataBaseOperations():
         sc_selections = pd.read_sql_query(
                 f'SELECT * FROM StanleyCupSelections WHERE Year={year}', self.conn)
         individuals = sc_selections.loc[:,'IndividualID'].apply(self._get_individual_from_id)
-        sc_selections.drop('IndividualID', axis='columns', inplace=True)
+        sc_selections.drop(['Year','IndividualID'], axis='columns', inplace=True)
         sc_selections.insert(0,'Individual', individuals)
         sc_selections.set_index('Individual', inplace=True)
         return sc_selections
@@ -197,6 +197,27 @@ class DataBaseOperations():
             warnings.warn('The series does not exist in the database')
         return series_id
 
+    def get_all_series_in_round(self, year, playoff_round):
+        '''Return all the series data for the playoff round in the given year'''
+        checks.check_if_year_is_valid(year)
+        series_data = pd.read_sql_query(
+            f'SELECT * FROM Series WHERE Year="{year}" and Round="{playoff_round}"',
+            self.conn).sort_values(by=['Conference','SeriesNumber'])
+        return series_data
+
+    def get_teams_in_year_round(self, year, playoff_round):
+        '''Get list of team pairs for each series in each conference'''
+        series_data = self.get_all_series_in_round(year, playoff_round)
+        if playoff_round in [1,2,3]:
+            full_east_data = series_data.query('Conference=="East"')
+            full_west_data = series_data.query('Conference=="West"')
+            east_data = full_east_data[['TeamHigherSeed','TeamLowerSeed']].values.tolist()
+            west_data = full_west_data[['TeamHigherSeed','TeamLowerSeed']].values.tolist()
+            return [east_data, west_data]
+        elif playoff_round == 4:
+            finals_data = series_data[['TeamHigherSeed','TeamLowerSeed']].values.tolist()
+            return finals_data
+
     def add_series_selections(self,
             year, playoff_round, conference, series_number,
             first_name, last_name,
@@ -264,7 +285,7 @@ class DataBaseOperations():
             ORDER BY FirstName, LastName, Conference, SeriesNumber
             ''', self.conn)
         series_data['Name'] = series_data['FirstName'] + ' ' + series_data['LastName']
-        series_data.drop(['FirstName', 'LastName', 'SeriesNumber'], axis='columns', inplace=True)
+        series_data.drop(['FirstName', 'LastName'], axis='columns', inplace=True)
         return series_data
 
     def add_series_results(self,
@@ -305,4 +326,19 @@ class DataBaseOperations():
                 f'WHERE YearRoundSeriesID={series_id}',\
                 self.conn)
         series_data.drop('YearRoundSeriesID', axis='columns', inplace=True)
+        return series_data
+
+    def get_all_round_results(self, year, playoff_round):
+        '''Return all the results for a playoff round in a pandas dataframe'''
+        checks.check_if_year_is_valid(year)
+        series_data = pd.read_sql_query(f'''
+            SELECT Ser.Conference, Ser.SeriesNumber,
+                SR.Winner, SR.Games, Sr.Player
+            FROM SeriesResults as SR
+            Inner JOIN Series as Ser
+            ON Ser.YearRoundSeriesID = SR.YearRoundSeriesID
+            WHERE Ser.Year = {year}
+            AND Ser.Round = {playoff_round}
+            ORDER BY Conference, SeriesNumber
+            ''', self.conn)
         return series_data
