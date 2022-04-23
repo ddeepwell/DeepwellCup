@@ -224,5 +224,3 @@ def import_2006_data(db_ops):
             ['Michael','D', ['Edmonton Oilers',7]]
         ]
         db.add_series_selections_for_conference(year, playoff_round, None, final_selections)
-
-    print('hi')
