@@ -43,7 +43,8 @@ class DataBaseOperations():
         return exists
 
     def get_individuals(self):
-        '''Return a list of all individuals from the database'''
+        '''Return a list of all individuals from the database
+        The name will be a pair of the first name and last initial'''
         return self.cursor.execute('SELECT FirstName, LastName FROM Individuals').fetchall()
 
     def add_new_individual(self, first_name, last_name):
