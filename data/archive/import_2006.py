@@ -1,9 +1,13 @@
 '''Import the data for 2006'''
 
-def import_2006_data(db_ops):
+from scripts.database import DataBaseOperations
+
+def import_2006_data():
     '''Function to add 2006 data to database'''
 
+    db_ops = DataBaseOperations()
     year = 2006
+
     with db_ops as db:
         # add new individuals
         db.add_new_individual('Daniel','S')

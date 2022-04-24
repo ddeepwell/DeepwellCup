@@ -6,10 +6,13 @@ import os
 from pathlib import Path
 import pandas as pd
 from scripts.nhl_teams import shorten_team_name
+from scripts.database import DataBaseOperations
 
 
-def make_latex_file(year, playoff_round, db_ops):
+def make_latex_file(year, playoff_round):
     '''Create the latex file from the pandas dataframe for the round'''
+
+    db_ops = DataBaseOperations()
 
     # import data from database
     with db_ops as db:

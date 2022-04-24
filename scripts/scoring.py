@@ -2,9 +2,12 @@
 Functions for creating tables for scores within a year
 '''
 import pandas as pd
+from scripts.database import DataBaseOperations
 
-def year_points_table(year, db_ops):
+def year_points_table(year):
     '''Create a table of the points per round for everyone'''
+
+    db_ops = DataBaseOperations()
 
     # import the picks and results for each round
     series_results = []
