@@ -227,7 +227,7 @@ class TestDatabase:
             db.add_stanley_cup_selection(year,
                 first_name, last_name, east_pick, west_pick, scc_pick)
             sc_selections = db.get_stanley_cup_selections(2012)
-        expected_list = [year, east_pick, west_pick, scc_pick, None]
+        expected_list = [east_pick, west_pick, scc_pick, None]
         assert all(sc_selections.values[0] == expected_list)
 
     def test_stanley_cup_results(self, temp_database):
