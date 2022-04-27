@@ -103,8 +103,6 @@ def year_chart(year, max_round='Conference', save=False):
         file_name = fig_title.replace(' ','')
         save_figure(file_name, year)
 
-    # display plot inline (if running jupyter-notebook)
-    plt.show()
 
 def add_legend(axis_list):
     '''Add a legend'''

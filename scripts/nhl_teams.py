@@ -7,6 +7,8 @@ def shorten_team_name(team):
 
     if team == 'Anaheim Ducks':
         return_val = 'ANA'
+    if team == 'Atlanta Thrashers':
+        return_val = 'ATL'
     elif team == 'Arizona Coyotes':
         return_val = 'ARI'
     elif team == 'Boston Bruins':

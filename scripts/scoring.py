@@ -56,60 +56,60 @@ class IndividualScoring():
 
     def __init__(self, year):
         self.year = year
-        if year == 2006:
-            self.stanley_cup_points = self._stanley_cup_points_2006
-            self.round_points = self._round_points_2006
+        if year in [2006, 2007]:
+            self.stanley_cup_points = _stanley_cup_points_2006_2007
+            self.round_points = _round_points_2006_2007
 
-    def _stanley_cup_points_2006(self, individual_selections, results):
-        '''Return the points for an individual in the stanley cup round in 2006
-            individual_selections is the dataframe of just the indivuals picks
-            results are the dataframe of the results
-            Points are not awarded for selecting a team in the final, but with the wrong outcome
-            ie. Winner when the team was a runner up, or vice versa
-        '''
+def _stanley_cup_points_2006_2007(individual_selections, results):
+    '''Return the points for an individual in the stanley cup round in 2006
+        individual_selections is the dataframe of just the indivuals picks
+        results are the dataframe of the results
+        Points are not awarded for selecting a team in the final, but with the wrong outcome
+        ie. Winner when the team was a runner up, or vice versa
+    '''
 
-        # find a subset of selections
-        team_selections = individual_selections[ \
-            ['EastSelection','WestSelection','StanleyCupSelection']].values.tolist()[0]
-        stanley_selection = individual_selections[['StanleyCupSelection']].values.tolist()[0][0]
+    # find a subset of selections
+    team_selections = individual_selections[ \
+        ['EastSelection','WestSelection','StanleyCupSelection']].values.tolist()[0]
+    stanley_selection = individual_selections[['StanleyCupSelection']].values.tolist()[0][0]
 
-        # find runner-up
-        stanley_winner = results['StanleyCupWinner'][0]
-        mask = results[['EastWinner','WestWinner']] != stanley_winner
-        runnerup = results[['EastWinner','WestWinner']][mask].dropna(axis='columns').loc[0][0]
+    # find runner-up
+    stanley_winner = results['StanleyCupWinner'][0]
+    mask = results[['EastWinner','WestWinner']] != stanley_winner
+    runnerup = results[['EastWinner','WestWinner']][mask].dropna(axis='columns').loc[0][0]
 
-        # points for stanley cup winner pick
-        if stanley_selection == results['StanleyCupWinner'][0]:
-            winner_points = 25
-        else:
-            winner_points = 0
+    # points for stanley cup winner pick
+    if stanley_selection == results['StanleyCupWinner'][0]:
+        winner_points = 25
+    else:
+        winner_points = 0
 
-        # points for stanley cup runner-up pick
-        predicted_runnerup = runnerup in team_selections and runnerup != stanley_selection
-        if predicted_runnerup:
-            runnerup_points = 15
-        else:
-            runnerup_points = 0
+    # points for stanley cup runner-up pick
+    predicted_runnerup = runnerup in team_selections and runnerup != stanley_selection
+    if predicted_runnerup:
+        runnerup_points = 15
+    else:
+        runnerup_points = 0
 
-        score = winner_points + runnerup_points
-        return score
+    score = winner_points + runnerup_points
+    return score
 
-    def _round_points_2006(self, individual_selections, results):
-        '''Return the points for an individual for a round in 2006
-            individual_selections are the picks made by one individual in that round
-            results are the results of the round as given by db.get_all_round_results()
-        '''
+def _round_points_2006_2007(individual_selections, results):
+    '''Return the points for an individual for a round in 2006
+        individual_selections are the picks made by one individual in that round
+        results are the results of the round as given by db.get_all_round_results()
+    '''
 
-        merged_table = pd.merge(individual_selections, results, \
-                            on=['Conference','SeriesNumber'], how='inner')
-        matching_teams = merged_table.query('TeamSelection==Winner')
-        matching_games = merged_table.query('GameSelection==Games')
+    merged_table = pd.merge(individual_selections, results, \
+                        on=['Conference','SeriesNumber'], how='inner')
+    matching_teams = merged_table.query('TeamSelection==Winner')
+    matching_games = merged_table.query('GameSelection==Games')
 
-        num_correct_teams = len(matching_teams)
-        num_correct_games = len(matching_games)
-        num_correct_7game_series = len(merged_table.query('GameSelection==Games and Games==7'))
+    num_correct_teams = len(matching_teams)
+    num_correct_games = len(matching_games)
+    num_correct_7game_series = len(merged_table.query('GameSelection==Games and Games==7'))
 
-        score = num_correct_teams * 10 + \
-                num_correct_games * 7 + \
-                num_correct_7game_series * 2
-        return score
+    score = num_correct_teams * 10 + \
+            num_correct_games * 7 + \
+            num_correct_7game_series * 2
+    return score

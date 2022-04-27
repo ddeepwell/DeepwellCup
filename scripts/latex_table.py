@@ -246,7 +246,7 @@ def create_main_table_stanley_picks(year, stanley_data, individuals):
     champ_stanley = "          Stanley Cup"
     # individual's picks for the conference champions
     for ii, individual in enumerate(individuals):
-        if year == 2006:
+        if year in [2006, 2007]:
             # in 2006 everyone picked the length of the Stanley Cup Finals
             # at the beginning of the playoffs
             if ii%2 == 0:
@@ -317,13 +317,19 @@ def create_supplementary_info(year, playoff_round, round_data, teams, base_dir):
 #     &7 & 3 & 4 & 5 & 6
 # \\end{tabular}
 # \\end{minipage}'''
-    points_tables += f'''
+    if playoff_round in [2,3,4]:
+        points_tables += f'''
 \\begin{{wrapfigure}}{{r}}{{0.01\\textwidth}}
     \\vspace{{-3cm}}
-	\\includegraphics[width=5in]{{{base_dir}/figures/{year}/Points-2006-Round{playoff_round-1}.pdf}}
+	\\includegraphics[width=5in]{{{base_dir}/figures/{year}/Points-{year}-Round{playoff_round-1}.pdf}}
 \\end{{wrapfigure}}
 \\end{{minipage}}
 \\end{{table}}
+'''
+    else:
+        points_tables += '''
+\\end{minipage}
+\\end{table}
 '''
 
     # tables listing the number of picks per team
