@@ -2,6 +2,7 @@
 .env
 .venv
 .vscode
+*.pyc
 __pycache__
 *.log
 *.aux

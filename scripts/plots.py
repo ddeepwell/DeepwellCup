@@ -13,24 +13,36 @@ font = {'family' : 'serif',
         'size'   : 12}
 mpl.rc('font', **font)
 
-def year_chart(year, save=False):
+def year_chart(year, max_round='Conference', save=False):
     '''Create a bar chart of the points standings in a year
     '''
 
-    # sort individuals by total score
     points_unsorted_df = year_points_table(year)
-    player_rankings = points_unsorted_df.loc['Total'].sort_values(ascending=True).index
+    round_names = points_unsorted_df.index[:-1].tolist()
+
+    # parse which rounds to plot
+    # In some years, after the third round you some individuals
+    # may have points from their conference selection and this should be reflected in the plot
+    # will add this later
+    if max_round in [1,2,3,4]:
+        max_round_name = f'Round {max_round}'
+    else:
+        max_round_name = max_round
+    max_round_index = round_names.index(max_round_name)
+    rounds_to_plot = round_names[:max_round_index+1]
+    max_points = points_unsorted_df.loc[rounds_to_plot].sum().max()
+
+    # sort individuals by total score
+    player_rankings = points_unsorted_df.loc[rounds_to_plot].sum().sort_values(ascending=True).index
     points_df = points_unsorted_df.reindex(player_rankings, axis='columns')
 
     # gather extra data
     individuals = points_df.columns
     num_individuals = len(individuals)
-    rounds = points_df.index[:-1].tolist()
-    max_points = max(points_df.loc['Total'])
 
     # set plot colours
     round_colors = ['#95c4e8','#a3e6be','#fbee9d','#fbbf9d','#e29dfb']
-    colors = dict(zip(rounds, round_colors))
+    colors = dict(zip(round_names, round_colors))
 
     # set-up figure
     fig = plt.figure(figsize=(8, 0.5*num_individuals))
@@ -39,7 +51,7 @@ def year_chart(year, save=False):
     for individual_i, individual in enumerate(individuals):
         left = 0
         axis_list = []
-        for playoff_round in rounds:
+        for playoff_round in rounds_to_plot:
             round_points = points_df[individual][playoff_round]
             if not np.isnan(round_points):
                 axis_list.append(
@@ -59,10 +71,10 @@ def year_chart(year, save=False):
                 # if round_points != 0:
                 axis.text(x_round, y_individual, f'{round_points}', ha='center', va='center')
                 left += round_points
-            if playoff_round == 'Conference':
+            if playoff_round == rounds_to_plot[-1]:
                 # add total sum of points outside bar graph
                 x_total = left + max_points/25
-                total_points = points_df[individual]['Total']
+                total_points = points_df[individual].loc[rounds_to_plot].sum()
                 axis.text(x_total, y_individual, f'{total_points}', ha='center',va='center')
 
     # set axis and add labels
@@ -71,6 +83,10 @@ def year_chart(year, save=False):
     axis.set_yticklabels(individuals)
     axis.set_xlim(0, max_points*1.02)
     fig_title = f'Points - {year}'
+    if max_round_name != 'Conference':
+        fig_title = f'{fig_title} - {max_round_name}'
+    # add functionality for incomplete years
+    # add Round to title even without specifying max_round
     plt.title(fig_title)
 
     # remove axis lines
@@ -86,9 +102,6 @@ def year_chart(year, save=False):
         # save figure for year
         file_name = fig_title.replace(' ','')
         save_figure(file_name, year)
-        # save figure at current round
-        # file_name = f'{fig_title.split()[0]}-round{highest_round}'
-        # save_figure(file_name, year)
 
     # display plot inline (if running jupyter-notebook)
     plt.show()
