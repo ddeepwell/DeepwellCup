@@ -9,6 +9,7 @@
 \usepackage{multirow}
 \usepackage[table]{xcolor}
 \usepackage{ctable}
+\usepackage{wrapfig}
 \usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
@@ -79,8 +80,14 @@
     Stanley Cup champion:	& 25\\
     Stanley Cup runner-up:	& 15\\
 \end{tabular}
-\end{minipage}
 \hspace{0.5cm}
+\begin{wrapfigure}{r}{0.01\textwidth}
+    \vspace{-3cm}
+	\includegraphics[width=5in]{/Users/daviddeepwell/Documents/Hockey/HockeyPool/DeepwellCup/figures/2006/Points-2006-Round2.pdf}
+\end{wrapfigure}
+\end{minipage}
+\end{table}
+
 \begin{minipage}[t]{.45\linewidth}
 {\bf Number of picks per team:}\\
 \begin{tabular}{lc | lc }
@@ -88,6 +95,5 @@
     BUF & 2 & EDM & 3 \\
 \end{tabular}
 \end{minipage}
-\end{table}
 
 \end{document}

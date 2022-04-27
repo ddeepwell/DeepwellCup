@@ -23,18 +23,18 @@ def make_latex_file(year, playoff_round):
         elif playoff_round == 4:
             teams = db.get_teams_in_year_round(year, playoff_round)
 
-    # create section of the latex file
-    head_matter = create_head_matter(year)
-    main_table = create_main_table(year, playoff_round, round_data, stanley_data, teams)
-    end_section = create_supplementary_info(playoff_round, round_data, teams)
-    foot_matter = '\n\\end{document}'
-    # put all section together
-    all_lines = head_matter + main_table + end_section + foot_matter
-
     # find absolute path of tables directory
     scripts_dir = Path(os.path.dirname(__file__))
     base_dir = scripts_dir.parent
     table_dir = base_dir / 'tables' / f'{year}'
+
+    # create section of the latex file
+    head_matter = create_head_matter(year)
+    main_table = create_main_table(year, playoff_round, round_data, stanley_data, teams)
+    end_section = create_supplementary_info(year, playoff_round, round_data, teams, base_dir)
+    foot_matter = '\n\\end{document}'
+    # put all section together
+    all_lines = head_matter + main_table + end_section + foot_matter
 
     # write to document
     if not os.path.exists(table_dir):
@@ -83,6 +83,7 @@ def create_head_matter(year):
 \\usepackage{multirow}
 \\usepackage[table]{xcolor}
 \\usepackage{ctable}
+\\usepackage{wrapfig}
 \\usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \\newcommand{\\mcn}[2]{\\multicolumn{#1}{l}{#2}}	
@@ -271,7 +272,7 @@ def create_main_table_stanley_picks(year, stanley_data, individuals):
     champ_section = champtitle + champ_east + champ_west + champ_stanley
     return champ_section
 
-def create_supplementary_info(playoff_round, round_data, teams):
+def create_supplementary_info(year, playoff_round, round_data, teams, base_dir):
     '''Create the bottom portion of the document
     That is, the points system, and counts of picks per team'''
 
@@ -291,7 +292,6 @@ def create_supplementary_info(playoff_round, round_data, teams):
     Stanley Cup champion:	& 25\\\\
     Stanley Cup runner-up:	& 15\\\\
 \\end{tabular}
-\\end{minipage}
 \\hspace{0.5cm}'''
 # %
 # \\begin{minipage}[t]{0.12\\linewidth}
@@ -317,6 +317,14 @@ def create_supplementary_info(playoff_round, round_data, teams):
 #     &7 & 3 & 4 & 5 & 6
 # \\end{tabular}
 # \\end{minipage}'''
+    points_tables += f'''
+\\begin{{wrapfigure}}{{r}}{{0.01\\textwidth}}
+    \\vspace{{-3cm}}
+	\\includegraphics[width=5in]{{{base_dir}/figures/{year}/Points-2006-Round{playoff_round-1}.pdf}}
+\\end{{wrapfigure}}
+\\end{{minipage}}
+\\end{{table}}
+'''
 
     # tables listing the number of picks per team
     summed_picks_start = f'''
@@ -356,6 +364,5 @@ def create_supplementary_info(playoff_round, round_data, teams):
     summed_picks_table = summed_picks_start + higher_seed_line + \
                             lower_seed_line + summed_picks_finish
 
-    end_section_finish = '\\end{table}\n'
-    end_section = end_section_start + points_tables + summed_picks_table + end_section_finish
+    end_section = end_section_start + points_tables + summed_picks_table
     return end_section
