@@ -59,9 +59,12 @@ class IndividualScoring():
         if year in [2006, 2007]:
             self.stanley_cup_points = _stanley_cup_points_2006_2007
             self.round_points = _round_points_2006_2007
+        elif year == 2008:
+            self.stanley_cup_points = _stanley_cup_points_2008
+            self.round_points = _round_points_2008
 
 def _stanley_cup_points_2006_2007(individual_selections, results):
-    '''Return the points for an individual in the stanley cup round in 2006
+    '''Return the points for an individual in the stanley cup round in 2006 and 2007
         individual_selections is the dataframe of just the indivuals picks
         results are the dataframe of the results
         Points are not awarded for selecting a team in the final, but with the wrong outcome
@@ -95,7 +98,7 @@ def _stanley_cup_points_2006_2007(individual_selections, results):
     return score
 
 def _round_points_2006_2007(individual_selections, results):
-    '''Return the points for an individual for a round in 2006
+    '''Return the points for an individual for a round in 2006 and 2007
         individual_selections are the picks made by one individual in that round
         results are the results of the round as given by db.get_all_round_results()
     '''
@@ -112,4 +115,53 @@ def _round_points_2006_2007(individual_selections, results):
     score = num_correct_teams * 10 + \
             num_correct_games * 7 + \
             num_correct_7game_series * 2
+    return score
+
+def _stanley_cup_points_2008(individual_selections, results):
+    '''Return the points for an individual in the stanley cup round in 2008
+        individual_selections is the dataframe of just the indivuals picks
+        results are the dataframe of the results
+        There are no points for length of Stanley Cup series, although they were chosen
+    '''
+
+    # find selections
+    conference_selections = individual_selections[ \
+                                    ['EastSelection','WestSelection']].values.tolist()[0]
+    stanley_selection = individual_selections[['StanleyCupSelection']].values.tolist()[0][0]
+
+    # find winners
+    stanley_winner = results['StanleyCupWinner'][0]
+    conference_winners = list(results[['EastWinner','WestWinner']].loc[0].values)
+
+    # points for stanley cup finalists
+    finalist_points = 0
+    for team in conference_selections:
+        if team in conference_winners:
+            finalist_points += 15
+
+    # points for stanley cup winner pick
+    if stanley_selection == stanley_winner:
+        stanley_points = 10
+    else:
+        stanley_points = 0
+
+    score = finalist_points + stanley_points
+    return score
+
+def _round_points_2008(individual_selections, results):
+    '''Return the points for an individual for a round in 2006 and 2007
+        individual_selections are the picks made by one individual in that round
+        results are the results of the round as given by db.get_all_round_results()
+    '''
+
+    merged_table = pd.merge(individual_selections, results, \
+                        on=['Conference','SeriesNumber'], how='inner')
+    matching_teams = merged_table.query('TeamSelection==Winner')
+    matching_games = merged_table.query('GameSelection==Games')
+
+    num_correct_teams = len(matching_teams)
+    num_correct_games = len(matching_games)
+
+    score = num_correct_teams * 7 + \
+            num_correct_games * 10
     return score

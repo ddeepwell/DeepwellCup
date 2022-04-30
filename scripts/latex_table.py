@@ -246,8 +246,8 @@ def create_main_table_stanley_picks(year, stanley_data, individuals):
     champ_stanley = "          Stanley Cup"
     # individual's picks for the conference champions
     for ii, individual in enumerate(individuals):
-        if year in [2006, 2007]:
-            # in 2006 everyone picked the length of the Stanley Cup Finals
+        if year in [2006, 2007, 2008]:
+            # in 2006, 2007, and 2008 everyone picked the length of the Stanley Cup Finals
             # at the beginning of the playoffs
             if ii%2 == 0:
                 champ_east    += f' & \\mclg{{{stn(stanley_data["EastSelection"][individual])}}}'
