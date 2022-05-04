@@ -70,3 +70,70 @@ def shorten_team_name(team):
     elif team == 'Winnipeg Jets':
         return_val = 'WPG'
     return return_val
+
+def lengthen_team_name( team ):
+    '''Lengthen the team name from its acronym'''
+
+    if team == 'ANA':
+        return_val = 'Anaheim Ducks'
+    elif team == 'ARI':
+        return_val = 'Arizona Coyotes'
+    elif team == 'BOS':
+        return_val = 'Boston Bruins'
+    elif team == 'BUF':
+        return_val = 'Buffalo Sabres'
+    elif team == 'CGY':
+        return_val = 'Calgary Flames'
+    elif team == 'CAR':
+        return_val = 'Carolina Hurricanes'
+    elif team == 'CHI':
+        return_val = 'Chicago Blackhawks'
+    elif team == 'COL':
+        return_val = 'Colorado Avalanche'
+    elif team == 'CBJ':
+        return_val = 'Columbus Blue Jackets'
+    elif team == 'DAL':
+        return_val = 'Dallas Stars'
+    elif team == 'DET':
+        return_val = 'Detroit Red Wings'
+    elif team == 'EDM':
+        return_val = 'Edmonton Oilers'
+    elif team == 'FLA':
+        return_val = 'Florida Panthers'
+    elif team == 'LAK':
+        return_val = 'Los Angeles Kings'
+    elif team == 'MIN':
+        return_val = 'Minnesota Wild'
+    elif team == 'MTL':
+        return_val = 'Montreal Canadiens'
+    elif team == 'NSH':
+        return_val = 'Nashville Predators'
+    elif team == 'NJD':
+        return_val = 'New Jersey Devils'
+    elif team == 'NYI':
+        return_val = 'New York Islanders'
+    elif team == 'NYR':
+        return_val = 'New York Rangers'
+    elif team == 'OTT':
+        return_val = 'Ottawa Senators'
+    elif team == 'PHI':
+        return_val = 'Philadelphia Flyers'
+    elif team == 'PIT':
+        return_val = 'Pittsburgh Penguins'
+    elif team == 'SJS':
+        return_val = 'San Jose Sharks'
+    elif team == 'STL':
+        return_val = 'St Louis Blues'
+    elif team == 'TBL':
+        return_val = 'Tampa Bay Lightning'
+    elif team == 'TOR':
+        return_val = 'Toronto Maple Leafs'
+    elif team == 'VAN':
+        return_val = 'Vancouver Canucks'
+    elif team == 'VGK':
+        return_val = 'Vegas Golden Knights'
+    elif team == 'WSH':
+        return_val = 'Washington Capitals'
+    elif team == 'WPG':
+        return_val = 'Winnipeg Jets'
+    return return_val
