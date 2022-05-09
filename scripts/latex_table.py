@@ -246,26 +246,36 @@ def create_main_table_stanley_picks(year, stanley_data, individuals):
     champ_stanley = "          Stanley Cup"
     # individual's picks for the conference champions
     for ii, individual in enumerate(individuals):
+        try:
+            stanley_east_pick = stn(stanley_data["EastSelection"][individual])
+            stanley_west_pick = stn(stanley_data["WestSelection"][individual])
+            stanley_cup_pick = stn(stanley_data["StanleyCupSelection"][individual])
+            stanley_game_pick = stanley_data["GameSelection"][individual]
+        except KeyError:
+            # the individual was not playing during the first round and had no
+            # championship round selections
+            stanley_east_pick = ''
+            stanley_west_pick = ''
+            stanley_cup_pick = ''
         if year in [2006, 2007, 2008]:
             # in 2006, 2007, and 2008 everyone picked the length of the Stanley Cup Finals
             # at the beginning of the playoffs
             if ii%2 == 0:
-                champ_east    += f' & \\mclg{{{stn(stanley_data["EastSelection"][individual])}}}'
-                champ_west    += f' & \\mclg{{{stn(stanley_data["WestSelection"][individual])}}}'
+                champ_east    += f' & \\mclg{{{stanley_east_pick}}}'
+                champ_west    += f' & \\mclg{{{stanley_west_pick}}}'
             else:
-                champ_east +=    f' & \\mcl{{{stn(stanley_data["EastSelection"][individual])}}}'
-                champ_west +=    f' & \\mcl{{{stn(stanley_data["WestSelection"][individual])}}}'
-            champ_stanley += f' & {stn(stanley_data["StanleyCupSelection"][individual])}' + \
-                                    f' & {stanley_data["GameSelection"][individual]}'
+                champ_east +=    f' & \\mcl{{{stanley_east_pick}}}'
+                champ_west +=    f' & \\mcl{{{stanley_west_pick}}}'
+            champ_stanley += f' & {stanley_cup_pick} & {stanley_game_pick}'
         else:
             if ii%2 == 0:
-                champ_east    += f' & \\mclg{{{stn(stanley_data["EastSelection"][individual])}}}'
-                champ_west    += f' & \\mclg{{{stn(stanley_data["WestSelection"][individual])}}}'
-                champ_stanley += f' & \\mclg{{{stn(stanley_data["StanleyCupSelection"][individual])}}}'
+                champ_east    += f' & \\mclg{{{stanley_east_pick}}}'
+                champ_west    += f' & \\mclg{{{stanley_west_pick}}}'
+                champ_stanley += f' & \\mclg{{{stanley_cup_pick}}}'
             else:
-                champ_east +=    f' & \\mcl{{{stn(stanley_data["EastSelection"][individual])}}}'
-                champ_west +=    f' & \\mcl{{{stn(stanley_data["WestSelection"][individual])}}}'
-                champ_stanley += f' & \\mcl{{{stn(stanley_data["StanleyCupSelection"][individual])}}}'
+                champ_east +=    f' & \\mcl{{{stanley_east_pick}}}'
+                champ_west +=    f' & \\mcl{{{stanley_west_pick}}}'
+                champ_stanley += f' & \\mcl{{{stanley_cup_pick}}}'
     champ_east += "\\\\\n"
     champ_west += "\\\\\n"
 
