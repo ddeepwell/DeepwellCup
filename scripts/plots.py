@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from scripts.scoring import year_points_table
+from scripts.scores import year_points_table
 
 # set font to look like Latex
 font = {'family' : 'serif',
