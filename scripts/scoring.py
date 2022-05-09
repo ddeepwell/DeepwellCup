@@ -46,7 +46,7 @@ def year_points_table(year):
                     1: "Round 2",
                     2: "Round 3",
                     3: "Round 4",
-                    4: "Conference",
+                    4: "Champions",
                     5: "Total"},
                 inplace=True)
     return df
@@ -149,7 +149,7 @@ def _stanley_cup_points_2008(individual_selections, results):
     return score
 
 def _round_points_2008(individual_selections, results):
-    '''Return the points for an individual for a round in 2006 and 2007
+    '''Return the points for an individual for a round in 2008
         individual_selections are the picks made by one individual in that round
         results are the results of the round as given by db.get_all_round_results()
     '''

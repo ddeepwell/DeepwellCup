@@ -13,7 +13,7 @@ font = {'family' : 'serif',
         'size'   : 12}
 mpl.rc('font', **font)
 
-def year_chart(year, max_round='Conference', save=False):
+def year_chart(year, max_round='Champions', save=False):
     '''Create a bar chart of the points standings in a year
     '''
 
@@ -22,7 +22,7 @@ def year_chart(year, max_round='Conference', save=False):
 
     # parse which rounds to plot
     # In some years, after the third round you some individuals
-    # may have points from their conference selection and this should be reflected in the plot
+    # may have points from their champions selection and this should be reflected in the plot
     # will add this later
     if max_round in [1,2,3,4]:
         max_round_name = f'Round {max_round}'
@@ -83,7 +83,7 @@ def year_chart(year, max_round='Conference', save=False):
     axis.set_yticklabels(individuals)
     axis.set_xlim(0, max_points*1.02)
     fig_title = f'Points - {year}'
-    if max_round_name != 'Conference':
+    if max_round_name != 'Champions':
         fig_title = f'{fig_title} - {max_round_name}'
     # add functionality for incomplete years
     # add Round to title even without specifying max_round

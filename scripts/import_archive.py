@@ -18,7 +18,7 @@ elif year == 2008:
 dc.year_chart(year, max_round=1, save=True)
 dc.year_chart(year, max_round=2, save=True)
 dc.year_chart(year, max_round=3, save=True)
-dc.year_chart(year, max_round='Conference', save=True)
+dc.year_chart(year, max_round='Champions', save=True)
 
 # create latex files
 for playoff_round in range(1,5):
