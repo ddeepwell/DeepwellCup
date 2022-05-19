@@ -7,7 +7,7 @@ from pathlib import Path
 import pandas as pd
 from scripts.nhl_teams import shorten_team_name
 from scripts.database import DataBaseOperations
-
+from scripts.scores import IndividualScoring
 
 def make_latex_file(year, playoff_round):
     '''Create the latex file from the pandas dataframe for the round'''
@@ -83,7 +83,7 @@ def create_head_matter(year):
 \\usepackage{multirow}
 \\usepackage[table]{xcolor}
 \\usepackage{ctable}
-\\usepackage{wrapfig}
+\\usepackage{float}
 \\usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \\newcommand{\\mcn}[2]{\\multicolumn{#1}{l}{#2}}	
@@ -98,14 +98,11 @@ def create_head_matter(year):
 
 \\newcommand{\\thickline}{\\specialrule{.1em}{.05em}{.05em}}
 
+\\setlength\\parindent{0pt}
+
 % column colours
 \\newcolumntype{g}{>{\\columncolor{Gray}}l}
 \\newcolumntype{w}{>{\\columncolor{white}}l}
-
-
-%\\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
-%\\geometry{letterpaper}                    % ... or a4paper or a5paper or ... 
-%\\geometry{landscape}                		% Activate for for rotated page geometry
 
 %----------------------------------------------------------------------------------------
 %	Create new commands
@@ -286,71 +283,64 @@ def create_supplementary_info(year, playoff_round, round_data, teams, base_dir):
     '''Create the bottom portion of the document
     That is, the points system, and counts of picks per team'''
 
+    # tables describing the scoring system
+    points_tables = f'''
+{{\\bf Points}}\\\\
+\\begin{{minipage}}{{12cm}}
+{create_points_description(year)}
+
+    \\vspace{{1cm}}
+{create_picks_per_team(playoff_round, round_data, teams)}
+\\end{{minipage}}
+'''
+
+    if playoff_round in [2,3,4]:
+        figure_minipage = create_figure_section(year, playoff_round, base_dir)
+    else:
+        figure_minipage = ''
+
+    return points_tables + figure_minipage
+
+def create_points_description(year):
+    '''Create the description for the points system for the given year'''
+
+    scoring = IndividualScoring(year)
+    system = scoring.points_system()
+
+    header = '    \\begin{tabular}{l l}'
+
+    descriptor = f'''
+        Correct team:	& ${system['correct_team']}$\\\\
+        Correct series length (regardless of series winner):	& ${system['correct_length']}$\\\\'''
+    if year in [2006, 2007]:
+        descriptor += f'''
+        Correct team in a seven game series    & ${system['correct_7game_series']}$\\\\
+        Stanley Cup champion:	& {system['stanley_cup_winner']}\\\\
+        Stanley Cup runner-up:	& {system['stanley_cup_runnerup']}\\\\
+'''
+    elif year == 2008:
+        descriptor += f'''
+        Stanley Cup champion (in addition to finalist):	& {system['stanley_cup_winner']}\\\\
+        Stanley Cup finalist:	& {system['stanley_cup_finalist']}\\\\
+'''
+
+    footer = '    \\end{tabular}'
+
+    return header + descriptor + footer
+
+def create_picks_per_team(playoff_round, round_data, teams):
+    '''Create the table of the selections per team'''
+
     stn = shorten_team_name
     num_series = number_of_series_in_round(playoff_round)
 
-    end_section_start = '\n\\begin{table}[!htb]'
-
-    # tables describing the scoring system
-    points_tables = '''
-\\begin{minipage}[t]{.27\\linewidth}
-{\\bf Points}\\\\
-\\begin{tabular}{l l}
-    Correct team:	& $10$\\\\
-    Correct series length (regardless of series winner):	& $7$\\\\
-    Correct team in a seven game series    & $2$\\\\
-    Stanley Cup champion:	& 25\\\\
-    Stanley Cup runner-up:	& 15\\\\
-\\end{tabular}
-\\hspace{0.5cm}'''
-# %
-# \\begin{minipage}[t]{0.12\\linewidth}
-# \\qquad Correct team\\\\
-# \\begin{tabular}{c l | c c c c }
-#     \\mccn{2}{} & \\mccn{4}{Predicted}\\\\
-#     & & 4 & 5 & 6 & 7\\\\\\cline{2-6}
-#     \\parbox[t]{2mm}{\\multirow{4}{*}{\\rotatebox[origin=c]{90}{Actual}}}& 4 & 15 & 13 & 11 & 9\\\\
-#     & 5 & 13 & 15 & 13 & 11\\\\
-#     & 6 & 11 & 13 & 15 & 13\\\\
-#     & 7 &  9 & 11 & 13 & 15
-# \\end{tabular}
-# \\end{minipage}
-# %
-# \\begin{minipage}[t]{0.12\\linewidth}
-# \\qquad Incorrect team\\\\
-# \\begin{tabular}{c l | c c c c }
-#     \\mccn{2}{} & \\mccn{4}{Predicted}\\\\
-#     & & 4 & 5 & 6 & 7\\\\\\cline{2-6}
-#     \\parbox[t]{2mm}{\\multirow{4}{*}{\\rotatebox[origin=c]{90}{Actual}}}&4 & 0 & 1 & 2 & 3\\\\
-#     &5 & 1 & 2 & 3 & 4\\\\
-#     &6 & 2 & 3 & 4 & 5\\\\
-#     &7 & 3 & 4 & 5 & 6
-# \\end{tabular}
-# \\end{minipage}'''
-    if playoff_round in [2,3,4]:
-        points_tables += f'''
-\\begin{{wrapfigure}}{{r}}{{0.01\\textwidth}}
-    \\vspace{{-3cm}}
-	\\includegraphics[width=5in]{{{base_dir}/figures/{year}/Points-{year}-Round{playoff_round-1}.pdf}}
-\\end{{wrapfigure}}
-\\end{{minipage}}
-\\end{{table}}
-'''
-    else:
-        points_tables += '''
-\\end{minipage}
-\\end{table}
+    summed_picks_start = \
+f'''    {{\\bf Number of picks per team:}}\\\\
+    \\begin{{tabular}}{{lc {(num_series-1)*"| lc "}}}
 '''
 
-    # tables listing the number of picks per team
-    summed_picks_start = f'''
-\\begin{{minipage}}[t]{{.45\\linewidth}}
-{{\\bf Number of picks per team:}}\\\\
-\\begin{{tabular}}{{lc {(num_series-1)*"| lc "}}}
-'''
-
-    higher_seed_line = "    "
-    lower_seed_line  = "    "
+    higher_seed_line = "        "
+    lower_seed_line  = "        "
     picks_per_team = round_data['TeamSelection'].value_counts()
     if playoff_round in [1,2,3]:
         all_teams = teams[0]+ teams[1]
@@ -374,11 +364,20 @@ def create_supplementary_info(year, playoff_round, round_data, teams, base_dir):
     lower_seed_line  =  lower_seed_line[:-2]+"\\\\"
 
     summed_picks_finish = '''
-\\end{tabular}
-\\end{minipage}
-'''
+    \\end{tabular}'''
     summed_picks_table = summed_picks_start + higher_seed_line + \
                             lower_seed_line + summed_picks_finish
 
-    end_section = end_section_start + points_tables + summed_picks_table
-    return end_section
+    return summed_picks_table
+
+def create_figure_section(year, playoff_round, base_dir):
+    '''Create minipage for graphic of the standings'''
+    image_minipage = \
+f'''\\begin{{minipage}}[t]{{13cm}}
+    \\begin{{figure}}[H]
+        \\vspace{{-2.5cm}}
+        \\includegraphics[width=13cm]{{{base_dir}/figures/{year}/Points-{year}-Round{playoff_round-1}.pdf}}
+    \\end{{figure}}
+\\end{{minipage}}
+'''
+    return image_minipage

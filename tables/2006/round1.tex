@@ -9,7 +9,7 @@
 \usepackage{multirow}
 \usepackage[table]{xcolor}
 \usepackage{ctable}
-\usepackage{wrapfig}
+\usepackage{float}
 \usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
@@ -24,14 +24,11 @@
 
 \newcommand{\thickline}{\specialrule{.1em}{.05em}{.05em}}
 
+\setlength\parindent{0pt}
+
 % column colours
 \newcolumntype{g}{>{\columncolor{Gray}}l}
 \newcolumntype{w}{>{\columncolor{white}}l}
-
-
-%\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
-%\geometry{letterpaper}                    % ... or a4paper or a5paper or ... 
-%\geometry{landscape}                		% Activate for for rotated page geometry
 
 %----------------------------------------------------------------------------------------
 %	Create new commands
@@ -88,26 +85,22 @@
     \end{tabular}
 \end{table}
 
-\begin{table}[!htb]
-\begin{minipage}[t]{.27\linewidth}
 {\bf Points}\\
-\begin{tabular}{l l}
-    Correct team:	& $10$\\
-    Correct series length (regardless of series winner):	& $7$\\
-    Correct team in a seven game series    & $2$\\
-    Stanley Cup champion:	& 25\\
-    Stanley Cup runner-up:	& 15\\
-\end{tabular}
-\hspace{0.5cm}
-\end{minipage}
-\end{table}
+\begin{minipage}{12cm}
+    \begin{tabular}{l l}
+        Correct team:	& $10$\\
+        Correct series length (regardless of series winner):	& $7$\\
+        Correct team in a seven game series    & $2$\\
+        Stanley Cup champion:	& 25\\
+        Stanley Cup runner-up:	& 15\\
+    \end{tabular}
 
-\begin{minipage}[t]{.45\linewidth}
-{\bf Number of picks per team:}\\
-\begin{tabular}{lc | lc | lc | lc | lc | lc | lc | lc }
-    OTT & 4 & CAR & 3 & NJD & 2 & BUF & 4 & DET & 4 & DAL & 4 & CGY & 4 & NSH & 0 \\
-    TBL & 0 & MTL & 1 & NYR & 2 & PHI & 0 & EDM & 0 & COL & 0 & ANA & 0 & SJS & 4 \\
-\end{tabular}
+    \vspace{1cm}
+    {\bf Number of picks per team:}\\
+    \begin{tabular}{lc | lc | lc | lc | lc | lc | lc | lc }
+        OTT & 4 & CAR & 3 & NJD & 2 & BUF & 4 & DET & 4 & DAL & 4 & CGY & 4 & NSH & 0 \\
+        TBL & 0 & MTL & 1 & NYR & 2 & PHI & 0 & EDM & 0 & COL & 0 & ANA & 0 & SJS & 4 \\
+    \end{tabular}
 \end{minipage}
 
 \end{document}

@@ -59,9 +59,31 @@ class IndividualScoring():
         if year in [2006, 2007]:
             self.stanley_cup_points = _stanley_cup_points_2006_2007
             self.round_points = _round_points_2006_2007
+            self.points_system = _points_system_2006_2007
         elif year == 2008:
             self.stanley_cup_points = _stanley_cup_points_2008
             self.round_points = _round_points_2008
+            self.points_system = _points_system_2008
+
+def _points_system_2006_2007():
+    system = {
+        'stanley_cup_winner': 25,
+        'stanley_cup_runnerup': 15,
+        'stanley_cup_finalist': 0,
+        'correct_team': 10,
+        'correct_length': 7,
+        'correct_7game_series': 2
+    }
+    return system
+
+def _points_system_2008():
+    system = {
+        'stanley_cup_winner': 10,
+        'stanley_cup_finalist': 15,
+        'correct_team': 7,
+        'correct_length': 10
+    }
+    return system
 
 def _stanley_cup_points_2006_2007(individual_selections, results):
     '''Return the points for an individual in the stanley cup round in 2006 and 2007
@@ -70,6 +92,7 @@ def _stanley_cup_points_2006_2007(individual_selections, results):
         Points are not awarded for selecting a team in the final, but with the wrong outcome
         ie. Winner when the team was a runner up, or vice versa
     '''
+    system = _points_system_2006_2007()
 
     # find a subset of selections
     team_selections = individual_selections[ \
@@ -83,14 +106,14 @@ def _stanley_cup_points_2006_2007(individual_selections, results):
 
     # points for stanley cup winner pick
     if stanley_selection == results['StanleyCupWinner'][0]:
-        winner_points = 25
+        winner_points = system['stanley_cup_winner']
     else:
         winner_points = 0
 
     # points for stanley cup runner-up pick
     predicted_runnerup = runnerup in team_selections and runnerup != stanley_selection
     if predicted_runnerup:
-        runnerup_points = 15
+        runnerup_points = system['stanley_cup_runnerup']
     else:
         runnerup_points = 0
 
@@ -102,6 +125,7 @@ def _round_points_2006_2007(individual_selections, results):
         individual_selections are the picks made by one individual in that round
         results are the results of the round as given by db.get_all_round_results()
     '''
+    system = _points_system_2006_2007()
 
     merged_table = pd.merge(individual_selections, results, \
                         on=['Conference','SeriesNumber'], how='inner')
@@ -112,9 +136,9 @@ def _round_points_2006_2007(individual_selections, results):
     num_correct_games = len(matching_games)
     num_correct_7game_series = len(merged_table.query('GameSelection==Games and Games==7'))
 
-    score = num_correct_teams * 10 + \
-            num_correct_games * 7 + \
-            num_correct_7game_series * 2
+    score = num_correct_teams * system['correct_team'] + \
+            num_correct_games * system['correct_length'] + \
+            num_correct_7game_series * system['correct_7game_series']
     return score
 
 def _stanley_cup_points_2008(individual_selections, results):
@@ -123,6 +147,7 @@ def _stanley_cup_points_2008(individual_selections, results):
         results are the dataframe of the results
         There are no points for length of Stanley Cup series, although they were chosen
     '''
+    system = _points_system_2008()
 
     # find selections
     conference_selections = individual_selections[ \
@@ -137,11 +162,11 @@ def _stanley_cup_points_2008(individual_selections, results):
     finalist_points = 0
     for team in conference_selections:
         if team in conference_winners:
-            finalist_points += 15
+            finalist_points += system['stanley_cup_finalist']
 
     # points for stanley cup winner pick
     if stanley_selection == stanley_winner:
-        stanley_points = 10
+        stanley_points = system['stanley_cup_winner']
     else:
         stanley_points = 0
 
@@ -153,6 +178,7 @@ def _round_points_2008(individual_selections, results):
         individual_selections are the picks made by one individual in that round
         results are the results of the round as given by db.get_all_round_results()
     '''
+    system = _points_system_2008()
 
     merged_table = pd.merge(individual_selections, results, \
                         on=['Conference','SeriesNumber'], how='inner')
@@ -162,6 +188,6 @@ def _round_points_2008(individual_selections, results):
     num_correct_teams = len(matching_teams)
     num_correct_games = len(matching_games)
 
-    score = num_correct_teams * 7 + \
-            num_correct_games * 10
+    score = num_correct_teams * system['correct_team'] + \
+            num_correct_games * system['correct_length']
     return score

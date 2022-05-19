@@ -9,7 +9,7 @@
 \usepackage{multirow}
 \usepackage[table]{xcolor}
 \usepackage{ctable}
-\usepackage{wrapfig}
+\usepackage{float}
 \usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
@@ -24,14 +24,11 @@
 
 \newcommand{\thickline}{\specialrule{.1em}{.05em}{.05em}}
 
+\setlength\parindent{0pt}
+
 % column colours
 \newcolumntype{g}{>{\columncolor{Gray}}l}
 \newcolumntype{w}{>{\columncolor{white}}l}
-
-
-%\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
-%\geometry{letterpaper}                    % ... or a4paper or a5paper or ... 
-%\geometry{landscape}                		% Activate for for rotated page geometry
 
 %----------------------------------------------------------------------------------------
 %	Create new commands
@@ -65,30 +62,28 @@
     \end{tabular}
 \end{table}
 
-\begin{table}[!htb]
-\begin{minipage}[t]{.27\linewidth}
 {\bf Points}\\
-\begin{tabular}{l l}
-    Correct team:	& $10$\\
-    Correct series length (regardless of series winner):	& $7$\\
-    Correct team in a seven game series    & $2$\\
-    Stanley Cup champion:	& 25\\
-    Stanley Cup runner-up:	& 15\\
-\end{tabular}
-\hspace{0.5cm}
-\begin{wrapfigure}{r}{0.01\textwidth}
-    \vspace{-3cm}
-	\includegraphics[width=5in]{/Users/daviddeepwell/Documents/Hockey/HockeyPool/DeepwellCup/figures/2007/Points-2007-Round3.pdf}
-\end{wrapfigure}
-\end{minipage}
-\end{table}
+\begin{minipage}{12cm}
+    \begin{tabular}{l l}
+        Correct team:	& $10$\\
+        Correct series length (regardless of series winner):	& $7$\\
+        Correct team in a seven game series    & $2$\\
+        Stanley Cup champion:	& 25\\
+        Stanley Cup runner-up:	& 15\\
+    \end{tabular}
 
-\begin{minipage}[t]{.45\linewidth}
-{\bf Number of picks per team:}\\
-\begin{tabular}{lc }
-    ANA & 1 \\
-    OTT & 4 \\
-\end{tabular}
+    \vspace{1cm}
+    {\bf Number of picks per team:}\\
+    \begin{tabular}{lc }
+        ANA & 1 \\
+        OTT & 4 \\
+    \end{tabular}
+\end{minipage}
+\begin{minipage}[t]{13cm}
+    \begin{figure}[H]
+        \vspace{-2.5cm}
+        \includegraphics[width=13cm]{/Users/daviddeepwell/Documents/Hockey/HockeyPool/DeepwellCup/figures/2007/Points-2007-Round3.pdf}
+    \end{figure}
 \end{minipage}
 
 \end{document}
