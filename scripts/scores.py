@@ -33,9 +33,12 @@ def year_points_table(year):
                     round_data[rnd-1].query(f'Name=="{individual}"'),
                     series_results[rnd-1])
                 )
-        points_stanley = Scoring.stanley_cup_points(
+        if individual in stanley_data.index:
+            points_stanley = Scoring.stanley_cup_points(
                     stanley_data.query(f"Individual=='{individual}'"),
                     stanley_results)
+        else:
+            points_stanley = 0
         points = points_rounds + [points_stanley]
         total_points = sum(points)
         points_with_total = points + [total_points]
