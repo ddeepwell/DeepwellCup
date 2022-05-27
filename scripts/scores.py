@@ -2,6 +2,7 @@
 Functions for creating tables for scores within a year
 '''
 import pandas as pd
+import numpy as np
 from scripts.database import DataBaseOperations
 
 def year_points_table(year):
@@ -22,23 +23,10 @@ def year_points_table(year):
     names_in_each_round = [a_round['Name'].unique().tolist() for a_round in round_data]
     individuals = list({name for round_names in names_in_each_round for name in round_names})
 
-    Scoring = IndividualScoring(year)
-
     df = pd.DataFrame()
     for individual in individuals:
-        points_rounds = []
-        for rnd in [1,2,3,4]:
-            points_rounds.append(
-                Scoring.round_points(
-                    round_data[rnd-1].query(f'Name=="{individual}"'),
-                    series_results[rnd-1])
-                )
-        if individual in stanley_data.index:
-            points_stanley = Scoring.stanley_cup_points(
-                    stanley_data.query(f"Individual=='{individual}'"),
-                    stanley_results)
-        else:
-            points_stanley = 0
+        points_rounds  = get_rounds_points(year, individual, round_data, series_results)
+        points_stanley = get_stanley_points(year, individual, stanley_data, stanley_results)
         points = points_rounds + [points_stanley]
         total_points = sum(points)
         points_with_total = points + [total_points]
@@ -53,6 +41,39 @@ def year_points_table(year):
                     5: "Total"},
                 inplace=True)
     return df
+
+def get_rounds_points(year, individual, round_data, series_results):
+    '''Return a list of points for each round'''
+
+    Scoring = IndividualScoring(year)
+
+    points_rounds = []
+    for rnd in [1,2,3,4]:
+        if individual in set(round_data[rnd-1]['Name']):
+            points_rounds.append(
+                Scoring.round_points(
+                    round_data[rnd-1].query(f'Name=="{individual}"'),
+                    series_results[rnd-1]
+                )
+            )
+        else:
+            points_rounds.append(np.nan)
+
+    return points_rounds
+
+def get_stanley_points(year, individual, stanley_data, stanley_results):
+    '''Return a list of dataframes of data for each round'''
+
+    Scoring = IndividualScoring(year)
+
+    if individual in stanley_data.index:
+        points_stanley = Scoring.stanley_cup_points(
+                stanley_data.query(f"Individual=='{individual}'"),
+                stanley_results)
+    else:
+        points_stanley = np.nan
+
+    return points_stanley
 
 class IndividualScoring():
     '''Class for functions to calculate points for each individual'''
