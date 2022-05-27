@@ -36,9 +36,8 @@ def year_chart(year, max_round='Champions', save=False):
     player_rankings = points_unsorted_df.loc[rounds_to_plot].sum().sort_values(ascending=True).index
     points_df = points_unsorted_df.reindex(player_rankings, axis='columns')
 
-    # gather extra data
-    individuals = points_df.columns
-    num_individuals = len(individuals)
+    # gather extra information about individauls
+    individuals_to_plot, num_individuals = find_individuals_to_plot(points_df, rounds_to_plot)
 
     # set plot colours
     round_colors = ['#95c4e8','#a3e6be','#fbee9d','#fbbf9d','#e29dfb']
@@ -48,7 +47,7 @@ def year_chart(year, max_round='Champions', save=False):
     fig = plt.figure(figsize=(8, 0.5*num_individuals))
     axis = fig.add_subplot(111)
 
-    for individual_i, individual in enumerate(individuals):
+    for individual_i, individual in enumerate(individuals_to_plot):
         left = 0
         axis_list = []
         for playoff_round in rounds_to_plot:
@@ -80,7 +79,7 @@ def year_chart(year, max_round='Champions', save=False):
     # set axis and add labels
     y_pos = np.arange(num_individuals)
     axis.set_yticks(y_pos)
-    axis.set_yticklabels(individuals)
+    axis.set_yticklabels(individuals_to_plot)
     axis.set_xlim(0, max_points*1.02)
     fig_title = f'Points - {year}'
     if max_round_name != 'Champions':
@@ -123,3 +122,14 @@ def save_figure(file_name, year):
     plt.savefig(f'{figure_dir}/{file_name}.pdf', bbox_inches='tight', format='pdf')
     plt.savefig(f'{figure_dir}/{file_name}.png', bbox_inches='tight', format='png',
                         dpi=300, transparent=True)
+
+def find_individuals_to_plot(points_df, rounds_to_plot):
+    '''Find all the individuals who have participated in the requested rounds'''
+
+    all_individuals = points_df.columns
+    mask = np.isnan(points_df.loc[rounds_to_plot]).sum() == len(rounds_to_plot)
+    individuals_to_plot = \
+        [individual for individual in all_individuals if not mask[individual]]
+    num_individuals = len(individuals_to_plot)
+
+    return individuals_to_plot, num_individuals
