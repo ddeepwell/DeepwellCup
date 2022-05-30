@@ -4,6 +4,7 @@ Functions for creating plots
 import os
 from pathlib import Path
 import numpy as np
+import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from scripts.scores import year_points_table
@@ -52,7 +53,7 @@ def year_chart(year, max_round='Champions', save=False):
         axis_list = []
         for playoff_round in rounds_to_plot:
             round_points = points_df[individual][playoff_round]
-            if not np.isnan(round_points):
+            if not round_points is pd.NA:
                 axis_list.append(
                     axis.barh(individual_i, round_points,
                                 left = left,
@@ -127,7 +128,7 @@ def find_individuals_to_plot(points_df, rounds_to_plot):
     '''Find all the individuals who have participated in the requested rounds'''
 
     all_individuals = points_df.columns
-    mask = np.isnan(points_df.loc[rounds_to_plot]).sum() == len(rounds_to_plot)
+    mask = pd.isnull(points_df.loc[rounds_to_plot]).sum() == len(rounds_to_plot)
     individuals_to_plot = \
         [individual for individual in all_individuals if not mask[individual]]
     num_individuals = len(individuals_to_plot)

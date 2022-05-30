@@ -28,7 +28,7 @@ def year_points_table(year):
         points_rounds  = get_rounds_points(year, individual, round_data, series_results)
         points_stanley = get_stanley_points(year, individual, stanley_data, stanley_results)
         points = points_rounds + [points_stanley]
-        total_points = sum(points)
+        total_points = np.nansum(points, dtype=int)
         points_with_total = points + [total_points]
         df.insert(0, individual, points_with_total)
 
@@ -40,7 +40,8 @@ def year_points_table(year):
                     4: "Champions",
                     5: "Total"},
                 inplace=True)
-    return df
+    df_int = df.astype('Int64')
+    return df_int
 
 def get_rounds_points(year, individual, round_data, series_results):
     '''Return a list of points for each round'''
@@ -71,6 +72,9 @@ def get_stanley_points(year, individual, stanley_data, stanley_results):
                 stanley_data.query(f"Individual=='{individual}'"),
                 stanley_results)
     else:
+        points_stanley = np.nan
+
+    if points_stanley == 0:
         points_stanley = np.nan
 
     return points_stanley
