@@ -11,7 +11,7 @@ from scripts import checks
 class DataBaseOperations():
     '''Class for functions to work with the database'''
 
-    def __init__(self, database_name='DeepwellCup.db'):
+    def __init__(self, database_name='database/DeepwellCup.db'):
         self.name = database_name
         self.conn = None
         self.cursor = None
