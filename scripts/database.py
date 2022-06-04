@@ -343,3 +343,31 @@ class DataBaseOperations():
             ORDER BY Conference, SeriesNumber
             ''', self.conn)
         return series_data
+
+    def add_other_points(self, year, playoff_round,
+            first_name, last_name, points):
+        '''Add other point values for an individual in a round to the database'''
+        # checks on inputs
+        checks.check_if_year_is_valid(year)
+        checks.check_if_individual_exists(self, first_name, last_name)
+
+        individual_id = self._get_individual_id(first_name, last_name)
+        points_data = [(year, playoff_round, individual_id, points)]
+        self.cursor.executemany(\
+            'INSERT INTO OtherPoints '\
+            'VALUES (?,?,?,?)',\
+            points_data)
+        self.conn.commit()
+
+    def get_other_points(self, year, playoff_round):
+        '''Return the list of other points in a pandas dataframe'''
+        checks.check_if_year_is_valid(year)
+        points_data = pd.read_sql_query(f'''
+                SELECT * FROM OtherPoints
+                WHERE Year={year}
+                AND Round={playoff_round}''',
+                self.conn)
+        individuals = points_data.loc[:,'IndividualID'].apply(self._get_individual_from_id)
+        points_data.drop(['IndividualID'], axis='columns', inplace=True)
+        points_data.insert(0,'Individual', individuals)
+        return points_data
