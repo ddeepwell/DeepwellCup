@@ -8,4 +8,4 @@ db_file='DeepwellCup.db'
 ./add_Series_table.sh $db_file
 ./add_SeriesSelections_table.sh $db_file
 ./add_SeriesResults_table.sh $db_file
-# ./add_OtherPoints_table.sh $db_file
+./add_OtherPoints_table.sh $db_file
