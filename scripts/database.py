@@ -370,4 +370,5 @@ class DataBaseOperations():
         individuals = points_data.loc[:,'IndividualID'].apply(self._get_individual_from_id)
         points_data.drop(['IndividualID'], axis='columns', inplace=True)
         points_data.insert(0,'Individual', individuals)
+        points_data.set_index('Individual', inplace=True)
         return points_data
