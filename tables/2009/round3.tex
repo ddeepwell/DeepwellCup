@@ -1,0 +1,90 @@
+
+%----------------------------------------------------------------------------------------
+%	Settings and packages
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt]{article}
+
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{ctable}
+\usepackage{float}
+\usepackage[landscape,margin=0.25in,legalpaper]{geometry}
+
+\newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
+\newcommand{\mccn}[2]{\multicolumn{#1}{c}{#2}}
+\newcommand{\mcl}[1]{\multicolumn{2}{l}{#1}}
+\newcommand{\mclg}[1]{\multicolumn{2}{l}{\gr #1}}
+\newcommand{\mcc}[1]{\multicolumn{2}{c}{#1}}
+\newcommand{\mccg}[1]{\multicolumn{2}{c}{\gr #1}}
+\newcommand{\mr}[1]{\multirow{-2}{*}{#1}}
+\definecolor{Gray}{gray}{0.90}
+\newcommand{\gr}{\cellcolor{Gray}}
+
+\newcommand{\thickline}{\specialrule{.1em}{.05em}{.05em}}
+
+\setlength\parindent{0pt}
+
+% column colours
+\newcolumntype{g}{>{\columncolor{Gray}}l}
+\newcolumntype{w}{>{\columncolor{white}}l}
+
+%----------------------------------------------------------------------------------------
+%	Create new commands
+%----------------------------------------------------------------------------------------
+
+% Commands are in LatexCommands.tex. New commands for this file only can be written here.
+%\input{/Applications/TeX/Latex_ancillary/LatexCommands.tex}
+
+
+%----------------------------------------------------------------------------------------
+%	Table
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\thispagestyle{empty}
+{\bf 2009 Deepwell Cup}
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w g g}
+        \rowcolor{black}\mcn{23}{\color{white}\bf Round 3: Conference Finals} \\
+        \rowcolor{white}\\
+        &  \mccg{Andre D}&  \mcc{Andrew D}&  \mccg{Daniel S}&  \mcc{David D}&  \mccg{Harry L}&  \mcc{Isamu M}&  \mccg{Kollin H}&  \mcc{Kyle L}&  \mccg{Mark D}&  \mcc{Michael D}&  \mccg{Thomas L} \\\thickline
+        {\bf East} &&&&&&&&&&&&&&&&&&&&&&\\\hline
+          Pittsburgh Penguins&&&&&&&&&&&&&&&&&&&&&&\\
+          Carolina Hurricanes & \mr{PIT} & \mr{7} & \mr{PIT} & \mr{6} & \mr{PIT} & \mr{7} & \mr{CAR} & \mr{7} & \mr{PIT} & \mr{5} & \mr{PIT} & \mr{7} & \mr{CAR} & \mr{6} & \mr{PIT} & \mr{7} & \mr{PIT} & \mr{7} & \mr{CAR} & \mr{6} & \mr{PIT} & \mr{7}\\\hline
+          &&&&&&&&&&&&&&&&&&&&&& \\
+        {\bf West} &&&&&&&&&&&&&&&&&&&&&&\\\hline
+          Detroit Red Wings&&&&&&&&&&&&&&&&&&&&&&\\
+          Chicago Blackhawks & \mr{DET} & \mr{7} & \mr{DET} & \mr{6} & \mr{DET} & \mr{5} & \mr{DET} & \mr{6} & \mr{DET} & \mr{6} & \mr{DET} & \mr{6} & \mr{DET} & \mr{7} & \mr{DET} & \mr{5} & \mr{CHI} & \mr{6} & \mr{CHI} & \mr{7} & \mr{DET} & \mr{6}\\\hline
+          \rowcolor{white}\\
+        \rowcolor{black} \mcn{23}{\color{white}\bf Conference Champions} \\
+          Eastern & \mclg{PIT} & \mcl{WSH} & \mclg{BOS} & \mcl{BOS} & \mclg{NJD} & \mcl{BOS} & \mclg{WSH} & \mcl{} & \mclg{PIT} & \mcl{BOS} & \mclg{BOS}\\
+          Western & \mclg{CHI} & \mcl{SJS} & \mclg{DET} & \mcl{SJS} & \mclg{DET} & \mcl{STL} & \mclg{SJS} & \mcl{} & \mclg{VAN} & \mcl{DET} & \mclg{SJS}\\
+          Stanley Cup & \mclg{PIT} & \mcl{SJS} & \mclg{BOS} & \mcl{BOS} & \mclg{NJD} & \mcl{BOS} & \mclg{SJS} & \mcl{} & \mclg{PIT} & \mcl{BOS} & \mclg{SJS}
+    \end{tabular}
+\end{table}
+
+{\bf Points}\\
+\begin{minipage}{12cm}
+    \begin{tabular}{l l}
+        Correct team:	& $7$\\
+        Correct series length (regardless of series winner):	& $10$\\    \end{tabular}
+
+    \vspace{1cm}
+    {\bf Number of picks per team:}\\
+    \begin{tabular}{lc | lc }
+        PIT & 8 & DET & 9 \\
+        CAR & 3 & CHI & 2 \\
+    \end{tabular}
+\end{minipage}
+\begin{minipage}[t]{13cm}
+    \begin{figure}[H]
+        \vspace{-2.5cm}
+        \includegraphics[width=13cm]{/Users/daviddeepwell/Documents/Hockey/HockeyPool/DeepwellCup/figures/2009/Points-2009-Round2.pdf}
+    \end{figure}
+\end{minipage}
+
+\end{document}
