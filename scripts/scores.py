@@ -13,10 +13,12 @@ def year_points_table(year):
     # import the picks and results for each round
     series_results = []
     round_data = []
+    other_data = []
     with db_ops as db:
         for rnd in [1,2,3,4]:
             round_data.append(db.get_all_round_selections(year, rnd))
             series_results.append(db.get_all_round_results(year, rnd))
+            other_data.append(db.get_other_points(year, rnd))
         stanley_data = db.get_stanley_cup_selections(year)
         stanley_results = db.get_stanley_cup_results(year)
 
@@ -25,7 +27,7 @@ def year_points_table(year):
 
     df = pd.DataFrame()
     for individual in individuals:
-        points_rounds  = get_rounds_points(year, individual, round_data, series_results)
+        points_rounds  = get_rounds_points(year, individual, round_data, series_results, other_data)
         points_stanley = get_stanley_points(year, individual, stanley_data, stanley_results)
         points = points_rounds + [points_stanley]
         total_points = np.nansum(points, dtype=int)
@@ -43,7 +45,7 @@ def year_points_table(year):
     df_int = df.astype('Int64')
     return df_int
 
-def get_rounds_points(year, individual, round_data, series_results):
+def get_rounds_points(year, individual, round_data, series_results, other_data):
     '''Return a list of points for each round'''
 
     Scoring = IndividualScoring(year)
@@ -51,12 +53,15 @@ def get_rounds_points(year, individual, round_data, series_results):
     points_rounds = []
     for rnd in [1,2,3,4]:
         if individual in set(round_data[rnd-1]['Name']):
-            points_rounds.append(
-                Scoring.round_points(
-                    round_data[rnd-1].query(f'Name=="{individual}"'),
-                    series_results[rnd-1]
-                )
+            selection_points = Scoring.round_points(
+                round_data[rnd-1].query(f'Name=="{individual}"'),
+                series_results[rnd-1]
             )
+            other_points = other_data[rnd-1].loc[individual]['Points'] \
+                            if individual in other_data[rnd-1].index \
+                            else 0
+            points = selection_points + other_points
+            points_rounds.append(points)
         else:
             points_rounds.append(np.nan)
 
@@ -92,6 +97,10 @@ class IndividualScoring():
             self.stanley_cup_points = _stanley_cup_points_2008
             self.round_points = _round_points_2008
             self.points_system = _points_system_2008
+        elif year == 2009:
+            self.stanley_cup_points = _stanley_cup_points_2009
+            self.round_points = _round_points_2009
+            self.points_system = _points_system_2009
 
 def _points_system_2006_2007():
     system = {
@@ -207,6 +216,67 @@ def _round_points_2008(individual_selections, results):
         results are the results of the round as given by db.get_all_round_results()
     '''
     system = _points_system_2008()
+
+    merged_table = pd.merge(individual_selections, results, \
+                        on=['Conference','SeriesNumber'], how='inner')
+    matching_teams = merged_table.query('TeamSelection==Winner')
+    matching_games = merged_table.query('GameSelection==Games')
+
+    num_correct_teams = len(matching_teams)
+    num_correct_games = len(matching_games)
+
+    score = num_correct_teams * system['correct_team'] + \
+            num_correct_games * system['correct_length']
+    return score
+
+def _points_system_2009():
+    system = {
+        'stanley_cup_winner': 25,
+        'stanley_cup_runnerup': 15,
+        'correct_team': 7,
+        'correct_length': 10
+    }
+    return system
+
+def _stanley_cup_points_2009(individual_selections, results):
+    '''Return the points for an individual in the stanley cup round in 2009
+        individual_selections is the dataframe of just the indivuals picks
+        results are the dataframe of the results
+    '''
+    system = _points_system_2009()
+
+    # find a subset of selections
+    team_selections = individual_selections[ \
+        ['EastSelection','WestSelection','StanleyCupSelection']].values.tolist()[0]
+    stanley_selection = individual_selections[['StanleyCupSelection']].values.tolist()[0][0]
+
+    # find runner-up
+    stanley_winner = results['StanleyCupWinner'][0]
+    mask = results[['EastWinner','WestWinner']] != stanley_winner
+    runnerup = results[['EastWinner','WestWinner']][mask].dropna(axis='columns').loc[0][0]
+
+    # points for stanley cup winner pick
+    if stanley_selection == results['StanleyCupWinner'][0]:
+        winner_points = system['stanley_cup_winner']
+    else:
+        winner_points = 0
+
+    # points for stanley cup runner-up pick
+    predicted_runnerup = runnerup in team_selections and runnerup != stanley_selection
+    if predicted_runnerup:
+        runnerup_points = system['stanley_cup_runnerup']
+    else:
+        runnerup_points = 0
+
+    score = winner_points + runnerup_points
+    return score
+
+def _round_points_2009(individual_selections, results):
+    '''Return the points for an individual for a round in 2009
+        individual_selections are the picks made by one individual in that round
+        results are the results of the round as given by db.get_all_round_results()
+    '''
+    system = _points_system_2009()
 
     merged_table = pd.merge(individual_selections, results, \
                         on=['Conference','SeriesNumber'], how='inner')
