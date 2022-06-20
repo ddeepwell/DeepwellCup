@@ -1,9 +1,9 @@
 '''Scripts to import archive data into the database'''
-from data.archive.import_2009 import import_2009_data
+from data.archive.import_2010 import import_2010_data
 import scripts as dc
 
-year = 2009
-import_2009_data()
+year = 2010
+import_2010_data()
 
 # create bar charts
 dc.year_chart(year, max_round=1, save=True)

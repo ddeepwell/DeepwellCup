@@ -1,0 +1,93 @@
+
+%----------------------------------------------------------------------------------------
+%	Settings and packages
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt]{article}
+
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{ctable}
+\usepackage{float}
+\usepackage[landscape,margin=0.25in,legalpaper]{geometry}
+
+\newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
+\newcommand{\mccn}[2]{\multicolumn{#1}{c}{#2}}
+\newcommand{\mcl}[1]{\multicolumn{2}{l}{#1}}
+\newcommand{\mclg}[1]{\multicolumn{2}{l}{\gr #1}}
+\newcommand{\mcc}[1]{\multicolumn{2}{c}{#1}}
+\newcommand{\mccg}[1]{\multicolumn{2}{c}{\gr #1}}
+\newcommand{\mr}[1]{\multirow{-2}{*}{#1}}
+\definecolor{Gray}{gray}{0.90}
+\newcommand{\gr}{\cellcolor{Gray}}
+
+\newcommand{\thickline}{\specialrule{.1em}{.05em}{.05em}}
+
+\setlength\parindent{0pt}
+
+% column colours
+\newcolumntype{g}{>{\columncolor{Gray}}l}
+\newcolumntype{w}{>{\columncolor{white}}l}
+
+%----------------------------------------------------------------------------------------
+%	Create new commands
+%----------------------------------------------------------------------------------------
+
+% Commands are in LatexCommands.tex. New commands for this file only can be written here.
+%\input{/Applications/TeX/Latex_ancillary/LatexCommands.tex}
+
+
+%----------------------------------------------------------------------------------------
+%	Table
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\thispagestyle{empty}
+{\bf 2010 Deepwell Cup}
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l g g w w g g w w g g w w g g w w g g}
+        \rowcolor{black}\mcn{19}{\color{white}\bf Round 3: Conference Finals} \\
+        \rowcolor{white}\\
+        &  \mccg{Alita D}&  \mcc{Andre D}&  \mccg{Charmaine L}&  \mcc{David D}&  \mccg{Kollin H}&  \mcc{Kyle L}&  \mccg{Mark D}&  \mcc{Michael D}&  \mccg{Thomas L} \\\thickline
+        {\bf East} &&&&&&&&&&&&&&&&&&\\\hline
+          Philadelphia Flyers&&&&&&&&&&&&&&&&&&\\
+          Montreal Canadiens & \mr{MTL} & \mr{7} & \mr{MTL} & \mr{7} & \mr{MTL} & \mr{7} & \mr{MTL} & \mr{6} & \mr{MTL} & \mr{6} & \mr{MTL} & \mr{6} & \mr{MTL} & \mr{7} & \mr{MTL} & \mr{7} & \mr{PHI} & \mr{7}\\\hline
+          &&&&&&&&&&&&&&&&&& \\
+        {\bf West} &&&&&&&&&&&&&&&&&&\\\hline
+          San Jose Sharks&&&&&&&&&&&&&&&&&&\\
+          Chicago Blackhawks & \mr{SJS} & \mr{6} & \mr{SJS} & \mr{6} & \mr{SJS} & \mr{6} & \mr{CHI} & \mr{6} & \mr{SJS} & \mr{6} & \mr{CHI} & \mr{7} & \mr{CHI} & \mr{6} & \mr{CHI} & \mr{6} & \mr{CHI} & \mr{6}\\\hline
+          \rowcolor{white}\\
+        \rowcolor{black} \mcn{19}{\color{white}\bf Conference Champions} \\
+          Eastern & \mclg{} & \mcl{PIT} & \mclg{} & \mcl{WSH} & \mclg{BUF} & \mcl{WSH} & \mclg{PIT} & \mcl{PIT} & \mclg{WSH}\\
+          Western & \mclg{} & \mcl{SJS} & \mclg{} & \mcl{CHI} & \mclg{SJS} & \mcl{VAN} & \mclg{CHI} & \mcl{DET} & \mclg{CHI}\\
+          Stanley Cup & \mclg{} & \mcl{PIT} & \mclg{} & \mcl{CHI} & \mclg{SJS} & \mcl{VAN} & \mclg{PIT} & \mcl{DET} & \mclg{WSH}
+    \end{tabular}
+\end{table}
+
+{\bf Points}\\
+\begin{minipage}{12cm}
+    \begin{tabular}{l l}
+        Correct team:	& $7$\\
+        Correct series length (regardless of series winner):	& $10$\\
+        Stanley Cup champion:	& 25\\
+        Stanley Cup finalist:	& 15\\
+    \end{tabular}
+
+    \vspace{1cm}
+    {\bf Number of picks per team:}\\
+    \begin{tabular}{lc | lc }
+        PHI & 1 & SJS & 4 \\
+        MTL & 8 & CHI & 5 \\
+    \end{tabular}
+\end{minipage}
+\begin{minipage}[t]{13cm}
+    \begin{figure}[H]
+        \vspace{-2.5cm}
+        \includegraphics[width=13cm]{/Users/daviddeepwell/Documents/Hockey/HockeyPool/DeepwellCup/figures/2010/Points-2010-Round2.pdf}
+    \end{figure}
+\end{minipage}
+
+\end{document}
