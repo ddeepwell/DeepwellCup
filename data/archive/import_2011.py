@@ -13,8 +13,8 @@ def import_2011_data():
         # Stanley Cup Selections
         # FirstName, LastName, EastPick, WestPick, StanleyCup]
         stanley_cup_picks = [
-            ['Andre','D','Boston Bruins','Vancouver Canucks','Vancouver Canucks'],
             ['Alita','D','Philadelphia Flyers','Detroit Red Wings','Philadelphia Flyers'],
+            ['Andre','D','Boston Bruins','Vancouver Canucks','Vancouver Canucks'],
             ['Andrew','D','Washington Capitals','Vancouver Canucks','Vancouver Canucks'],
             ['Andy','H','Washington Capitals','Vancouver Canucks','Washington Capitals'],
             ['Charmaine','L','Pittsburgh Penguins','Vancouver Canucks','Vancouver Canucks'],
@@ -28,7 +28,7 @@ def import_2011_data():
         db.add_stanley_cup_selection_for_everyone(year, stanley_cup_picks)
         # Stanley Cup Results
         db.add_stanley_cup_results(year,
-                'Boston Bruins','Vancouver Canucks','Boston Bruins',6)
+                'Boston Bruins','Vancouver Canucks','Boston Bruins',7)
 
         # 1st Round setup
         playoff_round = 1
