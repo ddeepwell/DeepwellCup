@@ -33,8 +33,9 @@ def check_if_selections_are_valid(
     if team_selection not in series_data[['TeamHigherSeed','TeamLowerSeed']].values[0]:
         raise Exception(f'The selected team, {team_selection}, is invalid for this series')
     if game_selection not in [4,5,6,7]:
-        raise Exception(f'The series length, {game_selection}, is invalid. '\
-            'It must be in {4,5,6,7}')
+        if game_selection is not None:
+            raise Exception(f'The series length, {game_selection}, is invalid. '\
+                'It must be in {4,5,6,7} or None')
     if player_selection not in \
             series_data[['PlayerHigherSeed','PlayerLowerSeed']].values[0].tolist() + [None]:
         raise Exception(f'The selected player, {player_selection}, is invalid for this series')
