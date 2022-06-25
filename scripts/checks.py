@@ -31,7 +31,8 @@ def check_if_selections_are_valid(
     '''Check if the selections match those of the series'''
     series_data = db_ops.get_year_round_series(year, playoff_round, conference, series_number)
     if team_selection not in series_data[['TeamHigherSeed','TeamLowerSeed']].values[0]:
-        raise Exception(f'The selected team, {team_selection}, is invalid for this series')
+        if team_selection is not None:
+            raise Exception(f'The selected team, {team_selection}, is invalid for this series')
     if game_selection not in [4,5,6,7]:
         if game_selection is not None:
             raise Exception(f'The series length, {game_selection}, is invalid. '\
