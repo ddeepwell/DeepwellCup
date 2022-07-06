@@ -69,6 +69,8 @@ def shorten_team_name(team):
         return_val = 'WSH'
     elif team == 'Winnipeg Jets':
         return_val = 'WPG'
+    elif team is None:
+        return_val = ''
     return return_val
 
 def lengthen_team_name( team ):

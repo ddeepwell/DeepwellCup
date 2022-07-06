@@ -1,0 +1,105 @@
+
+%----------------------------------------------------------------------------------------
+%	Settings and packages
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt]{article}
+
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{ctable}
+\usepackage{float}
+\usepackage[landscape,margin=0.25in,legalpaper]{geometry}
+
+\newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
+\newcommand{\mccn}[2]{\multicolumn{#1}{c}{#2}}
+\newcommand{\mcl}[1]{\multicolumn{2}{l}{#1}}
+\newcommand{\mclg}[1]{\multicolumn{2}{l}{\gr #1}}
+\newcommand{\mcc}[1]{\multicolumn{2}{c}{#1}}
+\newcommand{\mccg}[1]{\multicolumn{2}{c}{\gr #1}}
+\newcommand{\mr}[1]{\multirow{-2}{*}{#1}}
+\definecolor{Gray}{gray}{0.90}
+\newcommand{\gr}{\cellcolor{Gray}}
+
+\newcommand{\thickline}{\specialrule{.1em}{.05em}{.05em}}
+
+\setlength\parindent{0pt}
+
+% column colours
+\newcolumntype{g}{>{\columncolor{Gray}}l}
+\newcolumntype{w}{>{\columncolor{white}}l}
+
+%----------------------------------------------------------------------------------------
+%	Create new commands
+%----------------------------------------------------------------------------------------
+
+% Commands are in LatexCommands.tex. New commands for this file only can be written here.
+%\input{/Applications/TeX/Latex_ancillary/LatexCommands.tex}
+
+
+%----------------------------------------------------------------------------------------
+%	Table
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\thispagestyle{empty}
+{\bf 2012 Deepwell Cup}
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w g g w w g g w w}
+        \rowcolor{black}\mcn{29}{\color{white}\bf Round 1: Division Semi-Finals} \\
+        \rowcolor{white}\\
+        &  \mccg{Alita D}&  \mcc{Andre D}&  \mccg{Andrew D}&  \mcc{Andy H}&  \mccg{Charmaine L}&  \mcc{Curtis C}&  \mccg{David D}&  \mcc{Isaiah C}&  \mccg{Kollin H}&  \mcc{Kyle L}&  \mccg{Mark D}&  \mcc{Michael D}&  \mccg{Nathaniel T}&  \mcc{Thomas L} \\\thickline
+        {\bf East} &&&&&&&&&&&&&&&&&&&&&&&&&&&&\\\hline
+          New York Rangers&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\
+          Ottawa Senators & \mr{NYR} & \mr{5} & \mr{NYR} & \mr{5} & \mr{NYR} & \mr{5} & \mr{NYR} & \mr{7} & \mr{NYR} & \mr{4} & \mr{NYR} & \mr{7} & \mr{NYR} & \mr{6} & \mr{OTT} & \mr{7} & \mr{NYR} & \mr{5} & \mr{NYR} & \mr{6} & \mr{NYR} & \mr{5} & \mr{NYR} & \mr{4} & \mr{OTT} & \mr{7} & \mr{NYR} & \mr{4}\\\hline
+          &&&&&&&&&&&&&&&&&&&&&&&&&&&& \\\hline
+          Boston Bruins&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\
+          Washington Capitals & \mr{WSH} & \mr{7} & \mr{WSH} & \mr{7} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{5} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{5} & \mr{BOS} & \mr{5} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{7} & \mr{BOS} & \mr{4} & \mr{BOS} & \mr{7} & \mr{WSH} & \mr{7} & \mr{BOS} & \mr{5}\\\hline
+          &&&&&&&&&&&&&&&&&&&&&&&&&&&& \\\hline
+          Florida Panthers&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\
+          New Jersey Devils & \mr{FLA} & \mr{4} & \mr{NJD} & \mr{6} & \mr{FLA} & \mr{7} & \mr{NJD} & \mr{6} & \mr{FLA} & \mr{5} & \mr{NJD} & \mr{7} & \mr{NJD} & \mr{5} & \mr{FLA} & \mr{7} & \mr{NJD} & \mr{6} & \mr{FLA} & \mr{6} & \mr{NJD} & \mr{7} & \mr{FLA} & \mr{5} & \mr{FLA} & \mr{6} & \mr{FLA} & \mr{6}\\\hline
+          &&&&&&&&&&&&&&&&&&&&&&&&&&&& \\\hline
+          Pittsburgh Penguins&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\
+          Philadelphia Flyers & \mr{PHI} & \mr{5} & \mr{PIT} & \mr{7} & \mr{PIT} & \mr{7} & \mr{PIT} & \mr{6} & \mr{PIT} & \mr{6} & \mr{PIT} & \mr{6} & \mr{PIT} & \mr{7} & \mr{PIT} & \mr{7} & \mr{PIT} & \mr{7} & \mr{PHI} & \mr{7} & \mr{PIT} & \mr{7} & \mr{PHI} & \mr{7} & \mr{PIT} & \mr{6} & \mr{PIT} & \mr{5}\\\hline
+          &&&&&&&&&&&&&&&&&&&&&&&&&&&& \\
+        {\bf West} &&&&&&&&&&&&&&&&&&&&&&&&&&&&\\\hline
+          Vancouver Canucks&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\
+          Los Angeles Kings & \mr{VAN} & \mr{6} & \mr{VAN} & \mr{7} & \mr{VAN} & \mr{6} & \mr{VAN} & \mr{6} & \mr{VAN} & \mr{5} & \mr{VAN} & \mr{6} & \mr{VAN} & \mr{6} & \mr{VAN} & \mr{5} & \mr{VAN} & \mr{6} & \mr{VAN} & \mr{4} & \mr{VAN} & \mr{6} & \mr{VAN} & \mr{5} & \mr{VAN} & \mr{5} & \mr{VAN} & \mr{5}\\\hline
+          &&&&&&&&&&&&&&&&&&&&&&&&&&&& \\\hline
+          St Louis Blues&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\
+          San Jose Sharks & \mr{SJS} & \mr{5} & \mr{STL} & \mr{6} & \mr{STL} & \mr{6} & \mr{SJS} & \mr{7} & \mr{STL} & \mr{5} & \mr{STL} & \mr{6} & \mr{STL} & \mr{6} & \mr{STL} & \mr{6} & \mr{STL} & \mr{6} & \mr{STL} & \mr{6} & \mr{STL} & \mr{6} & \mr{STL} & \mr{4} & \mr{STL} & \mr{6} & \mr{STL} & \mr{5}\\\hline
+          &&&&&&&&&&&&&&&&&&&&&&&&&&&& \\\hline
+          Phoenix Coyotes&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\
+          Chicago Blackhawks & \mr{ARI} & \mr{7} & \mr{ARI} & \mr{7} & \mr{ARI} & \mr{7} & \mr{CHI} & \mr{7} & \mr{CHI} & \mr{6} & \mr{CHI} & \mr{7} & \mr{CHI} & \mr{7} & \mr{CHI} & \mr{7} & \mr{CHI} & \mr{6} & \mr{CHI} & \mr{7} & \mr{CHI} & \mr{5} & \mr{ARI} & \mr{5} & \mr{CHI} & \mr{7} & \mr{CHI} & \mr{6}\\\hline
+          &&&&&&&&&&&&&&&&&&&&&&&&&&&& \\\hline
+          Nashville Predators&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\
+          Detroit Red Wings & \mr{DET} & \mr{6} & \mr{NSH} & \mr{7} & \mr{DET} & \mr{7} & \mr{DET} & \mr{7} & \mr{DET} & \mr{7} & \mr{NSH} & \mr{7} & \mr{NSH} & \mr{7} & \mr{DET} & \mr{7} & \mr{DET} & \mr{6} & \mr{DET} & \mr{6} & \mr{NSH} & \mr{7} & \mr{DET} & \mr{5} & \mr{DET} & \mr{7} & \mr{DET} & \mr{6}\\\hline
+          \rowcolor{white}\\
+        \rowcolor{black} \mcn{29}{\color{white}\bf Conference Champions} \\
+          Eastern & \mclg{NYR} & \mcl{NYR} & \mclg{NYR} & \mcl{PIT} & \mclg{PIT} & \mcl{PIT} & \mclg{BOS} & \mcl{BOS} & \mclg{PIT} & \mcl{NYR} & \mclg{PIT} & \mcl{BOS} & \mclg{PIT} & \mcl{PIT}\\
+          Western & \mclg{VAN} & \mcl{VAN} & \mclg{VAN} & \mcl{VAN} & \mclg{VAN} & \mcl{VAN} & \mclg{VAN} & \mcl{VAN} & \mclg{DET} & \mcl{VAN} & \mclg{VAN} & \mcl{VAN} & \mclg{VAN} & \mcl{VAN}\\
+          Stanley Cup & \mclg{VAN} & \mcl{VAN} & \mclg{VAN} & \mcl{PIT} & \mclg{VAN} & \mcl{VAN} & \mclg{VAN} & \mcl{VAN} & \mclg{PIT} & \mcl{VAN} & \mclg{VAN} & \mcl{VAN} & \mclg{VAN} & \mcl{VAN}
+    \end{tabular}
+\end{table}
+
+{\bf Points}\\
+\begin{minipage}{12cm}
+    \begin{tabular}{l l}
+        Correct team:	& $7$\\
+        Correct series length (regardless of series winner):	& $10$\\
+        Stanley Cup champion:	& 25\\
+        Stanley Cup finalist:	& 15\\
+    \end{tabular}
+
+    \vspace{1cm}
+    {\bf Number of picks per team:}\\
+    \begin{tabular}{lc | lc | lc | lc | lc | lc | lc | lc }
+        NYR & 12 & BOS & 11 & FLA & 8 & PIT & 11 & VAN & 14 & STL & 12 & ARI & 4 & NSH & 4 \\
+        OTT & 2 & WSH & 3 & NJD & 6 & PHI & 3 & LAK & 0 & SJS & 2 & CHI & 10 & DET & 10 \\
+    \end{tabular}
+\end{minipage}
+
+\end{document}
