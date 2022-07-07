@@ -1,0 +1,88 @@
+
+%----------------------------------------------------------------------------------------
+%	Settings and packages
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt]{article}
+
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{ctable}
+\usepackage{float}
+\usepackage[landscape,margin=0.25in,legalpaper]{geometry}
+
+\newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
+\newcommand{\mccn}[2]{\multicolumn{#1}{c}{#2}}
+\newcommand{\mcl}[1]{\multicolumn{2}{l}{#1}}
+\newcommand{\mclg}[1]{\multicolumn{2}{l}{\gr #1}}
+\newcommand{\mcc}[1]{\multicolumn{2}{c}{#1}}
+\newcommand{\mccg}[1]{\multicolumn{2}{c}{\gr #1}}
+\newcommand{\mr}[1]{\multirow{-2}{*}{#1}}
+\definecolor{Gray}{gray}{0.90}
+\newcommand{\gr}{\cellcolor{Gray}}
+
+\newcommand{\thickline}{\specialrule{.1em}{.05em}{.05em}}
+
+\setlength\parindent{0pt}
+
+% column colours
+\newcolumntype{g}{>{\columncolor{Gray}}l}
+\newcolumntype{w}{>{\columncolor{white}}l}
+
+%----------------------------------------------------------------------------------------
+%	Create new commands
+%----------------------------------------------------------------------------------------
+
+% Commands are in LatexCommands.tex. New commands for this file only can be written here.
+%\input{/Applications/TeX/Latex_ancillary/LatexCommands.tex}
+
+
+%----------------------------------------------------------------------------------------
+%	Table
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\thispagestyle{empty}
+{\bf 2013 Deepwell Cup}
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w g g w w g g w w}
+        \rowcolor{black}\mcn{29}{\color{white}\bf Round 4: Stanley Cup Finals} \\
+        \rowcolor{white}\\
+        &  \mccg{Alita D}&  \mcc{Andre D}&  \mccg{Andrew D}&  \mcc{Andy H}&  \mccg{Anna D}&  \mcc{Charmaine L}&  \mccg{David D}&  \mcc{Harry L}&  \mccg{Kollin H}&  \mcc{Kyle L}&  \mccg{Mark D}&  \mcc{Michael D}&  \mccg{Nathaniel T}&  \mcc{Thomas L} \\\thickline
+          Chicago Blackhawks&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\
+          Boston Bruins & \mr{CHI} & \mr{6} & \mr{CHI} & \mr{6} & \mr{BOS} & \mr{6} & \mr{CHI} & \mr{6} & \mr{CHI} & \mr{5} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{6} & \mr{CHI} & \mr{7} & \mr{CHI} & \mr{7} & \mr{BOS} & \mr{5} & \mr{CHI} & \mr{6} & \mr{CHI} & \mr{7} & \mr{BOS} & \mr{4}\\\hline
+          \rowcolor{white}\\
+        \rowcolor{black} \mcn{29}{\color{white}\bf Conference Champions} \\
+          Eastern & \mclg{WSH} & \mcl{PIT} & \mclg{PIT} & \mcl{WSH} & \mclg{PIT} & \mcl{PIT} & \mclg{WSH} & \mcl{MTL} & \mclg{MTL} & \mcl{MTL} & \mclg{NYR} & \mcl{PIT} & \mclg{WSH} & \mcl{PIT}\\
+          Western & \mclg{DET} & \mcl{VAN} & \mclg{CHI} & \mcl{ANA} & \mclg{ANA} & \mcl{CHI} & \mclg{CHI} & \mcl{STL} & \mclg{CHI} & \mcl{VAN} & \mclg{CHI} & \mcl{CHI} & \mclg{VAN} & \mcl{CHI}\\
+          Stanley Cup & \mclg{WSH} & \mcl{PIT} & \mclg{PIT} & \mcl{ANA} & \mclg{PIT} & \mcl{CHI} & \mclg{CHI} & \mcl{STL} & \mclg{CHI} & \mcl{VAN} & \mclg{NYR} & \mcl{CHI} & \mclg{VAN} & \mcl{PIT}
+    \end{tabular}
+\end{table}
+
+{\bf Points}\\
+\begin{minipage}{12cm}
+    \begin{tabular}{l l}
+        Correct team:	& $7$\\
+        Correct series length (regardless of series winner):	& $10$\\
+        Stanley Cup champion:	& 25\\
+        Stanley Cup finalist:	& 15\\
+    \end{tabular}
+
+    \vspace{1cm}
+    {\bf Number of picks per team:}\\
+    \begin{tabular}{lc }
+        CHI & 8 \\
+        BOS & 6 \\
+    \end{tabular}
+\end{minipage}
+\begin{minipage}[t]{13cm}
+    \begin{figure}[H]
+        \vspace{-2.5cm}
+        \includegraphics[width=13cm]{/Users/daviddeepwell/Documents/Hockey/HockeyPool/DeepwellCup/figures/2013/Points-2013-Round3.pdf}
+    \end{figure}
+\end{minipage}
+
+\end{document}
