@@ -309,9 +309,16 @@ def create_points_description(year):
 
     header = '    \\begin{tabular}{l l}'
 
-    descriptor = f'''
-        Correct team:	& ${system['correct_team']}$\\\\
-        Correct series length (regardless of series winner):	& ${system['correct_length']}$\\\\'''
+    if year >= 2006 and year <= 2014:
+        descriptor = f'''
+            Correct team:	& ${system['correct_team']}$\\\\
+            Correct series length (regardless of series winner):	& ${system['correct_length']}$\\\\'''
+    elif year == 2015:
+        descriptor = f'''
+            Correct team (rounds 1,2,3):	& ${system['correct_team_rounds_123']}$\\\\
+            Correct series length (rounds 1,2,3 - regardless of series winner):	& ${system['correct_length_rounds_123']}$\\\\
+            Correct team (round 4):	& ${system['correct_team_rounds_4']}$\\\\
+            Correct series length (round 4 - regardless of series winner):	& ${system['correct_length_rounds_4']}$\\\\'''
     if year in [2006, 2007]:
         descriptor += f'''
         Correct team in a seven game series    & ${system['correct_7game_series']}$\\\\

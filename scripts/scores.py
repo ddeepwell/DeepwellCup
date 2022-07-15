@@ -52,10 +52,12 @@ def get_rounds_points(year, individual, round_data, series_results, other_data):
 
     points_rounds = []
     for rnd in [1,2,3,4]:
-        if individual in set(round_data[rnd-1]['Name']):
+        if individual in set(round_data[rnd-1]['Name']) or \
+                individual in other_data[rnd-1].index:
             selection_points = Scoring.round_points(
                 round_data[rnd-1].query(f'Name=="{individual}"'),
-                series_results[rnd-1]
+                series_results[rnd-1],
+                rnd
             )
             other_points = other_data[rnd-1].loc[individual]['Points'] \
                             if individual in other_data[rnd-1].index \
@@ -101,6 +103,10 @@ class IndividualScoring():
             self.stanley_cup_points = _stanley_cup_points_2009__2014
             self.round_points = _round_points_2009__2014
             self.points_system = _points_system_2009__2014
+        elif year == 2015:
+            self.stanley_cup_points = _stanley_cup_points_2015
+            self.round_points = _round_points_2015
+            self.points_system = _points_system_2015
 
 def _points_system_2006_2007():
     system = {
@@ -157,7 +163,7 @@ def _stanley_cup_points_2006_2007(individual_selections, results):
     score = winner_points + runnerup_points
     return score
 
-def _round_points_2006_2007(individual_selections, results):
+def _round_points_2006_2007(individual_selections, results, playoff_round):
     '''Return the points for an individual for a round in 2006 and 2007
         individual_selections are the picks made by one individual in that round
         results are the results of the round as given by db.get_all_round_results()
@@ -210,7 +216,7 @@ def _stanley_cup_points_2008(individual_selections, results):
     score = finalist_points + stanley_points
     return score
 
-def _round_points_2008(individual_selections, results):
+def _round_points_2008(individual_selections, results, playoff_round):
     '''Return the points for an individual for a round in 2008
         individual_selections are the picks made by one individual in that round
         results are the results of the round as given by db.get_all_round_results()
@@ -272,7 +278,7 @@ def _stanley_cup_points_2009__2014(individual_selections, results):
     score = winner_points + runnerup_points
     return score
 
-def _round_points_2009__2014(individual_selections, results):
+def _round_points_2009__2014(individual_selections, results, playoff_round):
     '''Return the points for an individual for a round in
         2009, 2010, 2011, 2012, 2013, and 2014
         individual_selections are the picks made by one individual in that round
@@ -290,4 +296,75 @@ def _round_points_2009__2014(individual_selections, results):
 
     score = num_correct_teams * system['correct_team'] + \
             num_correct_games * system['correct_length']
+    return score
+
+def _points_system_2015():
+    system = {
+        'stanley_cup_winner': 15,
+        'stanley_cup_runnerup': 10,
+        'correct_team_rounds_123': 10,
+        'correct_length_rounds_123': 5,
+        'correct_team_rounds_4': 20,
+        'correct_length_rounds_4': 10,
+    }
+    return system
+
+def _stanley_cup_points_2015(individual_selections, results):
+    '''Return the points for an individual in the stanley cup round in 2015
+        individual_selections is the dataframe of just the indivuals picks
+        results are the dataframe of the results
+    '''
+    system = _points_system_2015()
+
+    # find a subset of selections
+    team_selections = individual_selections[ \
+        ['EastSelection','WestSelection','StanleyCupSelection']].values.tolist()[0]
+    stanley_selection = individual_selections[['StanleyCupSelection']].values.tolist()[0][0]
+
+    # find runner-up
+    stanley_winner = results['StanleyCupWinner'][0]
+    mask = results[['EastWinner','WestWinner']] != stanley_winner
+    runnerup = results[['EastWinner','WestWinner']][mask].dropna(axis='columns').loc[0][0]
+
+    # points for stanley cup winner pick
+    if stanley_selection == stanley_winner:
+        winner_points = system['stanley_cup_winner']
+    else:
+        winner_points = 0
+
+    # points for stanley cup runner-up pick
+    predicted_runnerup = runnerup in team_selections and runnerup != stanley_selection
+    if predicted_runnerup:
+        runnerup_points = system['stanley_cup_runnerup']
+    else:
+        runnerup_points = 0
+
+    score = winner_points + runnerup_points
+    return score
+
+def _round_points_2015(individual_selections, results, playoff_round):
+    '''Return the points for an individual for a round in 2015
+        individual_selections are the picks made by one individual in that round
+        results are the results of the round as given by db.get_all_round_results()
+    '''
+    system = _points_system_2015()
+
+    merged_table = pd.merge(individual_selections, results, \
+                        on=['Conference','SeriesNumber'], how='inner')
+    matching_teams = merged_table.query('TeamSelection==Winner')
+    matching_games = merged_table.query('GameSelection==Games')
+
+    num_correct_teams = len(matching_teams)
+    num_correct_games = len(matching_games)
+
+    if playoff_round in [1,2,3]:
+        team_points = system['correct_team_rounds_123']
+        games_points = system['correct_length_rounds_123']
+    else:
+        team_points = system['correct_team_rounds_4']
+        games_points = system['correct_length_rounds_4']
+
+    score = num_correct_teams * team_points + \
+            num_correct_games * games_points
+
     return score

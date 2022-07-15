@@ -71,7 +71,7 @@ def year_chart(year, max_round='Champions', save=False):
                 )
                 # add text
                 y_individual = add_point_string(
-                    individual, playoff_round, round_points, other_data, axis, axis_list)
+                    year, individual, playoff_round, round_points, other_data, axis, axis_list)
                 left += round_points
             if playoff_round == rounds_to_plot[-1]:
                 # add total sum of points outside bar graph
@@ -109,14 +109,14 @@ def year_chart(year, max_round='Champions', save=False):
     axis.xaxis.set_ticks_position('none')
     axis.get_xaxis().set_ticks([])
 
-    add_legend(axis_list, other_data)
+    add_legend(axis_list, other_data, year)
     if save:
         # save figure for year
         file_name = fig_title.replace(' ','')
         save_figure(file_name, year)
 
 
-def add_point_string(individual, playoff_round, round_points, other_data, axis, axis_list):
+def add_point_string(year, individual, playoff_round, round_points, other_data, axis, axis_list):
     '''Add string of the points earned by the individual in a playoff round'''
 
     # find position to place the string
@@ -130,7 +130,11 @@ def add_point_string(individual, playoff_round, round_points, other_data, axis, 
     round_number = int(playoff_round[-1]) if playoff_round[:5] == 'Round' else None
     if round_number in [1,2,3,4]:
         if individual in other_data[round_number-1].index:
-            point_string += '$\\ast$'
+            if year == 2009:
+                point_string += '$\\ast$'
+            elif year == 2015:
+                point_string += '$\\dagger$'
+
 
     axis.text(x_round, y_individual,
         point_string,
@@ -138,7 +142,7 @@ def add_point_string(individual, playoff_round, round_points, other_data, axis, 
 
     return y_individual
 
-def add_legend(axis_list, other_data):
+def add_legend(axis_list, other_data, year):
     '''Add a legend'''
 
     # remove unused elements of a_bar
@@ -146,13 +150,17 @@ def add_legend(axis_list, other_data):
     last_index = len(axis_list)
     add_star_description = sum([len(other.index) for other in other_data[:last_index]]) != 0
     if add_star_description:
+        if year == 2009:
+            label = '$\\ast$: -7 points'
+        elif year == 2015:
+            label = '$\\dagger$: 50 points given'
         a_bar2.append(
             mpl.patches.Rectangle((0, 0), 1, 1,
                 facecolor = "none",
                 fill = False,
                 edgecolor = 'none',
                 linewidth = 0,
-                label = '$\\ast$: -7 points')
+                label = label)
         )
 
     # Put a legend to the right of the current axis
