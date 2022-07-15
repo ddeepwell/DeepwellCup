@@ -103,10 +103,10 @@ class IndividualScoring():
             self.stanley_cup_points = _stanley_cup_points_2009__2014
             self.round_points = _round_points_2009__2014
             self.points_system = _points_system_2009__2014
-        elif year == 2015:
-            self.stanley_cup_points = _stanley_cup_points_2015
-            self.round_points = _round_points_2015
-            self.points_system = _points_system_2015
+        elif year in [2015, 2016]:
+            self.stanley_cup_points = _stanley_cup_points_2015_2016
+            self.round_points = _round_points_2015_2016
+            self.points_system = _points_system_2015_2016
 
 def _points_system_2006_2007():
     system = {
@@ -298,7 +298,7 @@ def _round_points_2009__2014(individual_selections, results, playoff_round):
             num_correct_games * system['correct_length']
     return score
 
-def _points_system_2015():
+def _points_system_2015_2016():
     system = {
         'stanley_cup_winner': 15,
         'stanley_cup_runnerup': 10,
@@ -309,12 +309,12 @@ def _points_system_2015():
     }
     return system
 
-def _stanley_cup_points_2015(individual_selections, results):
-    '''Return the points for an individual in the stanley cup round in 2015
+def _stanley_cup_points_2015_2016(individual_selections, results):
+    '''Return the points for an individual in the stanley cup round in 2015 and 2016
         individual_selections is the dataframe of just the indivuals picks
         results are the dataframe of the results
     '''
-    system = _points_system_2015()
+    system = _points_system_2015_2016()
 
     # find a subset of selections
     team_selections = individual_selections[ \
@@ -342,12 +342,12 @@ def _stanley_cup_points_2015(individual_selections, results):
     score = winner_points + runnerup_points
     return score
 
-def _round_points_2015(individual_selections, results, playoff_round):
-    '''Return the points for an individual for a round in 2015
+def _round_points_2015_2016(individual_selections, results, playoff_round):
+    '''Return the points for an individual for a round in 2015 and 2016
         individual_selections are the picks made by one individual in that round
         results are the results of the round as given by db.get_all_round_results()
     '''
-    system = _points_system_2015()
+    system = _points_system_2015_2016()
 
     merged_table = pd.merge(individual_selections, results, \
                         on=['Conference','SeriesNumber'], how='inner')
