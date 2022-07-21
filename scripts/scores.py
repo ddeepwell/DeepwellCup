@@ -15,10 +15,10 @@ def year_points_table(year):
     round_data = []
     other_data = []
     with db_ops as db:
-        for rnd in [1,2,3,4]:
-            round_data.append(db.get_all_round_selections(year, rnd))
-            series_results.append(db.get_all_round_results(year, rnd))
-            other_data.append(db.get_other_points(year, rnd))
+        for playoff_round in [1,2,3,4]:
+            round_data.append(db.get_all_round_selections(year, playoff_round))
+            series_results.append(db.get_all_round_results(year, playoff_round))
+            other_data.append(db.get_other_points(year, playoff_round))
         stanley_data = db.get_stanley_cup_selections(year)
         stanley_results = db.get_stanley_cup_results(year)
 
@@ -48,19 +48,19 @@ def year_points_table(year):
 def get_rounds_points(year, individual, round_data, series_results, other_data):
     '''Return a list of points for each round'''
 
-    Scoring = IndividualScoring(year)
+    scoring = IndividualScoring(year)
 
     points_rounds = []
-    for rnd in [1,2,3,4]:
-        if individual in set(round_data[rnd-1]['Name']) or \
-                individual in other_data[rnd-1].index:
-            selection_points = Scoring.round_points(
-                round_data[rnd-1].query(f'Name=="{individual}"'),
-                series_results[rnd-1],
-                rnd
+    for playoff_round in [1,2,3,4]:
+        if individual in set(round_data[playoff_round-1]['Name']) or \
+                individual in other_data[playoff_round-1].index:
+            selection_points = scoring.round_points(
+                round_data[playoff_round-1].query(f'Name=="{individual}"'),
+                series_results[playoff_round-1],
+                playoff_round
             )
-            other_points = other_data[rnd-1].loc[individual]['Points'] \
-                            if individual in other_data[rnd-1].index \
+            other_points = other_data[playoff_round-1].loc[individual]['Points'] \
+                            if individual in other_data[playoff_round-1].index \
                             else 0
             points = selection_points + other_points
             points_rounds.append(points)
@@ -72,10 +72,10 @@ def get_rounds_points(year, individual, round_data, series_results, other_data):
 def get_stanley_points(year, individual, stanley_data, stanley_results):
     '''Return a list of dataframes of data for each round'''
 
-    Scoring = IndividualScoring(year)
+    scoring = IndividualScoring(year)
 
     if individual in stanley_data.index:
-        points_stanley = Scoring.stanley_cup_points(
+        points_stanley = scoring.stanley_cup_points(
                 stanley_data.query(f"Individual=='{individual}'"),
                 stanley_results)
     else:
@@ -163,7 +163,7 @@ def _stanley_cup_points_2006_2007(individual_selections, results):
     score = winner_points + runnerup_points
     return score
 
-def _round_points_2006_2007(individual_selections, results, playoff_round):
+def _round_points_2006_2007(individual_selections, results, _):
     '''Return the points for an individual for a round in 2006 and 2007
         individual_selections are the picks made by one individual in that round
         results are the results of the round as given by db.get_all_round_results()
@@ -216,7 +216,7 @@ def _stanley_cup_points_2008(individual_selections, results):
     score = finalist_points + stanley_points
     return score
 
-def _round_points_2008(individual_selections, results, playoff_round):
+def _round_points_2008(individual_selections, results, _):
     '''Return the points for an individual for a round in 2008
         individual_selections are the picks made by one individual in that round
         results are the results of the round as given by db.get_all_round_results()
@@ -278,7 +278,7 @@ def _stanley_cup_points_2009__2014(individual_selections, results):
     score = winner_points + runnerup_points
     return score
 
-def _round_points_2009__2014(individual_selections, results, playoff_round):
+def _round_points_2009__2014(individual_selections, results, _):
     '''Return the points for an individual for a round in
         2009, 2010, 2011, 2012, 2013, and 2014
         individual_selections are the picks made by one individual in that round
