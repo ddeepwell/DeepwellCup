@@ -309,6 +309,7 @@ def create_points_description(year):
 
     header = '    \\begin{tabular}{l l}'
 
+    # Series winner and series length points descriptor
     if year >= 2006 and year <= 2014:
         descriptor = f'''
             Correct team:	& ${system['correct_team']}$\\\\
@@ -319,6 +320,8 @@ def create_points_description(year):
             Correct series length (rounds 1,2,3 - regardless of series winner):	& ${system['correct_length_rounds_123']}$\\\\
             Correct team (round 4):	& ${system['correct_team_rounds_4']}$\\\\
             Correct series length (round 4 - regardless of series winner):	& ${system['correct_length_rounds_4']}$\\\\'''
+
+    # Stanley Cup and other points descriptor
     if year in [2006, 2007]:
         descriptor += f'''
         Correct team in a seven game series    & ${system['correct_7game_series']}$\\\\
@@ -392,4 +395,5 @@ f'''\\begin{{minipage}}[t]{{13cm}}
     \\end{{figure}}
 \\end{{minipage}}
 '''
+
     return image_minipage
