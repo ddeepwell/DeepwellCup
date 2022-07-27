@@ -31,3 +31,18 @@ def get_individuals(selections):
     """Find the individuals from a dataframe"""
 
     return selections.index.to_list()
+
+def get_stanley_cup_winner_and_runnerup(selections):
+    """Return the list of all Stanley Cup selections"""
+
+    stanley_selections = []
+
+    individuals = get_individuals(selections)
+    for individual in individuals:
+        first_name, last_name = individual.split(' ')
+        stanley_winner   = selections.loc[individual]["Who will win the Stanley Cup?"]
+        stanley_runnerup = selections.loc[individual]["Who will be the Stanley Cup runner-up?"]
+
+        stanley_selections.append([first_name, last_name, stanley_winner, stanley_runnerup])
+
+    return stanley_selections

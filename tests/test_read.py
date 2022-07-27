@@ -52,3 +52,26 @@ def test_get_individuals():
     returned_individuals = read.get_individuals(selections)
 
     assert expected_individuals == returned_individuals
+
+def test_get_stanley_cup_winner_and_runnerup_correct_csv():
+    """Test for get_stanley_cup_winner_and_runnerup"""
+
+    expected_selections = [
+        ['Alita', 'D', 'Edmonton Oilers', 'Montreal Canadiens'],
+        ['Andre', 'D', 'Washington Capitals', 'Chicago Blackhawks'],
+        ['Michael', 'D', 'Pittsburgh Penguins', 'Chicago Blackhawks']
+    ]
+
+    selections_file = tests_dir / 'data' / '2017 Deepwell Cup Round 1.csv'
+    selections = read.read_csv_as_dataframe(selections_file)
+    returned_selections = read.get_stanley_cup_winner_and_runnerup(selections)
+
+    assert expected_selections == returned_selections
+
+def test_get_stanley_cup_winner_and_runnerup_incorrect_csv():
+    """Test for get_stanley_cup_winner_and_runnerup"""
+
+    selections_file = tests_dir / 'data' / '2017 Deepwell Cup Round 3.csv'
+    selections = read.read_csv_as_dataframe(selections_file)
+    with pytest.raises(Exception):
+        read.get_stanley_cup_winner_and_runnerup(selections)
