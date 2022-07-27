@@ -26,3 +26,8 @@ def read_csv_as_dataframe(selections_file):
     data.drop(index='Results', inplace=True)
 
     return data
+
+def get_individuals(selections):
+    """Find the individuals from a dataframe"""
+
+    return selections.index.to_list()

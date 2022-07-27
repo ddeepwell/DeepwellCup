@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 import pandas as pd
+import pytest
 from scripts import read
 
 tests_dir = Path(os.path.dirname(__file__))
@@ -33,10 +34,21 @@ def test_read_csv_as_dataframe():
         ['2017/05/11 12:05:39 pm GMT-4', 'Anaheim Ducks',
             '6 Games', 'Ottawa Senators', '6 Games'],
     ]
-    individuals = ['Kyle', 'Alita', 'Michael']
+    individuals = ['Kyle L', 'Alita D', 'Michael D']
     expected_fdata = pd.DataFrame(selections, columns=columns, index=individuals)
 
     selections_file = tests_dir / 'data' / '2017 Deepwell Cup Round 3.csv'
     returned_fdata = read.read_csv_as_dataframe(selections_file)
 
     assert expected_fdata.equals(returned_fdata)
+
+def test_get_individuals():
+    """Test for get_individuals"""
+
+    expected_individuals = ['Kyle L', 'Alita D', 'Michael D']
+
+    selections_file = tests_dir / 'data' / '2017 Deepwell Cup Round 3.csv'
+    selections = read.read_csv_as_dataframe(selections_file)
+    returned_individuals = read.get_individuals(selections)
+
+    assert expected_individuals == returned_individuals
