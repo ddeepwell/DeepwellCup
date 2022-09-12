@@ -333,6 +333,11 @@ def create_points_description(year):
         Stanley Cup champion (in addition to finalist):	& {system['stanley_cup_winner']}\\\\
         Stanley Cup finalist:	& {system['stanley_cup_finalist']}\\\\
 '''
+    elif year == 2009:
+        descriptor += f'''
+        Stanley Cup champion:	& {system['stanley_cup_winner']}\\\\
+        Stanley Cup runner-up:	& {system['stanley_cup_runnerup']}\\\\
+'''
     elif year > 2009:
         descriptor += f'''
         Stanley Cup champion:	& {system['stanley_cup_winner']}\\\\

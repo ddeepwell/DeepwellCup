@@ -25,7 +25,7 @@ def import_2009_data():
             ['Andre','D','Pittsburgh Penguins','Chicago Blackhawks','Pittsburgh Penguins'],
             ['Andrew','D','Washington Capitals','San Jose Sharks','San Jose Sharks'],
             ['Andy','H','Washington Capitals','San Jose Sharks','San Jose Sharks'],
-            ['Daniel','S','Boston Bruins','Detroit Red Wings','Boston Bruins'],
+            ['Daniel','S','Boston Bruins','Detroit Red Wings','Detroit Red Wings'],
             ['David','D','Boston Bruins','San Jose Sharks','Boston Bruins'],
             ['Harry','L','New Jersey Devils','Detroit Red Wings','New Jersey Devils'],
             ['Isamu','M','Boston Bruins','St Louis Blues','Boston Bruins'],
