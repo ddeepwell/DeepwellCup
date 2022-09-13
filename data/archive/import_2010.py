@@ -110,7 +110,7 @@ def import_2010_data():
                 ['Washington Capitals',6],
                 ['Philadelphia Flyers',5],
                 ['Boston Bruins',6],
-                ['Pittsburgh Penguins',7]
+                ['Ottawa Senators',7]
             ]
         ]
         west_selections_1 = [
