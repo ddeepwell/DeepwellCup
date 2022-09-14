@@ -137,7 +137,7 @@ def create_series_results_table(create_series_selections_table):
 def temp_database(create_series_results_table):
     '''Return the database class object'''
     cursor = create_series_results_table
-    yield DataBaseOperations(database_name=temp_file)
+    yield DataBaseOperations(database_path=temp_file)
     cursor.close()
 
 class TestDatabase:

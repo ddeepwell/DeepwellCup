@@ -3,6 +3,7 @@
 """
 import sqlite3
 import os
+from pathlib import Path
 import errno
 import warnings
 import pandas as pd
@@ -11,8 +12,12 @@ from scripts import checks
 class DataBaseOperations():
     '''Class for functions to work with the database'''
 
-    def __init__(self, database_name='database/DeepwellCup.db'):
-        self.name = database_name
+    def __init__(self, database_path='database/DeepwellCup.db'):
+        if database_path[0] != '/' and database_path[:5] != 'file:':
+            database_dir = Path(__file__).absolute()
+            project_root = database_dir.parents[1]
+            database_path = project_root / database_path
+        self.path = database_path
         self.conn = None
         self.cursor = None
 
@@ -25,10 +30,10 @@ class DataBaseOperations():
         self.conn.close()
 
     def _connect(self):
-        if not os.path.exists(self.name) and self.name != "file:memfile?mode=memory&cache=shared":
-            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), self.name)
+        if not os.path.exists(self.path) and self.path != "file:memfile?mode=memory&cache=shared":
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), self.path)
         try:
-            return sqlite3.connect(self.name, uri=True)
+            return sqlite3.connect(self.path, uri=True)
         except sqlite3.Error as err:
             print(err)
 
