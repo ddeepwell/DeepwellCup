@@ -23,7 +23,7 @@ def test_read_csv_as_dataframe():
 
     columns = [
         'Timestamp',
-        'NAS-ANA', 'NAS-ANA series length:',
+        'NSH-ANA', 'NSH-ANA series length:',
         'OTT-PIT', 'OTT-PIT series length:'
     ]
     selections = [
