@@ -33,7 +33,7 @@ def get_individuals(selections):
 
     return selections.index.to_list()
 
-def get_stanley_cup_winner_and_runnerup(selections):
+def get_stanley_cup_selections(selections):
     """Return the list of all Stanley Cup selections"""
 
     stanley_selections = []
