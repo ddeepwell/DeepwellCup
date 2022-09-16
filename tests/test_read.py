@@ -75,3 +75,44 @@ def test_get_stanley_cup_winner_and_runnerup_incorrect_csv():
     selections = read.read_csv_as_dataframe(selections_file)
     with pytest.raises(Exception):
         read.get_stanley_cup_winner_and_runnerup(selections)
+
+def test_create_series_list_east():
+    """Test for create_series_list with an Eastern Conference"""
+
+    conference = 'East'
+    selections_file = tests_dir / 'data' / '2017 Deepwell Cup Round 3.csv'
+    selections = read.read_csv_as_dataframe(selections_file)
+    returned_output = read.create_series_list(selections, conference)
+    expected_output = [['Ottawa Senators', 'Pittsburgh Penguins']]
+
+    assert expected_output == returned_output
+
+def test_create_series_list_west():
+    """Test for create_series_list with an Western Conference"""
+
+    conference = 'West'
+    selections_file = tests_dir / 'data' / '2017 Deepwell Cup Round 3.csv'
+    selections = read.read_csv_as_dataframe(selections_file)
+    returned_output = read.create_series_list(selections, conference)
+    expected_output = [['Nashville Predators', 'Anaheim Ducks']]
+
+    assert expected_output == returned_output
+
+def test_create_series_list_finals():
+    """Test for create_series_list in the Finals"""
+
+    conference = 'Finals'
+    selections_file = tests_dir / 'data' / '2017 Deepwell Cup Round 4.csv'
+    selections = read.read_csv_as_dataframe(selections_file)
+    returned_output = read.create_series_list(selections, conference)
+    expected_output = [['Pittsburgh Penguins', 'Nashville Predators']]
+
+    assert expected_output == returned_output
+
+def test_create_series_list_fails():
+    """Test for create_series_list which fails"""
+
+    selections_file = tests_dir / 'data' / '2017 Deepwell Cup Round 4.csv'
+    selections = read.read_csv_as_dataframe(selections_file)
+    with pytest.raises(Exception):
+        read.create_series_list(selections, "Weeest")

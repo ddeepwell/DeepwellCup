@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 import pandas as pd
+from scripts.nhl_teams import lengthen_team_name as ltn
 
 def get_csv_filename(year, playoff_round):
     """Find the csv file name containing selections
@@ -46,3 +47,32 @@ def get_stanley_cup_winner_and_runnerup(selections):
         stanley_selections.append([first_name, last_name, stanley_winner, stanley_runnerup])
 
     return stanley_selections
+
+def create_series_list(fdata, conference):
+    """Create lists of the teams in each series"""
+
+    # extract the headers with only team acronyms
+    series_headers = [col for col in fdata.columns if '-' in col and 'length' not in col]
+    num_series_in_conference = len(series_headers)//2
+
+    # subset the headers for the chosen conference
+    if conference == "East":
+        # east comes second
+        conference_series_headers = series_headers[num_series_in_conference:]
+    elif conference == "West":
+        # west comes first
+        conference_series_headers = series_headers[:num_series_in_conference]
+    elif conference == "Finals":
+        conference_series_headers = series_headers
+    else:
+        raise Exception(f"The conference ({conference}) was not understood "\
+                        "for the input dataframe")
+
+    # turn headers into lists
+    series = []
+    for series_string in conference_series_headers:
+        higher_team_acronym, lower_team_acronym = series_string.split('-')
+        team_higher_seed = ltn(higher_team_acronym)
+        team_lower_seed  = ltn(lower_team_acronym)
+        series.append([team_higher_seed, team_lower_seed])
+    return series
