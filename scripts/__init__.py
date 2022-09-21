@@ -11,4 +11,5 @@ from scripts.database import DataBaseOperations
 from scripts.latex_table import make_latex_file
 from scripts.scores import year_points_table
 from scripts import checks
+from scripts.selections import Selections
 from scripts.plots import year_chart
