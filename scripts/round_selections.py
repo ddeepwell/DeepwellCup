@@ -1,4 +1,5 @@
 """Read participant round selection data from a data files"""
+import re
 import pandas as pd
 from scripts import DataFile
 from scripts.nhl_teams import lengthen_team_name as ltn
@@ -23,8 +24,13 @@ class RoundSelections(DataFile):
         # modify dataframe
         data.rename(columns={'Name:': 'Name'}, inplace=True)
         data.index = data['Name']
-        data.drop(columns='Name', inplace=True)
+        # data.drop(columns='Name', inplace=True)
         data.drop(index='Results', inplace=True)
+        # drop columns that are not timestamp or specific to the playoff round
+        cols_to_drop = [col for col in data.columns
+                        if not bool(re.match(r"^[A-Z]{3}-[A-Z]{3}.*", col))
+                        and col != 'Timestamp']
+        data.drop(columns=cols_to_drop, inplace=True)
 
         self._data = data
 
@@ -38,7 +44,8 @@ class RoundSelections(DataFile):
         """Return the teams in each series in each conference (when relevant)"""
 
         # extract the headers with only team acronyms
-        series_headers = [col for col in self.data.columns if '-' in col and len(col)==7]
+        series_headers = [col for col in self.data.columns
+                            if bool(re.match(r"^[A-Z]{3}-[A-Z]{3}$", col))]
         num_series_in_conference = len(series_headers)//2
 
         # turn headers into lists
