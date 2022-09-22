@@ -1,12 +1,12 @@
-"""Tests for read"""
+"""Tests for round_selections"""
 import os
 from pathlib import Path
 from unittest import TestCase
 import pandas as pd
-from scripts import Selections
+from scripts import RoundSelections
 
-class SelectionsTest(TestCase):
-    """ Class for tests of the read class"""
+class RoundSelectionsTest(TestCase):
+    """ Class for tests of the RoundSelections class"""
 
     def setUp(self):
         """ General setup options"""
@@ -15,55 +15,13 @@ class SelectionsTest(TestCase):
         self.data_dir = self.tests_dir.parent / 'data'
         self.test_data_dir = self.tests_dir / 'data'
 
-    def test_year(self):
-        """Test for year"""
-
-        year = 2017
-        playoff_round = 1
-        directory = self.test_data_dir
-        pr = Selections(year=year, playoff_round=playoff_round, directory=directory)
-
-        assert pr.year == year
-
-    def test_playoff_round(self):
-        """Test for playoff_round"""
-
-        year = 2017
-        playoff_round = 1
-        directory = self.test_data_dir
-        pr = Selections(year=year, playoff_round=playoff_round, directory=directory)
-
-        assert pr.playoff_round == playoff_round
-
-    def test_source_file_input(self):
-        """Test for source_file with input"""
-
-        year = 2017
-        playoff_round = 1
-        directory = self.test_data_dir
-        pr = Selections(year=year, playoff_round=playoff_round, directory=directory)
-        expected_value = directory / f"{year} Deepwell Cup Round {playoff_round}.csv"
-
-        assert pr.source_file == expected_value
-
-    def test_source_file_default(self):
-        """Test for source_file with default path"""
-
-        year = 2017
-        playoff_round = 1
-        pr = Selections(year=year, playoff_round=playoff_round)
-        expected_value = self.data_dir / str(year) / \
-                        f"{year} Deepwell Cup Round {playoff_round}.csv"
-
-        assert pr.source_file == expected_value
-
     def test_data(self):
         """Test for data"""
 
         year = 2017
         playoff_round = 3
         directory = self.test_data_dir
-        pr = Selections(year=year, playoff_round=playoff_round, directory=directory)
+        picks = RoundSelections(year=year, playoff_round=playoff_round, directory=directory)
 
         columns = [
             'Timestamp',
@@ -81,7 +39,7 @@ class SelectionsTest(TestCase):
         individuals = ['Kyle L', 'Alita D', 'Michael D']
         expected_fdata = pd.DataFrame(selections, columns=columns, index=individuals)
 
-        assert expected_fdata.equals(pr.data)
+        assert expected_fdata.equals(picks.data)
 
     def test_individuals(self):
         """Test for individuals"""
@@ -89,11 +47,11 @@ class SelectionsTest(TestCase):
         year = 2017
         playoff_round = 3
         directory = self.test_data_dir
-        pr = Selections(year=year, playoff_round=playoff_round, directory=directory)
+        picks = RoundSelections(year=year, playoff_round=playoff_round, directory=directory)
 
         expected_individuals = ['Kyle L', 'Alita D', 'Michael D']
 
-        assert pr.individuals == expected_individuals
+        assert picks.individuals == expected_individuals
 
     def test_series_round1(self):
         """Test for series in round 1"""
@@ -101,7 +59,7 @@ class SelectionsTest(TestCase):
         year = 2017
         playoff_round = 1
         directory = self.test_data_dir
-        pr = Selections(year=year, playoff_round=playoff_round, directory=directory)
+        picks = RoundSelections(year=year, playoff_round=playoff_round, directory=directory)
 
         expected_output = {
             'West': [['Chicago Blackhawks', 'Nashville Predators'],
@@ -114,7 +72,7 @@ class SelectionsTest(TestCase):
                     ['Ottawa Senators', 'Boston Bruins']]
             }
 
-        assert pr.series == expected_output
+        assert picks.series == expected_output
 
     def test_series_roundr(self):
         """Test for series in round 4"""
@@ -122,10 +80,10 @@ class SelectionsTest(TestCase):
         year = 2017
         playoff_round = 4
         directory = self.test_data_dir
-        pr = Selections(year=year, playoff_round=playoff_round, directory=directory)
+        picks = RoundSelections(year=year, playoff_round=playoff_round, directory=directory)
 
         expected_output = {
             "Finals": [['Pittsburgh Penguins', 'Nashville Predators']],
         }
 
-        assert pr.series == expected_output
+        assert picks.series == expected_output

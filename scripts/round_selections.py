@@ -1,44 +1,14 @@
-"""Read participant selection data from CSV files"""
-import os
-from pathlib import Path
+"""Read participant round selection data from a data files"""
 import pandas as pd
+from scripts import DataFile
 from scripts.nhl_teams import lengthen_team_name as ltn
 
-class Selections():
+class RoundSelections(DataFile):
     """Class for gathering and processing information about a playoff round"""
 
     def __init__(self, year, playoff_round, directory=None):
-        self._year = year
-        self._playoff_round = playoff_round
-        self.source_file = directory
+        super().__init__(year=year, playoff_round=playoff_round, directory=directory)
         self._read_playoff_round_info()
-
-    @property
-    def year(self):
-        """The year"""
-        return self._year
-
-    @property
-    def playoff_round(self):
-        """The playoff round"""
-        return self._playoff_round
-
-    @property
-    def source_file(self):
-        """The source file"""
-        return self._source_file
-
-    @source_file.setter
-    def source_file(self, directory=None):
-        """Return the csv file name containing selections
-        for the year and playoff round"""
-
-        if directory is None:
-            scripts_dir = Path(os.path.dirname(__file__))
-            directory = scripts_dir.parent / 'data' / f'{self.year}'
-        file_name = f'{self.year} Deepwell Cup Round {self.playoff_round}.csv'
-        selections_file = directory / file_name
-        self._source_file = selections_file
 
     @property
     def data(self):
@@ -80,7 +50,7 @@ class Selections():
             series.append([team_higher_seed, team_lower_seed])
 
         # subset the headers for the chosen conference
-        if self.playoff_round != 4:
+        if self.playoff_round in [1,2,3]:
             # west comes first
             west_series = series[:num_series_in_conference]
             # east comes second
