@@ -74,7 +74,7 @@ class RoundSelectionsTest(TestCase):
 
         assert picks.series == expected_output
 
-    def test_series_roundr(self):
+    def test_series_round4(self):
         """Test for series in round 4"""
 
         year = 2017
