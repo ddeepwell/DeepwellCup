@@ -3,6 +3,31 @@ import re
 import pandas as pd
 from scripts import DataFile
 from scripts.nhl_teams import lengthen_team_name as ltn
+from scripts.nhl_teams import shorten_team_name as stn
+
+def split_name(name):
+    """From a single string return the first and last name"""
+
+    if ' ' in name:
+        first_name, last_name = name.split(' ')
+    else:
+        first_name = name
+        last_name = ''
+
+    return first_name, last_name
+
+def series_selection(individual_data, teams):
+    """Create the individuals selections for a round"""
+
+    # series is a list of the higher and lower ranked teams in a series
+    higher_seed = stn(teams[0])
+    lower_seed  = stn(teams[1])
+    series_team_header = f"{higher_seed}-{lower_seed}"
+    series_game_header = f"{higher_seed}-{lower_seed} series length:"
+    team_selection = stn(individual_data.loc[series_team_header])
+    game_selection = int(individual_data.loc[series_game_header][0])
+
+    return [team_selection, game_selection]
 
 class RoundSelections(DataFile):
     """Class for gathering and processing information about a playoff round"""
@@ -70,3 +95,32 @@ class RoundSelections(DataFile):
             series_dict = {"Finals": series}
 
         return series_dict
+
+    @property
+    def selections(self):
+        """Return everyone selections"""
+
+        west_selections = []
+        east_selections = []
+        finals_selections = []
+        for individual in self.individuals:
+            individual_data = self.data.loc[individual]
+
+            if self.playoff_round in [1,2,3]:
+                first_name, last_name = split_name(individual)
+                # handle east and west separately
+                for series_teams in self.series['West']:
+                    individual_selection = series_selection(individual_data, series_teams)
+                    west_selections.append([first_name, last_name, *individual_selection])
+                for series_teams in self.series['East']:
+                    individual_selection = series_selection(individual_data, series_teams)
+                    east_selections.append([first_name, last_name, *individual_selection])
+                selections = {'West': west_selections, 'East': east_selections}
+            else:
+                # there is no conference in the Final round
+                for series_teams in self.series['Finals']:
+                    individual_selection = series_selection(individual_data, series_teams)
+                    finals_selections.append([first_name, last_name, *individual_selection])
+                    selections = {'Finals': finals_selections}
+
+        return selections
