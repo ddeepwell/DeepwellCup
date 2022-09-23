@@ -7,7 +7,7 @@ def shorten_team_name(team):
 
     if team == 'Anaheim Ducks':
         return_val = 'ANA'
-    if team == 'Atlanta Thrashers':
+    elif team == 'Atlanta Thrashers':
         return_val = 'ATL'
     elif team == 'Arizona Coyotes' or team == 'Phoenix Coyotes':
         return_val = 'ARI'
@@ -71,6 +71,8 @@ def shorten_team_name(team):
         return_val = 'WPG'
     elif team is None:
         return_val = ''
+    else:
+        raise ValueError(f'Team "{team}" is not a valid input')
     return return_val
 
 def lengthen_team_name( team ):
@@ -138,4 +140,6 @@ def lengthen_team_name( team ):
         return_val = 'Washington Capitals'
     elif team == 'WPG':
         return_val = 'Winnipeg Jets'
+    else:
+        raise ValueError(f'Team "{team}" is not a valid input')
     return return_val
