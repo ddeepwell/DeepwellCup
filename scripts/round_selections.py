@@ -4,17 +4,7 @@ import pandas as pd
 from scripts import DataFile
 from scripts.nhl_teams import lengthen_team_name as ltn
 from scripts.nhl_teams import shorten_team_name as stn
-
-def split_name(name):
-    """From a single string return the first and last name"""
-
-    if ' ' in name:
-        first_name, last_name = name.split(' ')
-    else:
-        first_name = name
-        last_name = ''
-
-    return first_name, last_name
+from scripts import utils
 
 def series_selection(individual_data, teams):
     """Create the individuals selections for a round"""
@@ -107,7 +97,7 @@ class RoundSelections(DataFile):
             individual_data = self.data.loc[individual]
 
             if self.playoff_round in [1,2,3]:
-                first_name, last_name = split_name(individual)
+                first_name, last_name = utils.split_name(individual)
                 # handle east and west separately
                 for series_teams in self.series['West']:
                     individual_selection = series_selection(individual_data, series_teams)
