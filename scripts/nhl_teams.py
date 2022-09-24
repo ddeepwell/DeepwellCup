@@ -143,3 +143,62 @@ def lengthen_team_name( team ):
     else:
         raise ValueError(f'Team "{team}" is not a valid input')
     return return_val
+
+def conference(team, year):
+    "Return the conference that a team belongs in"
+
+    east_list = [
+        'BOS', 'Boston Bruins'
+        'BUF', 'Buffalo Sabres'
+        'CAR', 'Carolina Hurricanes'
+        'FLA', 'Florida Panthers'
+        'MTL', 'Montreal Canadiens'
+        'NJD', 'New Jersey Devils'
+        'NYI', 'New York Islanders'
+        'NYR', 'New York Rangers'
+        'OTT', 'Ottawa Senators'
+        'PHI', 'Philadelphia Flyers'
+        'PIT', 'Pittsburgh Penguins'
+        'TBL', 'Tampa Bay Lightning'
+        'TOR', 'Toronto Maple Leafs'
+        'WSH', 'Washington Capitals'
+    ]
+    west_list = [
+        'ANA', 'Anaheim Ducks'
+        'ARI', 'Arizona Coyotes', 'Phoenix Coyotes'
+        'CGY', 'Calgary Flames'
+        'COL', 'Colorado Avalanche'
+        'DAL', 'Dallas Stars'
+        'EDM', 'Edmonton Oilers'
+        'LAK', 'Los Angeles Kings'
+        'MIN', 'Minnesota Wild'
+        'SJS', 'San Jose Sharks'
+        'STL', 'St Louis Blues'
+        'VAN', 'Vancouver Canucks'
+        'VGK', 'Vegas Golden Knights'
+        'NSH', 'Nashville Predators'
+        'CHI', 'Chicago Blackhawks'
+        'SEA', 'Seattle Kraken'
+    ]
+
+    if year <= 2013:
+        west_list += [
+            'CBJ', 'Columbus Blue Jackets'
+            'DET', 'Detroit Red Wings'
+        ]
+        east_list += ['WPG', 'Winnipeg Jets']
+    if year > 2013:
+        east_list += [
+            'CBJ', 'Columbus Blue Jackets'
+            'DET', 'Detroit Red Wings'
+        ]
+        west_list += ['WPG', 'Winnipeg Jets']
+
+    if team in east_list:
+        conf = 'East'
+    elif team in west_list:
+        conf = 'West'
+    else:
+        raise Exception(f'The team ({team}) was not understood')
+
+    return conf
