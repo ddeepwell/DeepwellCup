@@ -4,7 +4,6 @@ from pathlib import Path
 from unittest import TestCase
 import pandas as pd
 from scripts import RoundSelections
-from scripts import round_selections
 
 class RoundSelectionsTest(TestCase):
     """ Class for tests of the RoundSelections class"""
@@ -93,20 +92,20 @@ class RoundSelectionsTest(TestCase):
         """Test for selection in round 3"""
 
         year = 2017
-        playoff_round = 3
+        playoff_round = 2
         directory = self.test_data_dir
         picks = RoundSelections(year=year, playoff_round=playoff_round, directory=directory)
 
         expected_output = {
             "West": [
-                ['Kyle', 'L', 'ANA', 6],
-                ['Alita', 'D', 'NSH', 6],
-                ['Michael', 'D', 'ANA', 6]
+                ['Alita', 'D', ['St Louis Blues', 6], ['Edmonton Oilers', 7]],
+                ['Brian', 'M', ['Nashville Predators', 6], ['Anaheim Ducks', 6]],
+                ['Jackson', 'L', ['Nashville Predators', 6], ['Edmonton Oilers', 6]],
             ],
             "East": [
-                ['Kyle', 'L', 'OTT', 7],
-                ['Alita', 'D', 'OTT', 7],
-                ['Michael', 'D', 'OTT', 6]
+                ['Alita', 'D', ['New York Rangers', 5], ['Washington Capitals', 6]],
+                ['Brian', 'M', ['Ottawa Senators', 7], ['Pittsburgh Penguins', 5]],
+                ['Jackson', 'L', ['Ottawa Senators', 6], ['Pittsburgh Penguins', 6]],
             ],
         }
 
