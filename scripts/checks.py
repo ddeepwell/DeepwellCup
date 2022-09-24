@@ -1,6 +1,7 @@
 """
 Check functions for Deepwell Cup
 """
+from scripts.nhl_teams import shorten_team_name as stn
 
 def check_if_year_is_valid(year):
     '''Check if the year is valid'''
@@ -30,13 +31,20 @@ def check_if_selections_are_valid(
         team_selection, game_selection, player_selection):
     '''Check if the selections match those of the series'''
     series_data = db_ops.get_year_round_series(year, playoff_round, conference, series_number)
-    if team_selection not in series_data[['TeamHigherSeed','TeamLowerSeed']].values[0]:
+
+    # get series and, shortened form of the teams in the series
+    series = series_data[['TeamHigherSeed','TeamLowerSeed']].values[0]
+    series_acronym = list(map(stn, series))
+
+    if team_selection not in series:
         if team_selection is not None:
-            raise Exception(f'The selected team, {team_selection}, is invalid for this series')
+            raise Exception(f'The selected team, {team_selection}, '
+                            f'is invalid for the series, {series_acronym}')
     if game_selection not in [4,5,6,7]:
         if game_selection is not None:
             raise Exception(f'The series length, {game_selection}, is invalid. '\
                 'It must be in {4,5,6,7} or None')
     if player_selection not in \
             series_data[['PlayerHigherSeed','PlayerLowerSeed']].values[0].tolist() + [None]:
-        raise Exception(f'The selected player, {player_selection}, is invalid for this series')
+        raise Exception(f'The selected player, {player_selection}, '
+                        f'is invalid for the series, {series_acronym}')
