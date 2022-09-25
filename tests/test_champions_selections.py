@@ -2,7 +2,6 @@
 import os
 from pathlib import Path
 from unittest import TestCase
-import pandas as pd
 from scripts import ChampionsSelections
 
 class RoundSelectionsTest(TestCase):
