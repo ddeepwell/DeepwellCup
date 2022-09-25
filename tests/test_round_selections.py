@@ -97,16 +97,16 @@ class RoundSelectionsTest(TestCase):
         picks = RoundSelections(year=year, playoff_round=playoff_round, directory=directory)
 
         expected_output = {
-            "West": [
-                ['Alita', 'D', ['St Louis Blues', 6], ['Edmonton Oilers', 7]],
-                ['Brian', 'M', ['Nashville Predators', 6], ['Anaheim Ducks', 6]],
-                ['Jackson', 'L', ['Nashville Predators', 6], ['Edmonton Oilers', 6]],
-            ],
-            "East": [
-                ['Alita', 'D', ['New York Rangers', 5], ['Washington Capitals', 6]],
-                ['Brian', 'M', ['Ottawa Senators', 7], ['Pittsburgh Penguins', 5]],
-                ['Jackson', 'L', ['Ottawa Senators', 6], ['Pittsburgh Penguins', 6]],
-            ],
+            "West": {
+                'Alita D': [['St Louis Blues', 6], ['Edmonton Oilers', 7]],
+                'Brian M': [['Nashville Predators', 6], ['Anaheim Ducks', 6]],
+                'Jackson L': [['Nashville Predators', 6], ['Edmonton Oilers', 6]],
+            },
+            "East": {
+                'Alita D': [['New York Rangers', 5], ['Washington Capitals', 6]],
+                'Brian M': [['Ottawa Senators', 7], ['Pittsburgh Penguins', 5]],
+                'Jackson L': [['Ottawa Senators', 6], ['Pittsburgh Penguins', 6]],
+            },
         }
 
         assert picks.selections == expected_output

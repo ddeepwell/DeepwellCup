@@ -4,20 +4,6 @@ import pandas as pd
 from scripts import DataFile
 from scripts.nhl_teams import lengthen_team_name as ltn
 from scripts.nhl_teams import shorten_team_name as stn
-from scripts import utils
-
-def series_selection(individual_data, teams):
-    """Create the individuals selections for a round"""
-
-    # series is a list of the higher and lower ranked teams in a series
-    higher_seed = stn(teams[0])
-    lower_seed  = stn(teams[1])
-    series_team_header = f"{higher_seed}-{lower_seed}"
-    series_game_header = f"{higher_seed}-{lower_seed} series length:"
-    team_selection = individual_data.loc[series_team_header]
-    game_selection = int(individual_data.loc[series_game_header][0])
-
-    return [team_selection, game_selection]
 
 class RoundSelections(DataFile):
     """Class for gathering and processing information about a playoff round"""
@@ -88,26 +74,41 @@ class RoundSelections(DataFile):
         """Return everyones selections"""
 
         if self.playoff_round in [1,2,3]:
-            west_selections = [
-                self._individual_conference_selections(self.data.loc[individual], 'West')
+            west_selections = {individual:
+                self._individual_conference_selections(individual, 'West')
                 for individual in self.individuals
-            ]
-            east_selections = [
-                self._individual_conference_selections(self.data.loc[individual], 'East')
+            }
+            east_selections = {individual:
+                self._individual_conference_selections(individual, 'East')
                 for individual in self.individuals
-            ]
+            }
             selections = {'West': west_selections, 'East': east_selections}
         else:
-            finals_selections = [
-                self._individual_conference_selections(self.data.loc[individual], 'Finals')
+            finals_selections = {individual:
+                self._individual_conference_selections(individual, 'Finals')
                 for individual in self.individuals
-            ]
+            }
             selections = {'Finals': finals_selections}
 
         return selections
 
-    def _individual_conference_selections(self, individual_data, conference):
-        first_name, last_name = utils.split_name(individual_data.name)
-        individual_selections = [series_selection(individual_data, series_teams)
-            for series_teams in self.series[conference]]
-        return [first_name, last_name, *individual_selections]
+    def _individual_conference_selections(self, individual, conference):
+        """The individuals selections for a conference"""
+
+        individual_data = self.data.loc[individual]
+        individual_selections = [self._series_selection(individual_data, series_teams)
+                                    for series_teams in self.series[conference]]
+        return individual_selections
+
+    def _series_selection(self, individual_data, teams):
+        """Create the individuals selections for a round"""
+
+        # series is a list of the higher and lower ranked teams in a series
+        higher_seed = stn(teams[0])
+        lower_seed  = stn(teams[1])
+        series_team_header = f"{higher_seed}-{lower_seed}"
+        series_game_header = f"{higher_seed}-{lower_seed} series length:"
+        team_selection = individual_data.loc[series_team_header]
+        game_selection = int(individual_data.loc[series_game_header][0])
+
+        return [team_selection, game_selection]
