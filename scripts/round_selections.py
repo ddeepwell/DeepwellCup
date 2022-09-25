@@ -73,13 +73,10 @@ class RoundSelections(DataFile):
 
         # subset the headers for the chosen conference
         if self.playoff_round in [1,2,3]:
-            # west comes first
-            west_series = series[:num_series_in_conference]
-            # east comes second
-            east_series = series[num_series_in_conference:]
+            # west comes first, and east comes second
             series_dict = {
-                "West": west_series,
-                "East": east_series,
+                "West": series[:num_series_in_conference],
+                "East": series[num_series_in_conference:],
             }
         else:
             series_dict = {"Finals": series}
