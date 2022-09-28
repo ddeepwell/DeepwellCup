@@ -100,7 +100,7 @@ class IndividualScoring():
             self.round_points = _round_points_2008
             self.points_system = _points_system_2008
         elif year in [2009, 2010, 2011, 2012, 2013, 2014]:
-            self.stanley_cup_points = _stanley_cup_points_2009__2014
+            self.stanley_cup_points = _stanley_cup_points_2009_2014
             self.round_points = _round_points_2009__2014
             self.points_system = _points_system_2009__2014
         elif year in [2015, 2016]:
@@ -244,7 +244,7 @@ def _points_system_2009__2014():
     }
     return system
 
-def _stanley_cup_points_2009__2014(individual_selections, results):
+def _stanley_cup_points_2009_2014(individual_selections, results):
     '''Return the points for an individual in the stanley cup round in
         2009, 2010, 2011, 2012, 2013, and 2014
         individual_selections is the dataframe of just the indivuals picks
