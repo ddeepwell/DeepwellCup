@@ -140,6 +140,8 @@ class DataBaseOperations():
         checks.check_if_year_is_valid(year)
         sc_selections = pd.read_sql_query(
                 f'SELECT * FROM StanleyCupResults WHERE Year={year}', self.conn)
+        if sc_selections.empty:
+            raise  Exception(f'The year ({year}) was not in the StanleyCupResults Table')
         sc_selections.drop('Year', axis='columns', inplace=True)
         return sc_selections
 
