@@ -83,7 +83,7 @@ class RoundSelectionsTest(TestCase):
         picks = RoundSelections(year=year, playoff_round=playoff_round, directory=directory)
 
         expected_output = {
-            "Finals": [['Pittsburgh Penguins', 'Nashville Predators']],
+            None: [['Pittsburgh Penguins', 'Nashville Predators']],
         }
 
         assert picks.series == expected_output

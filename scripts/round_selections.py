@@ -65,7 +65,7 @@ class RoundSelections(DataFile):
                 "East": series[num_series_in_conference:],
             }
         else:
-            series_dict = {"Finals": series}
+            series_dict = {None: series}
 
         return series_dict
 
@@ -85,10 +85,10 @@ class RoundSelections(DataFile):
             selections = {'West': west_selections, 'East': east_selections}
         else:
             finals_selections = {individual:
-                self._individual_conference_selections(individual, 'Finals')
+                self._individual_conference_selections(individual, None)
                 for individual in self.individuals
             }
-            selections = {'Finals': finals_selections}
+            selections = {None: finals_selections}
 
         return selections
 

@@ -51,8 +51,8 @@ class Results(DataFile):
             results = {'West': west_results, 'East': east_results}
         elif self.playoff_round == 4:
             rs = RoundSelections(self.year, self.playoff_round)
-            finals_results = self._conference_results(rs.series['Finals'])
-            results = {'Finals': finals_results}
+            finals_results = self._conference_results(rs.series[None])
+            results = {None: finals_results}
         elif self.playoff_round == 'Champions':
             champions_results = self._champions_results()
             results = {'Champions': champions_results}

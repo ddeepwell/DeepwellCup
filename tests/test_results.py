@@ -44,7 +44,7 @@ class ResultsTest(TestCase):
         results = Results(year=year, playoff_round=playoff_round, directory=directory)
 
         expected_output = {
-            'Finals': {'PIT-NSH': ['Pittsburgh Penguins', 6]}
+            None: {'PIT-NSH': ['Pittsburgh Penguins', 6]}
             }
 
         assert results.results == expected_output
