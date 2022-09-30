@@ -92,7 +92,7 @@ def year_chart(year, max_round='Champions', save=False):
     # set axis and add labels
     y_pos = np.arange(num_individuals)
     axis.set_yticks(y_pos)
-    axis.set_yticklabels(individuals_to_plot)
+    axis.set_yticklabels([ind.strip() for ind in individuals_to_plot])
     axis.set_xlim(0, max_points*1.02)
     fig_title = f'Points - {year}'
     if max_round_name != 'Champions':
