@@ -1,0 +1,101 @@
+
+%----------------------------------------------------------------------------------------
+%	Settings and packages
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt]{article}
+
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{ctable}
+\usepackage{float}
+\usepackage[landscape,margin=0.25in,legalpaper]{geometry}
+
+\newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
+\newcommand{\mccn}[2]{\multicolumn{#1}{c}{#2}}
+\newcommand{\mcl}[1]{\multicolumn{2}{l}{#1}}
+\newcommand{\mclg}[1]{\multicolumn{2}{l}{\gr #1}}
+\newcommand{\mcc}[1]{\multicolumn{2}{c}{#1}}
+\newcommand{\mccg}[1]{\multicolumn{2}{c}{\gr #1}}
+\newcommand{\mr}[1]{\multirow{-2}{*}{#1}}
+\definecolor{Gray}{gray}{0.90}
+\newcommand{\gr}{\cellcolor{Gray}}
+
+\newcommand{\thickline}{\specialrule{.1em}{.05em}{.05em}}
+
+\setlength\parindent{0pt}
+
+% column colours
+\newcolumntype{g}{>{\columncolor{Gray}}l}
+\newcolumntype{w}{>{\columncolor{white}}l}
+
+%----------------------------------------------------------------------------------------
+%	Create new commands
+%----------------------------------------------------------------------------------------
+
+% Commands are in LatexCommands.tex. New commands for this file only can be written here.
+%\input{/Applications/TeX/Latex_ancillary/LatexCommands.tex}
+
+
+%----------------------------------------------------------------------------------------
+%	Table
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\thispagestyle{empty}
+{\bf 2017 Deepwell Cup}
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w g g w w g g}
+        \rowcolor{black}\mcn{27}{\color{white}\bf Round 2: Division Finals} \\
+        \rowcolor{white}\\
+        &  \mccg{Alita D}&  \mcc{Andre D}&  \mccg{Anthony C}&  \mcc{Brian M}&  \mccg{David D}&  \mcc{Jackson L}&  \mccg{Jeremy B}&  \mcc{Josh H}&  \mccg{Kollin H}&  \mcc{Kyle L}&  \mccg{Michael D}&  \mcc{Romulus }&  \mccg{Ron K} \\\thickline
+        {\bf East} &&&&&&&&&&&&&&&&&&&&&&&&&&\\\hline
+          Ottawa Senators&&&&&&&&&&&&&&&&&&&&&&&&&&\\
+          New York Rangers & \mr{NYR} & \mr{5} & \mr{NYR} & \mr{6} & \mr{NYR} & \mr{6} & \mr{OTT} & \mr{7} & \mr{OTT} & \mr{6} & \mr{OTT} & \mr{6} & \mr{NYR} & \mr{6} & \mr{OTT} & \mr{7} & \mr{NYR} & \mr{6} & \mr{OTT} & \mr{6} & \mr{OTT} & \mr{6} & \mr{NYR} & \mr{6} & \mr{OTT} & \mr{6}\\\hline
+          &&&&&&&&&&&&&&&&&&&&&&&&&& \\\hline
+          Washington Capitals&&&&&&&&&&&&&&&&&&&&&&&&&&\\
+          Pittsburgh Penguins & \mr{WSH} & \mr{6} & \mr{WSH} & \mr{7} & \mr{PIT} & \mr{6} & \mr{PIT} & \mr{5} & \mr{PIT} & \mr{7} & \mr{PIT} & \mr{6} & \mr{PIT} & \mr{7} & \mr{WSH} & \mr{7} & \mr{WSH} & \mr{7} & \mr{WSH} & \mr{6} & \mr{WSH} & \mr{6} & \mr{WSH} & \mr{6} & \mr{WSH} & \mr{6}\\\hline
+          &&&&&&&&&&&&&&&&&&&&&&&&&& \\
+        {\bf West} &&&&&&&&&&&&&&&&&&&&&&&&&&\\\hline
+          St Louis Blues&&&&&&&&&&&&&&&&&&&&&&&&&&\\
+          Nashville Predators & \mr{STL} & \mr{6} & \mr{NSH} & \mr{6} & \mr{NSH} & \mr{5} & \mr{NSH} & \mr{6} & \mr{NSH} & \mr{6} & \mr{NSH} & \mr{6} & \mr{NSH} & \mr{5} & \mr{NSH} & \mr{6} & \mr{STL} & \mr{6} & \mr{STL} & \mr{6} & \mr{STL} & \mr{6} & \mr{STL} & \mr{6} & \mr{NSH} & \mr{6}\\\hline
+          &&&&&&&&&&&&&&&&&&&&&&&&&& \\\hline
+          Anaheim Ducks&&&&&&&&&&&&&&&&&&&&&&&&&&\\
+          Edmonton Oilers & \mr{EDM} & \mr{7} & \mr{EDM} & \mr{7} & \mr{EDM} & \mr{6} & \mr{ANA} & \mr{6} & \mr{ANA} & \mr{7} & \mr{EDM} & \mr{6} & \mr{EDM} & \mr{6} & \mr{EDM} & \mr{7} & \mr{ANA} & \mr{5} & \mr{EDM} & \mr{6} & \mr{ANA} & \mr{6} & \mr{ANA} & \mr{6} & \mr{EDM} & \mr{7}\\\hline
+          \rowcolor{white}\\
+        \rowcolor{black} \mcn{27}{\color{white}\bf Conference Champions} \\
+          Eastern & \mclg{MTL} & \mcl{WSH} & \mclg{WSH} & \mcl{MTL} & \mclg{BOS} & \mcl{OTT} & \mclg{PIT} & \mcl{WSH} & \mclg{PIT} & \mcl{WSH} & \mclg{PIT} & \mcl{OTT} & \mclg{WSH}\\
+          Western & \mclg{EDM} & \mcl{CHI} & \mclg{CHI} & \mcl{CHI} & \mclg{EDM} & \mcl{SJS} & \mclg{EDM} & \mcl{EDM} & \mclg{CHI} & \mcl{CHI} & \mclg{CHI} & \mcl{ANA} & \mclg{EDM}\\
+          Stanley Cup & \mclg{EDM} & \mcl{WSH} & \mclg{WSH} & \mcl{CHI} & \mclg{EDM} & \mcl{SJS} & \mclg{EDM} & \mcl{WSH} & \mclg{CHI} & \mcl{WSH} & \mclg{PIT} & \mcl{OTT} & \mclg{WSH}
+    \end{tabular}
+\end{table}
+
+{\bf Points}\\
+\begin{minipage}{12cm}
+    \begin{tabular}{l l}
+        Correct team (rounds 1,2,3):	& $10$\\
+        Correct series length (rounds 1,2,3 - regardless of series winner):	& $5$\\
+        Correct team (round 4):	& $20$\\
+        Correct series length (round 4 - regardless of series winner):	& $10$\\
+        Stanley Cup champion:	& 15\\
+        Stanley Cup finalist:	& 10\\
+    \end{tabular}
+
+    \vspace{1cm}
+    {\bf Number of picks per team:}\\
+    \begin{tabular}{lc | lc | lc | lc }
+        OTT & 7 & WSH & 8 & STL & 5 & ANA & 5 \\
+        NYR & 6 & PIT & 5 & NSH & 8 & EDM & 8 \\
+    \end{tabular}
+\end{minipage}
+\begin{minipage}[t]{13cm}
+    \begin{figure}[H]
+        \vspace{-2.5cm}
+        \includegraphics[width=13cm]{/Users/daviddeepwell/Documents/Hockey/HockeyPool/DeepwellCup/figures/2017/Points-2017-Round1.pdf}
+    \end{figure}
+\end{minipage}
+
+\end{document}

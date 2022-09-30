@@ -70,19 +70,22 @@ def get_rounds_points(year, individual, round_data, series_results, other_data):
     return points_rounds
 
 def get_stanley_points(year, individual, stanley_data, stanley_results):
-    '''Return a list of dataframes of data for each round'''
+    '''Return the Champions points for an individual in a year'''
 
-    scoring = IndividualScoring(year)
-
-    if individual in stanley_data.index:
-        points_stanley = scoring.stanley_cup_points(
-                stanley_data.query(f"Individual=='{individual}'"),
-                stanley_results)
+    if stanley_results is None:
+        points_stanley = np.nan
     else:
-        points_stanley = np.nan
+        scoring = IndividualScoring(year)
 
-    if points_stanley == 0:
-        points_stanley = np.nan
+        if individual in stanley_data.index:
+            points_stanley = scoring.stanley_cup_points(
+                    stanley_data.query(f"Individual=='{individual}'"),
+                    stanley_results)
+        else:
+            points_stanley = np.nan
+
+        if points_stanley == 0:
+            points_stanley = np.nan
 
     return points_stanley
 
@@ -107,6 +110,10 @@ class IndividualScoring():
             self.stanley_cup_points = _stanley_cup_points_2015_2016
             self.round_points = _round_points_2015_2016
             self.points_system = _points_system_2015_2016
+        elif year in [2017]:
+            self.stanley_cup_points = _stanley_cup_points_2017
+            self.round_points = _round_points_2017
+            self.points_system = _points_system_2017
 
 def _points_system_2006_2007():
     system = {
@@ -348,6 +355,75 @@ def _round_points_2015_2016(individual_selections, results, playoff_round):
         results are the results of the round as given by db.get_all_round_results()
     '''
     system = _points_system_2015_2016()
+
+    merged_table = pd.merge(individual_selections, results, \
+                        on=['Conference','SeriesNumber'], how='inner')
+    matching_teams = merged_table.query('TeamSelection==Winner')
+    matching_games = merged_table.query('GameSelection==Games')
+
+    num_correct_teams = len(matching_teams)
+    num_correct_games = len(matching_games)
+
+    if playoff_round in [1,2,3]:
+        team_points = system['correct_team_rounds_123']
+        games_points = system['correct_length_rounds_123']
+    else:
+        team_points = system['correct_team_rounds_4']
+        games_points = system['correct_length_rounds_4']
+
+    score = num_correct_teams * team_points + \
+            num_correct_games * games_points
+
+    return score
+
+def _points_system_2017():
+    system = {
+        'stanley_cup_winner': 15,
+        'stanley_cup_finalist': 10,
+        'correct_team_rounds_123': 10,
+        'correct_length_rounds_123': 5,
+        'correct_team_rounds_4': 20,
+        'correct_length_rounds_4': 10,
+    }
+    return system
+
+def _stanley_cup_points_2017(individual_selections, results):
+    '''Return the points for an individual in the stanley cup round in 2017
+        individual_selections is the dataframe of just the indivuals picks
+        results are the dataframe of the results
+    '''
+    system = _points_system_2017()
+
+    # find selections
+    conference_selections = individual_selections[ \
+                                    ['EastSelection','WestSelection']].values.tolist()[0]
+    stanley_selection = individual_selections[['StanleyCupSelection']].values.tolist()[0][0]
+
+    # find winners
+    stanley_winner = results['StanleyCupWinner'][0]
+    conference_winners = list(results[['EastWinner','WestWinner']].loc[0].values)
+
+    # points for stanley cup finalists
+    finalist_points = 0
+    for team in conference_selections:
+        if team in conference_winners:
+            finalist_points += system['stanley_cup_finalist']
+
+    # points for stanley cup winner pick
+    if stanley_selection == stanley_winner:
+        stanley_points = system['stanley_cup_winner']
+    else:
+        stanley_points = 0
+
+    score = finalist_points + stanley_points
+    return score
+
+def _round_points_2017(individual_selections, results, playoff_round):
+    '''Return the points for an individual for a round in 2017
+        individual_selections are the picks made by one individual in that round
+        results are the results of the round as given by db.get_all_round_results()
+    '''
+    system = _points_system_2017()
 
     merged_table = pd.merge(individual_selections, results, \
                         on=['Conference','SeriesNumber'], how='inner')

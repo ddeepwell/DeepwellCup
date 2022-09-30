@@ -314,7 +314,7 @@ def create_points_description(year):
         descriptor = f'''
         Correct team:	& ${system['correct_team']}$\\\\
         Correct series length (regardless of series winner):	& ${system['correct_length']}$\\\\'''
-    elif year in [2015, 2016]:
+    elif year in [2015, 2016, 2017]:
         descriptor = f'''
         Correct team (rounds 1,2,3):	& ${system['correct_team_rounds_123']}$\\\\
         Correct series length (rounds 1,2,3 - regardless of series winner):	& ${system['correct_length_rounds_123']}$\\\\
@@ -338,10 +338,15 @@ def create_points_description(year):
         Stanley Cup champion:	& {system['stanley_cup_winner']}\\\\
         Stanley Cup runner-up:	& {system['stanley_cup_runnerup']}\\\\
 '''
-    elif year > 2009:
+    elif 2009 < year < 2017:
         descriptor += f'''
         Stanley Cup champion:	& {system['stanley_cup_winner']}\\\\
         Stanley Cup finalist:	& {system['stanley_cup_runnerup']}\\\\
+'''
+    elif year == 2017:
+        descriptor += f'''
+        Stanley Cup champion:	& {system['stanley_cup_winner']}\\\\
+        Stanley Cup finalist:	& {system['stanley_cup_finalist']}\\\\
 '''
 
     footer = '    \\end{tabular}'
