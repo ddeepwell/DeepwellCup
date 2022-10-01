@@ -9,5 +9,5 @@ sqlite3 $db_file \
     IndividualID    INTEGER    REFERENCES Individuals (IndividualID)
                        NOT NULL,
     Points          INTEGER NOT NULL,
-    PRIMARY KEY ( Year, Round, Individual )
+    PRIMARY KEY ( Year, Round, IndividualID )
 );"
