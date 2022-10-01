@@ -2,10 +2,10 @@
 
 from scripts.database import DataBaseOperations
 
-def import_2007_data():
+def import_data(database_path):
     '''Function to add 2007 data to database'''
 
-    db_ops = DataBaseOperations()
+    db_ops = DataBaseOperations(database_path=database_path)
     year = 2007
 
     with db_ops as db:
