@@ -8,7 +8,7 @@ sqlite3 $db_file \
                                    NOT NULL,
     IndividualID      INTEGER      REFERENCES Individuals (IndividualID) 
                                    NOT NULL,
-    TeamSelection     VARCHAR (40) NOT NULL,
+    TeamSelection     VARCHAR (40),
     GameSelection     INTEGER (1),
     PlayerSelection   VARCHAR (40),
     PRIMARY KEY (
