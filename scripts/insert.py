@@ -12,8 +12,8 @@ class Insert(DataFile):
         database_kwargs = {}
         if 'directory' in kwargs:
             selection_kwargs['directory'] = kwargs.get('directory')
-        if 'database_path' in kwargs:
-            database_kwargs['database_path'] = kwargs.get('database_path')
+        if 'database' in kwargs:
+            database_kwargs['database'] = kwargs.get('database')
 
         # inherit class objects from DataFile
         super().__init__(year=year, playoff_round=playoff_round, **selection_kwargs)

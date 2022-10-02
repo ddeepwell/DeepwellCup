@@ -12,11 +12,13 @@ from scripts import checks
 class DataBaseOperations():
     '''Class for functions to work with the database'''
 
-    def __init__(self, database_path='database/DeepwellCup.db'):
-        if database_path[0] != '/' and database_path[:5] != 'file:':
+    def __init__(self, database='database/DeepwellCup.db'):
+        if database[0] != '/' and database[:5] != 'file:':
             database_dir = Path(__file__).absolute()
             project_root = database_dir.parents[1]
-            database_path = project_root / database_path
+            database_path = project_root / database
+        else:
+            database_path = database
         self.path = database_path
         self.conn = None
         self.cursor = None
