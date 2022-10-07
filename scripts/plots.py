@@ -15,13 +15,13 @@ font = {'family' : 'serif',
         'size'   : 12}
 mpl.rc('font', **font)
 
-def year_chart(year, max_round='Champions', save=False):
+def year_chart(year, max_round='Champions', save=False, **kwargs):
     '''Create a bar chart of the points standings in a year
     '''
 
-    points_unsorted_df = year_points_table(year)
+    points_unsorted_df = year_points_table(year, **kwargs)
     round_names = points_unsorted_df.index[:-1].tolist()
-    db_ops = DataBaseOperations()
+    db_ops = DataBaseOperations(**kwargs)
     other_data = []
     with db_ops as db:
         for rnd in [1,2,3,4]:

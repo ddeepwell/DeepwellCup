@@ -5,10 +5,10 @@ import pandas as pd
 import numpy as np
 from scripts.database import DataBaseOperations
 
-def year_points_table(year):
+def year_points_table(year, **kwargs):
     '''Create a table of the points per round for everyone'''
 
-    db_ops = DataBaseOperations()
+    db_ops = DataBaseOperations(**kwargs)
 
     # import the picks and results for each round
     series_results = []
@@ -20,7 +20,10 @@ def year_points_table(year):
             series_results.append(db.get_all_round_results(year, playoff_round))
             other_data.append(db.get_other_points(year, playoff_round))
         stanley_data = db.get_stanley_cup_selections(year)
-        stanley_results = db.get_stanley_cup_results(year)
+        try:
+            stanley_results = db.get_stanley_cup_results(year)
+        except Exception:
+            stanley_results = None
 
     names_in_each_round = [a_round['Name'].unique().tolist() for a_round in round_data]
     individuals = list({name for round_names in names_in_each_round for name in round_names})

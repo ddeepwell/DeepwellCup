@@ -9,19 +9,16 @@ from scripts.nhl_teams import shorten_team_name
 from scripts.database import DataBaseOperations
 from scripts.scores import IndividualScoring
 
-def make_latex_file(year, playoff_round):
+def make_latex_file(year, playoff_round, **kwargs):
     '''Create the latex file from the pandas dataframe for the round'''
 
-    db_ops = DataBaseOperations()
+    db_ops = DataBaseOperations(**kwargs)
 
     # import data from database
     with db_ops as db:
         stanley_data = db.get_stanley_cup_selections(year)
         round_data = db.get_all_round_selections(year, playoff_round)
-        if playoff_round in [1,2,3]:
-            teams = db.get_teams_in_year_round(year, playoff_round)
-        elif playoff_round == 4:
-            teams = db.get_teams_in_year_round(year, playoff_round)
+        teams = db.get_teams_in_year_round(year, playoff_round)
 
     # find absolute path of tables directory
     scripts_dir = Path(os.path.dirname(__file__))

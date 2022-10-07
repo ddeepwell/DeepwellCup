@@ -16,21 +16,21 @@ def update_and_create(year, playoff_round, account, **kwargs):
 
         # re-make all year charts and latex files for every round
         for rnd in [1,2,3,4]:
-            dc.make_latex_file(year, rnd)
+            dc.make_latex_file(year, rnd, **kwargs)
         for rnd in [1,2,3,4,'Champions']:
-            dc.year_chart(year, max_round=rnd, save=True)
+            dc.year_chart(year, max_round=rnd, save=True, **kwargs)
 
     elif year >= 2017:
         indb = dc.Insert(year, playoff_round, **kwargs)
 
         if account == 'selections':
             indb.insert_round_selections()
-            dc.make_latex_file(year, playoff_round)
+            dc.make_latex_file(year, playoff_round, **kwargs)
         elif account == 'results':
             indb.insert_results()
-            dc.year_chart(year, max_round=playoff_round, save=True)
+            dc.year_chart(year, max_round=playoff_round, save=True, **kwargs)
             if playoff_round == 4:
-                dc.year_chart(year, max_round='Champions', save=True)
+                dc.year_chart(year, max_round='Champions', save=True, **kwargs)
 
 def main():
     """Main argument processing"""
