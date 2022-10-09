@@ -294,7 +294,8 @@ class DataBaseOperations():
             AND Ser.Round = {playoff_round}
             ORDER BY FirstName, LastName, Conference, SeriesNumber
             ''', self.conn)
-        series_data['Name'] = series_data['FirstName'] + ' ' + series_data['LastName']
+        series_data['Individual'] = series_data['FirstName'] + ' ' + series_data['LastName']
+        series_data.set_index('Individual', inplace=True)
         series_data.drop(['FirstName', 'LastName'], axis='columns', inplace=True)
         return series_data
 

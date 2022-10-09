@@ -31,7 +31,7 @@ class Points():
     def individuals(self):
         """The individuals in the year"""
 
-        names_in_each_round = [self.round_selections(playoff_round)['Name'].unique().tolist()
+        names_in_each_round = [self.round_selections(playoff_round).index.unique().tolist()
                                 for playoff_round in [1,2,3,4]]
         individuals = list({name for round_names in names_in_each_round for name in round_names})
         return individuals
@@ -110,13 +110,15 @@ class Points():
         results = self.round_results(playoff_round)
         all_other_points = self.other_points(playoff_round)
 
-        names_in_round = selections['Name'].unique().tolist()
-        other_individuals = all_other_points.index
+        names_in_round = selections.index.unique()
+        other_individuals = all_other_points.index.unique()
 
         round_points = {}
         for individual in self.individuals:
             if individual in names_in_round or individual in other_individuals:
-                individual_selections = selections.query(f'Name=="{individual}"')
+                individual_selections = selections.loc[individual]
+                if playoff_round == 4:
+                    individual_selections = individual_selections.to_frame().transpose()
 
                 selection_points = scoring.round_points(
                     individual_selections,

@@ -126,7 +126,7 @@ def create_main_table(year, playoff_round, round_data, stanley_data, teams):
 
     # will need to be careful about the individuals list in years when individuals enter
     # in later rounds or drop off after a few rounds
-    individuals = pd.unique(round_data['Name'])
+    individuals = round_data.index.unique()
     num_individuals = len(individuals)
     num_columns = number_of_columns(num_individuals)
 
@@ -209,9 +209,9 @@ def create_main_table_conference_picks(playoff_round, conference, teams, round_d
         # deal with final round here (conference == None)
         for individual in individuals:
             if playoff_round in [1,2,3]:
-                query = f'Name=="{individual}" and Conference=="{conference}"'
+                query = f'Individual=="{individual}" and Conference=="{conference}"'
             elif playoff_round == 4:
-                query = f'Name=="{individual}"'
+                query = f'Individual=="{individual}"'
 
             team_pick = stn(round_data.query(query)['TeamSelection'].iloc[nn])
             game_pick =     round_data.query(query)['GameSelection'].iloc[nn]
