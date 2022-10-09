@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from scripts.scores import year_points_table
+from scripts.scores import Points
 from scripts.database import DataBaseOperations
 
 # set font to look like Latex
@@ -19,7 +19,8 @@ def year_chart(year, max_round='Champions', save=False, **kwargs):
     '''Create a bar chart of the points standings in a year
     '''
 
-    points_unsorted_df = year_points_table(year, **kwargs)
+    year_points = Points(year, **kwargs)
+    points_unsorted_df = year_points.table
     round_names = points_unsorted_df.index[:-1].tolist()
     db_ops = DataBaseOperations(**kwargs)
     other_data = []

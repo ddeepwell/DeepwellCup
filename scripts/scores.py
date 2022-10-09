@@ -5,92 +5,175 @@ import pandas as pd
 import numpy as np
 from scripts.database import DataBaseOperations
 
-def year_points_table(year, **kwargs):
-    '''Create a table of the points per round for everyone'''
+class Points():
+    """Class for constructing a points table for a year"""
 
-    db_ops = DataBaseOperations(**kwargs)
+    def __init__(self, year, **kwargs):
+        self._year = year
+        self._database = DataBaseOperations(**kwargs)
+        self._load_round_selections()
+        self._load_round_results()
+        self._load_other_points()
+        self._load_champions_selections()
+        self._load_champions_results()
 
-    # import the picks and results for each round
-    series_results = []
-    round_data = []
-    other_data = []
-    with db_ops as db:
-        for playoff_round in [1,2,3,4]:
-            round_data.append(db.get_all_round_selections(year, playoff_round))
-            series_results.append(db.get_all_round_results(year, playoff_round))
-            other_data.append(db.get_other_points(year, playoff_round))
-        stanley_data = db.get_stanley_cup_selections(year)
-        try:
-            stanley_results = db.get_stanley_cup_results(year)
-        except Exception:
-            stanley_results = None
+    @property
+    def year(self):
+        """The year"""
+        return self._year
 
-    names_in_each_round = [a_round['Name'].unique().tolist() for a_round in round_data]
-    individuals = list({name for round_names in names_in_each_round for name in round_names})
+    @property
+    def database(self):
+        """Return the database"""
+        return self._database
 
-    df = pd.DataFrame()
-    for individual in individuals:
-        points_rounds  = get_rounds_points(year, individual, round_data, series_results, other_data)
-        points_stanley = get_stanley_points(year, individual, stanley_data, stanley_results)
-        points = points_rounds + [points_stanley]
-        total_points = np.nansum(points, dtype=int)
-        points_with_total = points + [total_points]
-        df.insert(0, individual, points_with_total)
+    @property
+    def individuals(self):
+        """The individuals in the year"""
 
-    df.sort_index(axis='columns', inplace=True)
-    df.rename(index={0: "Round 1",
-                    1: "Round 2",
-                    2: "Round 3",
-                    3: "Round 4",
-                    4: "Champions",
-                    5: "Total"},
-                inplace=True)
-    df_int = df.astype('Int64')
-    return df_int
+        names_in_each_round = [self.round_selections(playoff_round)['Name'].unique().tolist()
+                                for playoff_round in [1,2,3,4]]
+        individuals = list({name for round_names in names_in_each_round for name in round_names})
+        return individuals
 
-def get_rounds_points(year, individual, round_data, series_results, other_data):
-    '''Return a list of points for each round'''
+    def _load_round_selections(self):
+        """Load the selections for all rounds"""
 
-    scoring = IndividualScoring(year)
+        data = {}
+        with self.database as db:
+            for playoff_round in [1,2,3,4]:
+                data[playoff_round] = db.get_all_round_selections(self.year, playoff_round)
+        self._round_selections = data
 
-    points_rounds = []
-    for playoff_round in [1,2,3,4]:
-        if individual in set(round_data[playoff_round-1]['Name']) or \
-                individual in other_data[playoff_round-1].index:
-            selection_points = scoring.round_points(
-                round_data[playoff_round-1].query(f'Name=="{individual}"'),
-                series_results[playoff_round-1],
-                playoff_round
-            )
-            other_points = other_data[playoff_round-1].loc[individual]['Points'] \
-                            if individual in other_data[playoff_round-1].index \
-                            else 0
-            points = selection_points + other_points
-            points_rounds.append(points)
+    def round_selections(self, playoff_round):
+        """The selections for a playoff round"""
+        return self._round_selections[playoff_round]
+
+    def _load_round_results(self):
+        """Load the results for all rounds"""
+
+        data = {}
+        with self.database as db:
+            for playoff_round in [1,2,3,4]:
+                data[playoff_round] = db.get_all_round_results(self.year, playoff_round)
+        self._round_results = data
+
+    def round_results(self, playoff_round):
+        """The results for a playoff round"""
+        return self._round_results[playoff_round]
+
+    def _load_other_points(self):
+        """Load the other points"""
+
+        data = {}
+        with self.database as db:
+            for playoff_round in [1,2,3,4]:
+                data[playoff_round] = db.get_other_points(self.year, playoff_round)
+        self._other_points = data
+
+    def other_points(self, playoff_round):
+        """The other points for a playoff round"""
+        return self._other_points[playoff_round]
+
+    def _load_champions_selections(self):
+        """Load the Champions round selections"""
+
+        data = {}
+        with self.database as db:
+            data = db.get_stanley_cup_selections(self.year)
+        self._champions_selections = data
+
+    def champions_selections(self):
+        """The Champions round selections"""
+        return self._champions_selections
+
+    def _load_champions_results(self):
+        """Load the Champions round results"""
+
+        data = {}
+        with self.database as db:
+            try:
+                data = db.get_stanley_cup_results(self.year)
+            except Exception:
+                data = None
+        self._champions_results = data
+
+    def champions_results(self):
+        """The Champions round results"""
+        return self._champions_results
+
+    def playoff_round_points(self, playoff_round):
+        """Points in the playoff round"""
+
+        scoring = IndividualScoring(self.year)
+        selections = self.round_selections(playoff_round)
+        results = self.round_results(playoff_round)
+        all_other_points = self.other_points(playoff_round)
+
+        names_in_round = selections['Name'].unique().tolist()
+        other_individuals = all_other_points.index
+
+        round_points = {}
+        for individual in self.individuals:
+            if individual in names_in_round or individual in other_individuals:
+                individual_selections = selections.query(f'Name=="{individual}"')
+
+                selection_points = scoring.round_points(
+                    individual_selections,
+                    results,
+                    playoff_round
+                )
+                other_points = all_other_points.loc[individual]['Points'] \
+                                if individual in other_individuals \
+                                else 0
+                round_points[individual] = selection_points + other_points
+            else:
+                round_points[individual] = np.nan
+        return pd.Series(round_points, index=round_points.keys(), name=f"Round {playoff_round}")
+
+    def champions_points(self):
+        """Points in the Champions round"""
+
+        scoring = IndividualScoring(self.year)
+        selections = self.champions_selections()
+        results = self.champions_results()
+
+        if results is not None:
+            names_in_round = selections.index
+
+            champions_points = {}
+            for individual in self.individuals:
+                if individual in names_in_round:
+                    individual_selections = selections.loc[individual]
+
+                    individual_points = scoring.stanley_cup_points(
+                        individual_selections, results
+                    )
+                    champions_points[individual] = np.nan if \
+                        individual_points == 0 else individual_points
+                else:
+                    champions_points[individual] = np.nan
         else:
-            points_rounds.append(np.nan)
+            # otherwise, the Finals results aren't known yet
+            champions_points = {individual: np.nan for individual in self.individuals}
 
-    return points_rounds
+        return pd.Series(champions_points, index=champions_points.keys(), name='Champions')
 
-def get_stanley_points(year, individual, stanley_data, stanley_results):
-    '''Return the Champions points for an individual in a year'''
+    @property
+    def table(self):
+        """The table of points for everyone in the year"""
 
-    if stanley_results is None:
-        points_stanley = np.nan
-    else:
-        scoring = IndividualScoring(year)
+        all_round_series = [self.playoff_round_points(rnd) for rnd in [1,2,3,4]]
+        all_round_series += [self.champions_points()]
+        df = pd.concat(all_round_series, axis=1).transpose()
+        total = df.sum()
+        total.name = 'Total'
+        df_with_total = pd.concat([df, total.to_frame().transpose()])
 
-        if individual in stanley_data.index:
-            points_stanley = scoring.stanley_cup_points(
-                    stanley_data.query(f"Individual=='{individual}'"),
-                    stanley_results)
-        else:
-            points_stanley = np.nan
+        df_with_total.sort_index(axis='columns', inplace=True)
+        df_int = df_with_total.astype('Int64')
 
-        if points_stanley == 0:
-            points_stanley = np.nan
-
-    return points_stanley
+        return df_int
 
 class IndividualScoring():
     '''Class for functions to calculate points for each individual'''
@@ -149,8 +232,8 @@ def _stanley_cup_points_2006_2007(individual_selections, results):
 
     # find a subset of selections
     team_selections = individual_selections[ \
-        ['EastSelection','WestSelection','StanleyCupSelection']].values.tolist()[0]
-    stanley_selection = individual_selections[['StanleyCupSelection']].values.tolist()[0][0]
+        ['EastSelection','WestSelection','StanleyCupSelection']].values.tolist()
+    stanley_selection = individual_selections[['StanleyCupSelection']].values.tolist()[0]
 
     # find runner-up
     stanley_winner = results['StanleyCupWinner'][0]
@@ -204,8 +287,8 @@ def _stanley_cup_points_2008(individual_selections, results):
 
     # find selections
     conference_selections = individual_selections[ \
-                                    ['EastSelection','WestSelection']].values.tolist()[0]
-    stanley_selection = individual_selections[['StanleyCupSelection']].values.tolist()[0][0]
+                                    ['EastSelection','WestSelection']].values.tolist()
+    stanley_selection = individual_selections[['StanleyCupSelection']].values.tolist()[0]
 
     # find winners
     stanley_winner = results['StanleyCupWinner'][0]
@@ -264,8 +347,8 @@ def _stanley_cup_points_2009_2014(individual_selections, results):
 
     # find a subset of selections
     team_selections = individual_selections[ \
-        ['EastSelection','WestSelection','StanleyCupSelection']].values.tolist()[0]
-    stanley_selection = individual_selections[['StanleyCupSelection']].values.tolist()[0][0]
+        ['EastSelection','WestSelection','StanleyCupSelection']].values.tolist()
+    stanley_selection = individual_selections[['StanleyCupSelection']].values.tolist()[0]
 
     # find runner-up
     stanley_winner = results['StanleyCupWinner'][0]
@@ -328,8 +411,8 @@ def _stanley_cup_points_2015_2016(individual_selections, results):
 
     # find a subset of selections
     team_selections = individual_selections[ \
-        ['EastSelection','WestSelection','StanleyCupSelection']].values.tolist()[0]
-    stanley_selection = individual_selections[['StanleyCupSelection']].values.tolist()[0][0]
+        ['EastSelection','WestSelection','StanleyCupSelection']].values.tolist()
+    stanley_selection = individual_selections[['StanleyCupSelection']].values.tolist()[0]
 
     # find runner-up
     stanley_winner = results['StanleyCupWinner'][0]
@@ -399,8 +482,8 @@ def _stanley_cup_points_2017(individual_selections, results):
 
     # find selections
     conference_selections = individual_selections[ \
-                                    ['EastSelection','WestSelection']].values.tolist()[0]
-    stanley_selection = individual_selections[['StanleyCupSelection']].values.tolist()[0][0]
+                                    ['EastSelection','WestSelection']].values.tolist()
+    stanley_selection = individual_selections[['StanleyCupSelection']].values.tolist()[0]
 
     # find winners
     stanley_winner = results['StanleyCupWinner'][0]

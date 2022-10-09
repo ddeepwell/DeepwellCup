@@ -9,7 +9,7 @@ __date__   = "April, 2022"
 
 from scripts.database import DataBaseOperations
 from scripts.latex_table import make_latex_file
-from scripts.scores import year_points_table
+from scripts.scores import Points
 from scripts import checks
 from scripts.data_file import DataFile
 from scripts.round_selections import RoundSelections
