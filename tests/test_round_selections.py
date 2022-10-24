@@ -25,8 +25,8 @@ class RoundSelectionsTest(TestCase):
 
         columns = [
             'Timestamp',
-            'NSH-ANA', 'NSH-ANA series length:',
-            'OTT-PIT', 'OTT-PIT series length:'
+            'ANA-NSH', 'ANA-NSH series length:',
+            'PIT-OTT', 'PIT-OTT series length:'
         ]
         selections = [
             ['2017/05/11 10:26:51 am GMT-4', 'Anaheim Ducks',
