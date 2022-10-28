@@ -12,6 +12,7 @@ from scripts.latex_table import make_latex_file
 from scripts.scores import Points
 from scripts import checks
 from scripts.data_file import DataFile
+from scripts.selections import Selections
 from scripts.round_selections import RoundSelections
 from scripts.champions_selections import ChampionsSelections
 from scripts.results import Results

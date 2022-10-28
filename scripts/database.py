@@ -89,6 +89,13 @@ class DataBaseOperations():
             warnings.warn(f'Individual ID of {individual_id} does not exist in the database')
         return individual
 
+    def year_round_in_database(self, year, playoff_round):
+        """Check if the playoff round for the year is in the database"""
+        if playoff_round == 'Champions':
+            playoff_round = 1
+        series_data = self.get_all_series_in_round(year, playoff_round)
+        return True if len(series_data) > 0 else False
+
     def add_stanley_cup_selection(self, year,
             first_name, last_name, east_pick, west_pick, stanley_pick, games_pick=None):
         '''Add the Stanley Cup pick for an individual to the database'''
@@ -294,7 +301,7 @@ class DataBaseOperations():
             AND Ser.Round = {playoff_round}
             ORDER BY FirstName, LastName, Conference, SeriesNumber
             ''', self.conn)
-        series_data['Individual'] = series_data['FirstName'] + ' ' + series_data['LastName']
+        series_data['Individual'] = (series_data['FirstName'] + ' ' + series_data['LastName']).apply(lambda x: x.strip())
         series_data.set_index('Individual', inplace=True)
         series_data.drop(['FirstName', 'LastName'], axis='columns', inplace=True)
         return series_data
