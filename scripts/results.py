@@ -1,87 +1,80 @@
-"""Read participant Champsion selection data from a data files"""
-import re
+"""Read the results in a playoff round"""
 import pandas as pd
-from scripts import DataFile
-from scripts import RoundSelections
-from scripts import ChampionsSelections
-from scripts.nhl_teams import shorten_team_name as stn
+from scripts import DataFile, DataBaseOperations, Selections
 
 class Results(DataFile):
-    """Class for gathering the results"""
+    """Class for gathering the results for a playoff round"""
 
-    def __init__(self, year, playoff_round, directory=None):
-        super().__init__(year=year, playoff_round=playoff_round, directory=directory)
-        self._read_playoff_round_info()
-
-    @property
-    def data(self):
-        """Return the results for the playoff round"""
-        return self._data
-
-    def _read_playoff_round_info(self):
-        """Read the csv file of selections as a dataframe"""
-
-        # read
-        data = pd.read_csv(self.source_file, sep=',')
-        # modify dataframe
-        data.rename(columns={'Name:': 'Name'}, inplace=True)
-        data.index = data['Name']
-        results = data.loc['Results']
-        if self.playoff_round in [1,2,3,4]:
-            cols_to_drop = [col for col in results.keys()
-                        if not bool(re.match(r"^[A-Z]{3}-[A-Z]{3}.*", col))
-            ]
-        elif self.playoff_round == 'Champions':
-            cols_to_drop = [col for col in results.keys()
-                        if bool(re.match(r"^[A-Z]{3}-[A-Z]{3}.*", col))
-                        or col in ['Timestamp', 'Name']
-            ]
-        results.drop(cols_to_drop, inplace=True)
-
-        self._data = results
+    def __init__(self, year, playoff_round, selections_directory=None, **kwargs):
+        super().__init__(year=year, playoff_round=playoff_round, directory=selections_directory)
+        self._database = DataBaseOperations(**kwargs)
+        with self.database as db:
+            self._in_database = db.year_round_results_in_database(year, playoff_round)
+        self._selections = Selections(
+            year,
+            playoff_round,
+            selections_directory,
+            keep_results=True,
+            **kwargs)
+        self._load_results()
 
     @property
     def results(self):
-        """Return the results"""
+        """The results for the playoff round"""
+        return self._results
 
-        if self.playoff_round in [1,2,3]:
-            rs = RoundSelections(self.year, self.playoff_round)
-            west_results = self._conference_results(rs.series['West'])
-            east_results = self._conference_results(rs.series['East'])
-            results = {'West': west_results, 'East': east_results}
-        elif self.playoff_round == 4:
-            rs = RoundSelections(self.year, self.playoff_round)
-            finals_results = self._conference_results(rs.series[None])
-            results = {None: finals_results}
-        elif self.playoff_round == 'Champions':
-            champions_results = self._champions_results()
-            results = {'Champions': champions_results}
+    @property
+    def database(self):
+        """The database"""
+        return self._database
 
-        return results
+    @property
+    def series(self):
+        """Return the teams in each series in each conference"""
+        return self._selections.series
 
-    def _conference_results(self, series_list):
-        """Return a dictionary of the results for the series in series_list"""
+    def _load_results(self):
+        """Load the results from database or raw source file"""
 
-        # get the headers for each series
-        teams_header = [f"{stn(series[0])}-{stn(series[1])}" for series in series_list]
-        games_header = [f'{teams} series length:' for teams in teams_header]
-        series_headers = list(zip(teams_header, games_header))
+        if self._in_database:
+            if self.playoff_round in [1,2,3,4]:
+                self._results = self._load_playoff_round_results_from_database()
+            elif self.playoff_round == 'Champions':
+                self._results = self._load_champions_results_from_database()
+        else:
+            self._results = self._selections.selections.loc['Results']
 
-        return {team_header:
-                [self.data[team_header], int(self.data[length_header][0])]
-                for team_header, length_header in series_headers
-            }
+    def _load_playoff_round_results_from_database(self):
+        """Return the playoff round results from the database"""
 
-    def _champions_results(self):
-        """Return the East, West, and Stanley Cup Champions"""
+        with self.database as db:
+            data = db.get_all_round_results(self.year, self.playoff_round)
 
-        year = self.year
-        data_copy = self.data.to_frame().transpose()
-        data_copy.insert(2,'Timestamp','a time')
-        class Temp:
-            def __init__(self):
-                self.data = data_copy
-                self.year = year
-        temp = Temp()
+        series_list = [subval for values in self.series.values() for subval in values]
+        data.drop(columns=['SeriesNumber'], inplace=True)
+        data.set_index('Conference', inplace=True)
+        data.set_index(pd.Index(series_list), append=True, inplace=True)
+        data.index.names = ['Conference', 'Series']
+        data.columns.name = 'Selections'
 
-        return ChampionsSelections._individual_selections(temp, 'Results')
+        new_names = {
+            'Winner': 'Team',
+            'Games': 'Duration',
+        }
+        data.rename(columns=new_names, inplace=True)
+        return data
+
+    def _load_champions_results_from_database(self):
+        """Return the champions results from the database"""
+
+        with self.database as db:
+            data = db.get_stanley_cup_results(self.year)
+
+        new_names = {
+            'EastWinner': 'East',
+            'WestWinner': 'West',
+            'StanleyCupWinner': 'Stanley Cup',
+            'Games': 'Duration',
+        }
+        data.rename(columns=new_names, inplace=True)
+        return data.squeeze()

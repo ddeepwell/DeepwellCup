@@ -8,12 +8,19 @@ from scripts.nhl_teams import shorten_team_name as stn
 class Selections(DataFile):
     """Class for gathering and processing information about a playoff round"""
 
-    def __init__(self, year, playoff_round, selections_directory=None, **kwargs):
+    def __init__(
+            self,
+            year,
+            playoff_round,
+            selections_directory=None,
+            keep_results=False,
+            **kwargs
+        ):
         super().__init__(year=year, playoff_round=playoff_round, directory=selections_directory)
         self._database = DataBaseOperations(**kwargs)
         with self.database as db:
             self._in_database = db.year_round_in_database(year, playoff_round)
-        self._load_selections()
+        self._load_selections(keep_results=keep_results)
 
     @property
     def selections(self):
@@ -42,7 +49,7 @@ class Selections(DataFile):
         else:
             return self._conference_series_from_file()
 
-    def _load_selections(self):
+    def _load_selections(self, **kwargs):
         """Load the selections from database or raw source file"""
 
         if self._in_database:
@@ -54,11 +61,11 @@ class Selections(DataFile):
             print(f'Round data for {self.playoff_round} in {self.year} is not '\
                     f'in the database with path\n {self.database.path}')
             if self.playoff_round in [1,2,3,4]:
-                self._selections = self._load_playoff_round_selections_from_file()
+                self._selections = self._load_playoff_round_selections_from_file(**kwargs)
             elif self.playoff_round == 'Champions':
-                self._selections = self._load_champions_selections_from_file()
+                self._selections = self._load_champions_selections_from_file(**kwargs)
 
-    def _load_playoff_round_selections_from_file(self):
+    def _load_playoff_round_selections_from_file(self, keep_results=False):
         """Return the playoff round selections from the raw source file"""
 
         data = pd.read_csv(self.source_file, sep=',')
@@ -66,7 +73,8 @@ class Selections(DataFile):
                         if bool(re.match(r"^[A-Z]{3}-[A-Z]{3}$", col))]
         data.rename(columns={'Name:': 'Individual'}, inplace=True)
         data.rename(columns=dict(list(zip(series, [f'{ser}Team' for ser in series]))), inplace=True)
-        data = data[data.Individual != 'Results']
+        if not keep_results:
+            data = data[data.Individual != 'Results']
         data.drop(columns=['Timestamp'], inplace=True)
         if self.playoff_round == 1:
             # drop champions data
@@ -99,7 +107,7 @@ class Selections(DataFile):
 
         return selections
 
-    def _load_champions_selections_from_file(self):
+    def _load_champions_selections_from_file(self, keep_results=False):
         """Return the champions selections from the raw source file"""
 
         def select_conference_team(row, conference):
@@ -121,7 +129,8 @@ class Selections(DataFile):
         data = pd.read_csv(self.source_file, sep=',')
         data.rename(columns={'Name:': 'Individual'}, inplace=True)
         data.index = data['Individual']
-        data.drop(index='Results', inplace=True)
+        if not keep_results:
+            data.drop(index='Results', inplace=True)
         data.columns.name = 'Selections'
 
         champions_headers = ['East', 'West', 'Stanley Cup']

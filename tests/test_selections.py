@@ -10,7 +10,6 @@ from scripts import Selections
 class Settings:
     """Test settings"""
     def __init__(self):
-        print('hi')
         self.tests_dir = Path(os.path.dirname(__file__))
         self.test_data_dir = self.tests_dir / 'data'
         self.full_database = self.test_data_dir / 'test.db'
