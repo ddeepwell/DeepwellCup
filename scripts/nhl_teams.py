@@ -7,10 +7,10 @@ def shorten_team_name(team):
 
     if team == 'Anaheim Ducks':
         return_val = 'ANA'
+    elif team == 'Arizona Coyotes':
+        return_val = 'ARI'
     elif team == 'Atlanta Thrashers':
         return_val = 'ATL'
-    elif team == 'Arizona Coyotes' or team == 'Phoenix Coyotes':
-        return_val = 'ARI'
     elif team == 'Boston Bruins':
         return_val = 'BOS'
     elif team == 'Buffalo Sabres':
@@ -49,6 +49,8 @@ def shorten_team_name(team):
         return_val = 'NYR'
     elif team == 'Ottawa Senators':
         return_val = 'OTT'
+    elif team == 'Phoenix Coyotes':
+        return_val = 'PHX'
     elif team == 'Philadelphia Flyers':
         return_val = 'PHI'
     elif team == 'Pittsburgh Penguins':
@@ -81,7 +83,9 @@ def lengthen_team_name( team ):
     if team == 'ANA':
         return_val = 'Anaheim Ducks'
     elif team == 'ARI':
-        return_val = 'Arizona Coyotes' or team == 'Phoenix Coyotes'
+        return_val = 'Arizona Coyotes'
+    elif team == 'ATL':
+        return_val = 'Atlanta Thrashers'
     elif team == 'BOS':
         return_val = 'Boston Bruins'
     elif team == 'BUF':
@@ -120,6 +124,8 @@ def lengthen_team_name( team ):
         return_val = 'New York Rangers'
     elif team == 'OTT':
         return_val = 'Ottawa Senators'
+    elif team == 'PHX':
+        return_val = 'Phoenix Coyotes'
     elif team == 'PHI':
         return_val = 'Philadelphia Flyers'
     elif team == 'PIT':
