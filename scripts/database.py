@@ -83,7 +83,7 @@ class DataBaseOperations():
             first_name, last_name = self.cursor.execute(
                 'SELECT FirstName, LastName FROM Individuals '\
                 f'WHERE IndividualID={individual_id}').fetchall()[0]
-            individual = f'{first_name} {last_name}'
+            individual = f'{first_name} {last_name}'.strip()
         except IndexError:
             individual = None
             warnings.warn(f'Individual ID of {individual_id} does not exist in the database')
