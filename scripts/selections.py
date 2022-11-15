@@ -66,9 +66,9 @@ class Selections(DataFile):
                 self._selections = self._load_champions_selections_from_file(**kwargs)
 
     def _load_playoff_round_selections_from_file(self, keep_results=False):
-        """Return the playoff round selections from the raw source file"""
+        """Return the playoff round selections from the raw selections file"""
 
-        data = pd.read_csv(self.source_file, sep=',')
+        data = pd.read_csv(self.selections_file, sep=',')
         series = [col for col in data.columns
                         if bool(re.match(r"^[A-Z]{3}-[A-Z]{3}$", col))]
         data.rename(columns={'Name:': 'Individual'}, inplace=True)
@@ -126,7 +126,7 @@ class Selections(DataFile):
             else:
                 return row['Who will win the Stanley Cup?']
 
-        data = pd.read_csv(self.source_file, sep=',')
+        data = pd.read_csv(self.selections_file, sep=',')
         data.rename(columns={'Name:': 'Individual'}, inplace=True)
         data.index = data['Individual']
         if not keep_results:
@@ -185,7 +185,7 @@ class Selections(DataFile):
     def _conference_series_from_file(self):
         """Turn a list of series into a dictionary of series in each conference"""
 
-        data = pd.read_csv(self.source_file, sep=',')
+        data = pd.read_csv(self.selections_file, sep=',')
         # abbreviated series name
         series = [col for col in data.columns
                         if bool(re.match(r"^[A-Z]{3}-[A-Z]{3}$", col))]

@@ -8,7 +8,11 @@ class DataFile():
     def __init__(self, year, playoff_round, directory=None):
         self._year = year
         self._playoff_round = playoff_round
-        self.source_file = directory
+        if directory is None:
+            scripts_dir = Path(os.path.dirname(__file__))
+            self.directory = scripts_dir.parent / 'data' / f'{self.year}'
+        else:
+            self.directory = directory
 
     @property
     def year(self):
@@ -21,18 +25,9 @@ class DataFile():
         return self._playoff_round
 
     @property
-    def source_file(self):
-        """The source file"""
-        return self._source_file
-
-    @source_file.setter
-    def source_file(self, directory=None):
+    def selections_file(self):
         """Return the csv file name containing selections
         for the year and playoff round"""
-
-        if directory is None:
-            scripts_dir = Path(os.path.dirname(__file__))
-            directory = scripts_dir.parent / 'data' / f'{self.year}'
 
         if self.playoff_round == 'Champions':
             playoff_round = 1
@@ -40,5 +35,12 @@ class DataFile():
             playoff_round = self.playoff_round
 
         file_name = f'{self.year} Deepwell Cup Round {playoff_round}.csv'
-        selections_file = directory / file_name
-        self._source_file = selections_file
+        return self.directory / file_name
+
+    @property
+    def other_points_file(self):
+        """Return the csv file name containing other points
+        for the year and playoff round"""
+
+        file_name = f'{self.year} Deepwell Cup Other Points Round {self.playoff_round}.csv'
+        return self.directory / file_name

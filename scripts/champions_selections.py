@@ -20,7 +20,7 @@ class ChampionsSelections(DataFile):
         """Read the csv file of selections as a dataframe"""
 
         # read
-        data = pd.read_csv(self.source_file, sep=',')
+        data = pd.read_csv(self.selections_file, sep=',')
         # modify dataframe
         data.rename(columns={'Name:': 'Name'}, inplace=True)
         data.index = data['Name']

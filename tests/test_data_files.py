@@ -34,8 +34,8 @@ class DataFileTest(TestCase):
 
         assert dfile.playoff_round == playoff_round
 
-    def test_source_file_input(self):
-        """Test for source_file with input"""
+    def test_selections_file_input(self):
+        """Test for selections_file with input"""
 
         year = 2017
         playoff_round = 1
@@ -43,10 +43,10 @@ class DataFileTest(TestCase):
         dfile = DataFile(year=year, playoff_round=playoff_round, directory=directory)
         expected_value = directory / f"{year} Deepwell Cup Round {playoff_round}.csv"
 
-        assert dfile.source_file == expected_value
+        assert dfile.selections_file == expected_value
 
-    def test_source_file_default(self):
-        """Test for source_file with default path"""
+    def test_selections_file_default(self):
+        """Test for selections_file with default path"""
 
         year = 2017
         playoff_round = 1
@@ -54,10 +54,10 @@ class DataFileTest(TestCase):
         expected_value = self.data_dir / str(year) / \
                         f"{year} Deepwell Cup Round {playoff_round}.csv"
 
-        assert dfile.source_file == expected_value
+        assert dfile.selections_file == expected_value
 
-    def test_source_file_default_champions(self):
-        """Test for source_file with default path and champions selections"""
+    def test_selections_file_default_champions(self):
+        """Test for selections_file with default path and champions selections"""
 
         year = 2017
         playoff_round = 'Champions'
@@ -65,4 +65,15 @@ class DataFileTest(TestCase):
         expected_value = self.data_dir / str(year) / \
                         f"{year} Deepwell Cup Round 1.csv"
 
-        assert dfile.source_file == expected_value
+        assert dfile.selections_file == expected_value
+
+    def test_other_points_file_default(self):
+        """Test for other_points_file with default path"""
+
+        year = 2017
+        playoff_round = 1
+        dfile = DataFile(year=year, playoff_round=playoff_round)
+        expected_value = self.data_dir / str(year) / \
+                        f"{year} Deepwell Cup Other Points Round {playoff_round}.csv"
+
+        assert dfile.other_points_file == expected_value
