@@ -32,7 +32,7 @@ def database(request, setup):
 def expected_results(playoff_round):
     """Return the expected results"""
 
-    all_expected_selections = {
+    all_expected_results = {
         1: pd.DataFrame(
             {
                 'Team': {
@@ -121,7 +121,10 @@ def expected_results(playoff_round):
             }
         ),
     }
-    return all_expected_selections[playoff_round]
+    playoff_round_results = all_expected_results[playoff_round]
+    if playoff_round != 'Champions':
+        playoff_round_results['Duration'] = playoff_round_results['Duration'].astype("Int64")
+    return playoff_round_results
 
 @pytest.mark.parametrize("database", ['full', 'empty'], indirect=["database"])
 @pytest.mark.parametrize("playoff_round", [1,2,3,4,'Champions'])

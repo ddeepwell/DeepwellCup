@@ -62,6 +62,8 @@ class Results(DataFile):
             'Games': 'Duration',
         }
         data.rename(columns=new_names, inplace=True)
+        if self.playoff_round != 'Champions':
+            data['Duration'] = data['Duration'].astype(pd.Int64Dtype())
         return data
 
     def _load_champions_results_from_database(self):

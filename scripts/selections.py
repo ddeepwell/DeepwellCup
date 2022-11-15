@@ -98,7 +98,7 @@ class Selections(DataFile):
         df = selections.reorder_levels(['Individual', 'Conference', 'Series'])
 
         df.rename(columns={' series length:': 'Duration'}, inplace=True)
-        df.loc[:,'Duration'] = df.loc[:,'Duration'].str[0].astype(int)
+        df.loc[:,'Duration'] = df.loc[:,'Duration'].str[0].astype("Int64")
         selections = df[['Team', 'Duration']]
         selections.sort_index(level=[0,1], sort_remaining=False, inplace=True)
 
@@ -163,6 +163,7 @@ class Selections(DataFile):
             'PlayerSelection': 'Player',
         }
         data.rename(columns=new_names, inplace=True)
+        data['Duration'] = data['Duration'].astype("Int64")
         return data
 
     def _load_champions_selections_from_database(self):

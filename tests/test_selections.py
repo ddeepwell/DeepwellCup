@@ -303,7 +303,10 @@ def expected_selections(playoff_round):
             }
         ),
     }
-    return all_expected_selections[playoff_round]
+    playoff_round_selections = all_expected_selections[playoff_round]
+    if playoff_round != 'Champions':
+        playoff_round_selections['Duration'] = playoff_round_selections['Duration'].astype("Int64")
+    return playoff_round_selections
 
 @pytest.mark.parametrize("database", ['full', 'empty'], indirect=["database"])
 @pytest.mark.parametrize("playoff_round", [1,2,3,4,'Champions'])
