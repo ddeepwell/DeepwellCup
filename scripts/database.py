@@ -103,6 +103,11 @@ class DataBaseOperations():
         results_data = self.get_all_round_results(year, playoff_round)
         return True if len(results_data) > 0 else False
 
+    def year_round_other_points_in_database(self, year, playoff_round):
+        """Check if the playoff round has other points for the year is in the database"""
+        data = self.get_other_points(year, playoff_round)
+        return True if len(data) > 0 else False
+
     def add_stanley_cup_selection(self, year,
             first_name, last_name, east_pick, west_pick, stanley_pick, games_pick=None):
         '''Add the Stanley Cup pick for an individual to the database'''
