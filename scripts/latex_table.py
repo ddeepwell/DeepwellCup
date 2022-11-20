@@ -244,7 +244,8 @@ def create_main_table_stanley_picks(year, stanley_data, individuals):
             stanley_east_pick = stn(stanley_data["EastSelection"][individual])
             stanley_west_pick = stn(stanley_data["WestSelection"][individual])
             stanley_cup_pick = stn(stanley_data["StanleyCupSelection"][individual])
-            stanley_game_pick = stanley_data["GameSelection"][individual]
+            stanley_game_pick = '' if stanley_data["GameSelection"][individual] is None\
+                                 else stanley_data["GameSelection"][individual]
         except KeyError:
             # the individual was not playing during the first round and had no
             # championship round selections

@@ -1,5 +1,6 @@
 """Read participant round selection data from a data files"""
 import re
+import math
 import pandas as pd
 from scripts import DataFile, DataBaseOperations
 from scripts import nhl_teams
@@ -20,6 +21,7 @@ class Selections(DataFile):
         self._database = DataBaseOperations(**kwargs)
         with self.database as db:
             self._in_database = db.year_round_in_database(year, playoff_round)
+            self._results_in_database = db.year_round_results_in_database(year, playoff_round)
         self._load_selections(keep_results=keep_results)
 
     @property
@@ -50,9 +52,10 @@ class Selections(DataFile):
             return self._conference_series_from_file()
 
     def _load_selections(self, **kwargs):
-        """Load the selections from database or raw source file"""
+        """Load the selections from database or raw file"""
 
-        if self._in_database:
+        if self._in_database and kwargs["keep_results"]==False \
+            or self._in_database and self._results_in_database:
             if self.playoff_round in [1,2,3,4]:
                 self._selections = self._load_playoff_round_selections_from_database()
             elif self.playoff_round == 'Champions':
@@ -66,7 +69,7 @@ class Selections(DataFile):
                 self._selections = self._load_champions_selections_from_file(**kwargs)
 
     def _load_playoff_round_selections_from_file(self, keep_results=False):
-        """Return the playoff round selections from the raw selections file"""
+        """Return the playoff round selections from the raw file"""
 
         data = pd.read_csv(self.selections_file, sep=',')
         series = [col for col in data.columns
@@ -98,7 +101,12 @@ class Selections(DataFile):
         df = selections.reorder_levels(['Individual', 'Conference', 'Series'])
 
         df.rename(columns={' series length:': 'Duration'}, inplace=True)
-        df.loc[:,'Duration'] = df.loc[:,'Duration'].str[0].astype("Int64")
+        # modify team column
+        df.replace(math.nan, None, inplace=True)
+        # modify duration column
+        mask = df.loc[:,'Duration'].str[0].isin(['4','5','6','7'])
+        df.loc[~mask,'Duration'] = [None]*len(df.loc[~mask,'Duration'])
+        df.loc[mask,'Duration'] = df.loc[mask,'Duration'].str[0].astype("Int64")
         selections = df[['Team', 'Duration']]
         selections.sort_index(level=[0,1], sort_remaining=False, inplace=True)
 
@@ -108,15 +116,23 @@ class Selections(DataFile):
         return selections
 
     def _load_champions_selections_from_file(self, keep_results=False):
-        """Return the champions selections from the raw source file"""
+        """Return the champions selections from the raw file"""
 
         def select_conference_team(row, conference):
             """Return the team in the dataframe row for a particular conference"""
 
-            champions_headers = [
-                'Who will win the Stanley Cup?',
-                'Who will be the Stanley Cup runner-up?'
-            ]
+            # need to fix this for the new archived years
+            if self.year == 2017:
+                champions_headers = [
+                    'Who will win the Stanley Cup?',
+                    'Who will be the Stanley Cup runner-up?'
+                ]
+            else:
+                champions_headers = [
+                    "Who will win the Western Conference?",
+                    "Who will win the Eastern Conference?",
+                    "Who will win the Stanley Cup?"
+                ]
 
             if conference != 'Stanley Cup':
                 teams = row[champions_headers].values.tolist()
@@ -138,8 +154,11 @@ class Selections(DataFile):
             data[conference] = data.apply(
                             lambda row, conf=conference: select_conference_team(row, conf), axis=1)
 
-        if "Duration" not in data.columns:
-            data.insert(len(data.columns), "Duration", [None]*len(data))
+        duration_header = 'Length of Stanley Cup Finals'
+        if duration_header not in data.columns:
+            data.insert(len(data.columns), 'Duration', [None]*len(data))
+        else:
+            data.rename(columns={duration_header: 'Duration'}, inplace=True)
 
         return data[champions_headers+['Duration']]
 

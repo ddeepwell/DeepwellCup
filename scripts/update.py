@@ -5,32 +5,18 @@ import scripts as dc
 def update_and_create(year, playoff_round, account, **kwargs):
     """Update data into the database and make tables and graphs (when appropriate)"""
 
-    # import data into the database
-    if year < 2017:
-        # import the entire archive into the database
-        archive_name = "import_data"
-        archive = __import__(f'data.archive.import_{year}',
-                            globals(), locals(), [archive_name])
-        archive_import = getattr(archive, archive_name)
-        archive_import(**kwargs)
+    indb = dc.Insert(year, playoff_round, **kwargs)
 
-        # re-make all year charts and latex files for every round
-        for rnd in [1,2,3,4]:
-            dc.make_latex_file(year, rnd, **kwargs)
-        for rnd in [1,2,3,4,'Champions']:
-            dc.year_chart(year, max_round=rnd, save=True, **kwargs)
-
-    elif year >= 2017:
-        indb = dc.Insert(year, playoff_round, **kwargs)
-
-        if account == 'selections':
-            indb.insert_round_selections()
-            dc.make_latex_file(year, playoff_round, **kwargs)
-        elif account == 'results':
-            indb.insert_results()
-            dc.year_chart(year, max_round=playoff_round, save=True, **kwargs)
-            if playoff_round == 4:
-                dc.year_chart(year, max_round='Champions', save=True, **kwargs)
+    if account == 'selections':
+        indb.insert_round_selections()
+        dc.make_latex_file(year, playoff_round, **kwargs)
+    elif account == 'other points':
+        indb.insert_other_points()
+    elif account == 'results':
+        indb.insert_results()
+        dc.year_chart(year, max_round=playoff_round, save=True, **kwargs)
+        if playoff_round == 4:
+            dc.year_chart(year, max_round='Champions', save=True, **kwargs)
 
 def main():
     """Main argument processing"""
@@ -43,15 +29,15 @@ def main():
                             type=int,
                             help = "Year to import",
                             required = True)
-    # optional arguments
     parser.add_argument("-r", "--round",
                             dest='playoff_round',
-                            default = None,
-                            help = "Playoff round to import")
+                            help = "Playoff round to import",
+                            required = True)
     parser.add_argument("-a", "--account",
-                            default = None,
                             type=str,
-                            help = "Account to import ('selections' or 'results')")
+                            help = "Account to import ('selections' or 'results')",
+                            required = True)
+    # optional arguments
     parser.add_argument("-d", "--database",
                             type=str,
                             help = "Database to import data into")
@@ -60,13 +46,12 @@ def main():
     if args.database is None:
         del args.database
 
-    year = getattr(args,'year')
-    if year > 2016:
-        if getattr(args,'playoff_round') is None:
-            raise Exception("the playoff_round option is either missing "\
-                            "or not one of [1,2,3,4,'Champions']")
-        if getattr(args,'account') is None:
-            raise Exception("account is either missing or not one of 'selections' or 'results'")
+    if getattr(args,'playoff_round') not in [1,2,3,4,'Champions']:
+        raise Exception("the playoff_round option is either missing "\
+                        "or not one of [1,2,3,4,'Champions']")
+    if getattr(args,'account') is None:
+        raise Exception("account is either missing or not one of "\
+                        "'selections', 'other points', or 'results'")
 
     update_and_create(**vars(args))
 

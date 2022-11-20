@@ -6,12 +6,10 @@ def multi_year_remake(years, **kwargs):
     """Remake the entire database and all figures and tables between year1 and year2"""
 
     for year in years:
-        if year <= 2016:
-            update_and_create(year=year, playoff_round=None, account=None, **kwargs)
-        elif year >= 2017:
-            for rnd in [1,2,3,4]:
-                update_and_create(year=year, playoff_round=rnd, account='selections', **kwargs)
-                update_and_create(year=year, playoff_round=rnd, account='results', **kwargs)
+        for rnd in [1,2,3,4]:
+            update_and_create(year=year, playoff_round=rnd, account='selections', **kwargs)
+            update_and_create(year=year, playoff_round=rnd, account='other points', **kwargs)
+            update_and_create(year=year, playoff_round=rnd, account='results', **kwargs)
 
 def main():
     """Main argument processing"""

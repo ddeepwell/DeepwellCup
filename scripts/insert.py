@@ -1,4 +1,5 @@
 """Import round selections for a single round into the database"""
+import math
 import scripts as dc
 from scripts import DataFile
 from scripts import utils
@@ -26,6 +27,7 @@ class Insert(DataFile):
         else:
             self._champions_selection = None
         self._results = dc.Results(year, playoff_round, **selection_kwargs)
+        self._other_points = dc.OtherPoints(year, playoff_round, **selection_kwargs, **database_kwargs)
         # return the correct database
         self._database = dc.DataBaseOperations(**database_kwargs)
 
@@ -43,6 +45,11 @@ class Insert(DataFile):
     def results(self):
         """Return the Results for the playoff round"""
         return self._results
+
+    @property
+    def other_points(self):
+        """Return the other points for the playoff round"""
+        return self._other_points
 
     @property
     def database(self):
@@ -96,11 +103,18 @@ class Insert(DataFile):
             conferences = [None]
 
         for conference in conferences:
-            conference_results = self.results.results[conference].values()
+            conf = conference if conference is not None else math.nan
+            conference_results = [
+                [
+                    self.results.results.loc[conf].loc[series]['Team'],
+                    int(self.results.results.loc[conf].loc[series]['Duration'])
+                ]
+                for series in self.results.results.loc[conf].index
+            ]
 
             if self.playoff_round == 4:
                 champions_results = dc.Results(self.year, 'Champions')
-                champions_list = champions_results.results['Champions']
+                champions_list = champions_results.results.values.tolist()
 
             with self.database as db:
                 db.add_series_results_for_conference(
@@ -109,12 +123,27 @@ class Insert(DataFile):
                 if self.playoff_round == 4:
                     db.add_stanley_cup_results(self.year, *champions_list)
 
+    def insert_other_points(self):
+        """Insert points which are outside the regular scope of the selections"""
+
+        if self.other_points.points is not None:
+            with self.database as db:
+                self.add_missing_individuals(self.other_points.individuals, db)
+
+                for individual in self.other_points.individuals:
+                    db.add_other_points(
+                        self.year,
+                        self.playoff_round,
+                        *utils.split_name(individual),
+                        int(self.other_points.points.loc[individual]['Points'])
+                    )
+
     def add_missing_individuals(self, individuals, db):
         """Find which individuals are not in the db and add them"""
 
         existing_individuals = [
             ' '.join(individual).strip() for individual in db.get_individuals()
         ]
-        new_individuals = set(individuals) - set(existing_individuals)
+        new_individuals = sorted(list(set(individuals) - set(existing_individuals)))
         for individual in new_individuals:
             self.database.add_new_individual(*dc.utils.split_name(individual))

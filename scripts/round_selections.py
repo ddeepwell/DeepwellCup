@@ -108,7 +108,11 @@ class RoundSelections(DataFile):
         lower_seed  = stn(teams[1])
         series_team_header = f"{higher_seed}-{lower_seed}"
         series_game_header = f"{higher_seed}-{lower_seed} series length:"
-        team_selection = individual_data.loc[series_team_header]
-        game_selection = int(individual_data.loc[series_game_header][0])
+        team_selection = individual_data.loc[series_team_header] \
+                        if individual_data.loc[series_team_header] in teams \
+                        else None
+        game_selection = int(individual_data.loc[series_game_header][0]) \
+                        if individual_data.loc[series_game_header][0] in ['4','5','6','7'] \
+                        else None
 
         return [team_selection, game_selection]

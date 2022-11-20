@@ -116,15 +116,19 @@ class Points():
         round_points = {}
         for individual in self.individuals:
             if individual in names_in_round or individual in other_individuals:
-                individual_selections = selections.loc[individual]
-                if playoff_round == 4:
-                    individual_selections = individual_selections.to_frame().transpose()
+                if individual in names_in_round:
+                    individual_selections = selections.loc[individual]
+                    if playoff_round == 4:
+                        individual_selections = individual_selections.to_frame().transpose()
 
-                selection_points = scoring.round_points(
-                    individual_selections,
-                    results,
-                    playoff_round
-                )
+                    selection_points = scoring.round_points(
+                        individual_selections,
+                        results,
+                        playoff_round
+                    )
+                else:
+                    selection_points = 0
+
                 other_points = all_other_points.loc[individual]['Points'] \
                                 if individual in other_individuals \
                                 else 0

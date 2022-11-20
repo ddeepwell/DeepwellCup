@@ -56,14 +56,21 @@ class ChampionsSelections(DataFile):
 
         selections = self.data.drop(columns='Timestamp')
 
-        if self.year == 2017:
-            stanley_pick = selections.loc[individual]['Who will win the Stanley Cup?']
+        stanley_pick = selections.loc[individual]['Who will win the Stanley Cup?']
 
-            picks = list(selections.loc[individual].values)
-            east_pick = next(team for team in picks
-                            if conference(team, self.year) == "East")
-            west_pick = next(team for team in picks
-                            if conference(team, self.year) == "West")
-            ordered_picks = [east_pick, west_pick, stanley_pick]
+        picks = list(selections.loc[individual].values)
+        east_pick = next(team for team in picks
+                        if conference(team, self.year) == "East")
+        west_pick = next(team for team in picks
+                        if conference(team, self.year) == "West")
+        ordered_picks = [east_pick, west_pick, stanley_pick]
+
+        duration_header = 'Length of Stanley Cup Finals'
+        games_pick_exists = duration_header in selections.columns
+        if games_pick_exists:
+            games_pick = int(selections.loc[individual][duration_header][0]) \
+                        if selections.loc[individual][duration_header][0] in ['4','5','6','7'] \
+                        else None
+            ordered_picks += [games_pick]
 
         return ordered_picks
