@@ -154,6 +154,7 @@ def conference(team, year):
     "Return the conference that a team belongs in"
 
     east_list = [
+        'ATL', 'Atlanta Thrashers',
         'BOS', 'Boston Bruins',
         'BUF', 'Buffalo Sabres',
         'CAR', 'Carolina Hurricanes',
@@ -171,13 +172,14 @@ def conference(team, year):
     ]
     west_list = [
         'ANA', 'Anaheim Ducks',
-        'ARI', 'Arizona Coyotes', 'Phoenix Coyotes',
+        'ARI', 'Arizona Coyotes',
         'CGY', 'Calgary Flames',
         'COL', 'Colorado Avalanche',
         'DAL', 'Dallas Stars',
         'EDM', 'Edmonton Oilers',
         'LAK', 'Los Angeles Kings',
         'MIN', 'Minnesota Wild',
+        'PHX', 'Phoenix Coyotes',
         'SJS', 'San Jose Sharks',
         'STL', 'St Louis Blues',
         'VAN', 'Vancouver Canucks',
