@@ -159,6 +159,7 @@ class Selections(DataFile):
             data.insert(len(data.columns), 'Duration', [None]*len(data))
         else:
             data.rename(columns={duration_header: 'Duration'}, inplace=True)
+            data['Duration'] = data['Duration'].str[0].astype("Int64")
 
         return data[champions_headers+['Duration']]
 
