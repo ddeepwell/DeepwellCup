@@ -197,7 +197,7 @@ def conference(team, year):
         east_list += ['WPG', 'Winnipeg Jets']
     if year > 2013:
         east_list += [
-            'CBJ', 'Columbus Blue Jackets'
+            'CBJ', 'Columbus Blue Jackets',
             'DET', 'Detroit Red Wings'
         ]
         west_list += ['WPG', 'Winnipeg Jets']
