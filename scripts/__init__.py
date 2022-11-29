@@ -14,8 +14,6 @@ from scripts import checks
 from scripts.data_files import DataFile
 from scripts.selections import Selections
 from scripts.other_points import OtherPoints
-from scripts.round_selections import RoundSelections
-from scripts.champions_selections import ChampionsSelections
 from scripts.results import Results
 from scripts.insert import Insert
 from scripts.plots import year_chart

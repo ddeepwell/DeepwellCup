@@ -67,7 +67,7 @@ def expected_series(playoff_round):
             'West': ['STL-NSH', 'ANA-EDM']
             },
         3: {'East': ['PIT-OTT'], 'West': ['ANA-NSH']},
-        4: {None: ['PIT-NSH']},
+        4: {'None': ['PIT-NSH']},
         'Champions': None,
     }
     return all_expected_series[playoff_round]
@@ -259,22 +259,22 @@ def expected_selections(playoff_round):
         4: pd.DataFrame(
             {
                 'Team': {
-                    ('Alita D', np.NAN, 'PIT-NSH'): 'Pittsburgh Penguins',
-                    ('David D', np.NAN, 'PIT-NSH'): 'Nashville Predators',
-                    ('Jackson L', np.NAN, 'PIT-NSH'): 'Nashville Predators',
-                    ('Josh H', np.NAN, 'PIT-NSH'): 'Nashville Predators'
+                    ('Alita D', 'None', 'PIT-NSH'): 'Pittsburgh Penguins',
+                    ('David D', 'None', 'PIT-NSH'): 'Nashville Predators',
+                    ('Jackson L', 'None', 'PIT-NSH'): 'Nashville Predators',
+                    ('Josh H', 'None', 'PIT-NSH'): 'Nashville Predators'
                 },
                 'Duration': {
-                    ('Alita D', np.NAN, 'PIT-NSH'): 7,
-                    ('David D', np.NAN, 'PIT-NSH'): 7,
-                    ('Jackson L', np.NAN, 'PIT-NSH'): 5,
-                    ('Josh H', np.NAN, 'PIT-NSH'): 6
+                    ('Alita D', 'None', 'PIT-NSH'): 7,
+                    ('David D', 'None', 'PIT-NSH'): 7,
+                    ('Jackson L', 'None', 'PIT-NSH'): 5,
+                    ('Josh H', 'None', 'PIT-NSH'): 6
                 },
                 'Player': {
-                    ('Alita D', np.NAN, 'PIT-NSH'): None,
-                    ('David D', np.NAN, 'PIT-NSH'): None,
-                    ('Jackson L', np.NAN, 'PIT-NSH'): None,
-                    ('Josh H', np.NAN, 'PIT-NSH'): None
+                    ('Alita D', 'None', 'PIT-NSH'): None,
+                    ('David D', 'None', 'PIT-NSH'): None,
+                    ('Jackson L', 'None', 'PIT-NSH'): None,
+                    ('Josh H', 'None', 'PIT-NSH'): None
                 }
             }
         ),

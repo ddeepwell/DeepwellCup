@@ -20,7 +20,10 @@ class Selections(DataFile):
         super().__init__(year=year, playoff_round=playoff_round, directory=selections_directory)
         self._database = DataBaseOperations(**kwargs)
         with self.database as db:
-            self._in_database = db.year_round_in_database(year, playoff_round)
+            if playoff_round in [1,2,3,4]:
+                self._in_database = db.year_round_in_database(year, playoff_round)
+            else:
+                self._in_database = db.champions_round_in_database(year)
             self._results_in_database = db.year_round_results_in_database(year, playoff_round)
         self._load_selections(keep_results=keep_results)
 
@@ -32,7 +35,7 @@ class Selections(DataFile):
     @property
     def individuals(self):
         """The individuals in the playoff round"""
-        return sorted(list(set(self.selections.index.get_level_values('Individual'))))
+        return sorted(set(self.selections.index.get_level_values('Individual')))
 
     @property
     def database(self):
@@ -85,7 +88,7 @@ class Selections(DataFile):
 
         def get_conference(series: str):
             """The conference for the teams in the series"""
-            return None if self.playoff_round == 4 else \
+            return "None" if self.playoff_round == 4 else \
                 nhl_teams.conference(series[:3], self.year)
 
         selections = pd.wide_to_long(data,
@@ -102,7 +105,7 @@ class Selections(DataFile):
 
         df.rename(columns={' series length:': 'Duration'}, inplace=True)
         # modify team column
-        df.replace(math.nan, None, inplace=True)
+        df.replace(to_replace=math.nan, value=None, inplace=True)
         # modify duration column
         mask = df.loc[:,'Duration'].str[0].isin(['4','5','6','7'])
         df.loc[~mask,'Duration'] = [None]*len(df.loc[~mask,'Duration'])
@@ -209,7 +212,6 @@ class Selections(DataFile):
         # abbreviated series name
         series = [col for col in data.columns
                         if bool(re.match(r"^[A-Z]{3}-[A-Z]{3}$", col))]
-        conference_list = self._conference_list()
 
         def correct_conference(series: str, conference: str):
             """Boolean for correct conference of the teams"""
@@ -219,7 +221,7 @@ class Selections(DataFile):
 
         return {conf:
             [a_series for a_series in series if correct_conference(a_series, conf)]
-            for conf in conference_list
+            for conf in self._conference_list()
         }
 
     def _conference_series_from_database(self):
@@ -228,29 +230,28 @@ class Selections(DataFile):
         with self.database as db:
             series_table = db.get_all_series_in_round(self.year, self.playoff_round)
         num_series = series_table['SeriesNumber'].max()
-        conference_list = self._conference_list()
 
         def series_name(conference, series_number):
             """Get the series name for a series number in a conference
             from the pandas table from the database"""
 
-            conference = conference if conference is None else f'"{conference}"'
+            # conference = conference if conference=="None" else f'"{conference}"'
             return '-'.join(
                 list(map(stn, series_table.query(
-                    f"Conference in [{conference}] and SeriesNumber=={series_number}"
+                    f'Conference in ["{conference}"] and SeriesNumber=={series_number}'
                 )
                 [['TeamHigherSeed','TeamLowerSeed']].values[0]))
             )
 
         return {conf:
             [series_name(conf, num) for num in range(1, num_series+1)]
-            for conf in conference_list
+            for conf in self._conference_list()
         }
 
     def _conference_list(self):
         """List the conferences in the current playoff round"""
 
         if self.playoff_round == 4:
-            return [None]
+            return ["None"]
         elif self.playoff_round in [1,2,3]:
             return ['East', 'West']

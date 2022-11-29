@@ -252,6 +252,7 @@ def create_main_table_stanley_picks(year, stanley_data, individuals):
             stanley_east_pick = ''
             stanley_west_pick = ''
             stanley_cup_pick = ''
+            stanley_game_pick = ''
         if year in [2006, 2007, 2008]:
             # in 2006, 2007, and 2008 everyone picked the length of the Stanley Cup Finals
             # at the beginning of the playoffs

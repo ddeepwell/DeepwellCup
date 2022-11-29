@@ -19,8 +19,8 @@ def check_if_individual_exists(db_ops, first_name, last_name):
 def check_if_conference_and_round_is_valid(conference, playoff_round):
     '''Check if the conference is valid'''
     if playoff_round == 4:
-        if conference is not None:
-            raise Exception("The conference in the 4th round must be None")
+        if conference != "None":
+            raise Exception("The conference in the 4th round must be 'None'")
     elif playoff_round not in [1,2,3] or conference not in ['East', 'West']:
         raise Exception(\
             f'Either (or both) the conference ({conference}) or '\

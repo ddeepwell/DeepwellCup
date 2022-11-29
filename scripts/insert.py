@@ -1,8 +1,10 @@
 """Import round selections for a single round into the database"""
-import math
+import pandas as pd
+import numpy as np
 import scripts as dc
 from scripts import DataFile
 from scripts import utils
+from scripts.nhl_teams import lengthen_team_name
 
 class Insert(DataFile):
     "User-friendly class for inserting round selections and results into the database"
@@ -18,18 +20,18 @@ class Insert(DataFile):
 
         # inherit class objects from DataFile
         super().__init__(year=year, playoff_round=playoff_round, **selection_kwargs)
-
-        # get the information for the year and playoff round
-        self._round_selections = dc.RoundSelections(year, playoff_round, **selection_kwargs)
-        # get the champions information
-        if playoff_round == 1:
-            self._champions_selections = dc.ChampionsSelections(year, **selection_kwargs)
-        else:
-            self._champions_selection = None
-        self._results = dc.Results(year, playoff_round, **selection_kwargs)
-        self._other_points = dc.OtherPoints(year, playoff_round, **selection_kwargs, **database_kwargs)
-        # return the correct database
         self._database = dc.DataBaseOperations(**database_kwargs)
+
+        # import values
+        self._round_selections = dc.Selections(year, playoff_round, **selection_kwargs)
+        self._champions_selections = dc.Selections(year, 'Champions', **selection_kwargs)
+        self._results = dc.Results(year, playoff_round, **selection_kwargs)
+        self._other_points = dc.OtherPoints(
+            year,
+            playoff_round,
+            **selection_kwargs,
+            **database_kwargs
+        )
 
     @property
     def round_selections(self):
@@ -59,23 +61,35 @@ class Insert(DataFile):
     def insert_round_selections(self):
         """Insert selections for a given round into the database"""
 
-        if self.playoff_round in [1,2,3]:
-            conferences = ['East', 'West']
-        else:
-            conferences = [None]
+        # shorten variables
+        individuals = self.round_selections.individuals
+        selections = self.round_selections.selections
+        series = self.round_selections.series
 
         with self.database as db:
-            self.add_missing_individuals(self.round_selections.individuals, db)
+            self.add_missing_individuals(individuals, db)
 
-            for conference in conferences:
-                series_pair_list = self.round_selections.series[conference]
-                processed_selections = [
-                    [*utils.split_name(individual), *picks] for individual, picks
-                    in self.round_selections.selections[conference].items()
+            for conference in sorted(set(selections.index.get_level_values(1))):
+                series_pair_list = series[conference]
+                processed_selections = []
+                for individual in individuals:
+                    picks = [
+                        selections.loc[
+                            individual,
+                            conference,
+                            series_pair
+                        ].to_list() for series_pair in series_pair_list
+                    ]
+                    processed_selections += self._convert_to_int(
+                        [[*utils.split_name(individual), *picks]]
+                    )
+
+                series_list_for_database = [
+                    list(map(lengthen_team_name, a_series.split('-')))
+                    for a_series in series_pair_list
                 ]
-
                 db.add_year_round_series_for_conference(
-                        self.year, self.playoff_round, conference, series_pair_list)
+                        self.year, self.playoff_round, conference, series_list_for_database)
                 db.add_series_selections_for_conference(
                         self.year, self.playoff_round, conference, processed_selections)
 
@@ -85,9 +99,13 @@ class Insert(DataFile):
     def insert_champions_selections(self):
         """Insert selections for the champions round into the database"""
 
+        selections = self.champions_selections.selections
         stanley_cup_selections = [
-            [*utils.split_name(individual), *picks] for individual, picks
-            in self.champions_selections.selections.items()
+            [
+                *utils.split_name(individual),
+                *self._convert_to_int(selections.loc[individual].tolist())
+            ]
+            for individual in self.champions_selections.individuals
         ]
 
         with self.database as db:
@@ -97,31 +115,30 @@ class Insert(DataFile):
     def insert_results(self):
         """Insert the results of a playoff round into the database"""
 
-        if self.playoff_round in [1,2,3]:
-            conferences = ['East', 'West']
-        else:
-            conferences = [None]
+        results = self.results.results
+        series = self.round_selections.series
 
-        for conference in conferences:
-            conf = conference if conference is not None else math.nan
-            conference_results = [
-                [
-                    self.results.results.loc[conf].loc[series]['Team'],
-                    int(self.results.results.loc[conf].loc[series]['Duration'])
-                ]
-                for series in self.results.results.loc[conf].index
+        for conference in set(results.index.get_level_values(0)):
+            series_pair_list = series[conference]
+            processed_results = [
+                self._convert_to_int(
+                    results.loc[conference,series_pair].to_list()
+                )
+                for series_pair in series_pair_list
             ]
-
-            if self.playoff_round == 4:
-                champions_results = dc.Results(self.year, 'Champions')
-                champions_list = champions_results.results.values.tolist()
 
             with self.database as db:
                 db.add_series_results_for_conference(
-                        self.year, self.playoff_round, conference, conference_results)
+                        self.year, self.playoff_round, conference, processed_results)
 
-                if self.playoff_round == 4:
-                    db.add_stanley_cup_results(self.year, *champions_list)
+        if self.playoff_round == 4:
+            champions_results = dc.Results(self.year, 'Champions')
+            champions_list = self._convert_to_none(
+                champions_results.results.tolist()
+            )
+
+            with self.database as db:
+                db.add_stanley_cup_results(self.year, *champions_list)
 
     def insert_other_points(self):
         """Insert points which are outside the regular scope of the selections"""
@@ -147,3 +164,23 @@ class Insert(DataFile):
         new_individuals = sorted(list(set(individuals) - set(existing_individuals)))
         for individual in new_individuals:
             self.database.add_new_individual(*dc.utils.split_name(individual))
+
+    def _convert_to_int(self, obj):
+        """Convert all instances of numpy.int64 to int"""
+
+        if isinstance(obj, list):
+            return [self._convert_to_int(elem) for elem in obj]
+        elif isinstance(obj, np.int64):
+            return int(obj)
+        else:
+            return obj
+
+    def _convert_to_none(self, obj):
+        """Convert all instances of pandas NA to None"""
+
+        if isinstance(obj, list):
+            return [self._convert_to_none(elem) for elem in obj]
+        elif pd.isna(obj):
+            return None
+        else:
+            return obj

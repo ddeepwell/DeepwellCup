@@ -107,9 +107,9 @@ def expected_results(playoff_round):
         ),
         4: pd.DataFrame(
             {
-                'Team': {(np.NAN, 'PIT-NSH'): 'Pittsburgh Penguins'},
-                'Duration': {(np.NAN, 'PIT-NSH'): 6},
-                'Player': {(np.NAN, 'PIT-NSH'): None}
+                'Team': {('None', 'PIT-NSH'): 'Pittsburgh Penguins'},
+                'Duration': {('None', 'PIT-NSH'): 6},
+                'Player': {('None', 'PIT-NSH'): None}
             }
         ),
         'Champions': pd.Series(
