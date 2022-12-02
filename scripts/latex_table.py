@@ -4,7 +4,7 @@ of individuals selections
 """
 import os
 from pathlib import Path
-import pandas as pd
+import numpy as np
 from scripts.nhl_teams import shorten_team_name
 from scripts.database import DataBaseOperations
 from scripts.scores import IndividualScoring
@@ -214,7 +214,8 @@ def create_main_table_conference_picks(playoff_round, conference, teams, round_d
                 query = f'Individual=="{individual}"'
 
             team_pick = stn(round_data.query(query)['TeamSelection'].iloc[nn])
-            game_pick =     round_data.query(query)['GameSelection'].iloc[nn]
+            game_pick_raw = round_data.query(query)['GameSelection'].iloc[nn]
+            game_pick = int(game_pick_raw) if not np.isnan(game_pick_raw) else ''
             conference_table += f" & \\mr{{{team_pick}}} & \\mr{{{game_pick}}}"
         conference_table += "\\\\\\hline\n"
 
