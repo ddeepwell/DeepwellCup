@@ -1,9 +1,6 @@
 """Tests for Selections class"""
-import os
 from pathlib import Path
-# from contextlib import nullcontext as does_not_raise
 import pandas as pd
-# import numpy as np
 import pytest
 from scripts import OtherPoints
 
@@ -52,20 +49,6 @@ def test_individuals(setup):
     expected_individuals = ['Harry L','Kollin H']
 
     assert pts.individuals == expected_individuals
-
-# @pytest.mark.parametrize("database", ['nonempty', 'empty'], indirect=["database"])
-# @pytest.mark.parametrize("playoff_round",[1,2,3,4])
-# # def test_series(playoff_round, expectation, database, expected_series, setup):
-# #     """Test for series"""
-
-# #     with expectation:
-# #         pts = Selections(
-# #             setup.year,
-# #             playoff_round=playoff_round,
-# #             selections_directory=setup.test_data_dir,
-# #             database=str(database)
-# #         )
-# #         assert expected_series == pts.series
 
 @pytest.fixture
 def expected_points(playoff_round):
