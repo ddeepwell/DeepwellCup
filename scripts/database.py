@@ -14,8 +14,8 @@ class DataBaseOperations():
 
     def __init__(self, database='database/DeepwellCup.db'):
         if database[0] != '/' and database[:5] != 'file:':
-            database_dir = Path(__file__).absolute()
-            project_root = database_dir.parents[1]
+            database_py_path = Path(__file__).absolute()
+            project_root = database_py_path.parents[1]
             database_path = project_root / database
         else:
             database_path = database
