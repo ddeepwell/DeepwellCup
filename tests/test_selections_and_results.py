@@ -1,5 +1,4 @@
 """Tests for Selections class"""
-import os
 from pathlib import Path
 from contextlib import nullcontext as does_not_raise
 import pandas as pd
