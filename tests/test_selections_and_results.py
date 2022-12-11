@@ -5,14 +5,14 @@ from contextlib import nullcontext as does_not_raise
 import pandas as pd
 import pytest
 from scripts import Selections, Results
+from scripts.directories import project_directory
 
 class Settings:
     """Test settings"""
     def __init__(self):
-        self.tests_dir = Path(os.path.dirname(__file__))
-        self.test_data_dir = self.tests_dir / 'data'
-        self.full_database = self.test_data_dir / 'test.db'
-        self.empty_database = self.test_data_dir / 'empty.db'
+        self.test_data_dir = project_directory()/'tests/data'
+        self.full_database = self.test_data_dir/'test.db'
+        self.empty_database = self.test_data_dir/'empty.db'
         self.year = 2017
 
 @pytest.fixture(scope="session")

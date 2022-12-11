@@ -1,18 +1,15 @@
 """Tests for Tables class"""
-import os
-from pathlib import Path
 import pytest
 from scripts import Tables
+from scripts.directories import project_directory
 
 class Settings:
     """Test settings"""
     def __init__(self):
-        self.tests_dir = Path(os.path.dirname(__file__))
-        root_dir = self.tests_dir.parent
-        self.test_data_dir = self.tests_dir / 'data'
-        self.tables_dir = root_dir / 'tables'
-        self.full_database = self.test_data_dir / 'test.db'
-        # self.empty_database = self.test_data_dir / 'empty.db'
+        self.test_data_dir = project_directory()/'tests/data'
+        self.tables_dir = project_directory()/'tables'
+        self.full_database = self.test_data_dir/'test.db'
+        # self.empty_database = self.test_data_dir/'empty.db'
         self.year = 2017
 
 @pytest.fixture(scope="session")

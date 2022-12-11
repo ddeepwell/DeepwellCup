@@ -1,6 +1,5 @@
 """Specifying the file containing selections and results"""
-import os
-from pathlib import Path
+from scripts.directories import project_directory
 
 class DataFile():
     """Class for specifying the file containing selections and results"""
@@ -9,8 +8,7 @@ class DataFile():
         self._year = year
         self._playoff_round = playoff_round
         if directory is None:
-            scripts_dir = Path(os.path.dirname(__file__))
-            self.directory = scripts_dir.parent / 'data' / f'{self.year}'
+            self.directory = project_directory() / 'data' / f'{self.year}'
         else:
             self.directory = directory
 

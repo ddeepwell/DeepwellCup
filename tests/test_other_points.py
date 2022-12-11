@@ -3,14 +3,14 @@ from pathlib import Path
 import pandas as pd
 import pytest
 from scripts import OtherPoints
+from scripts.directories import project_directory
 
 class Settings:
     """Test settings"""
     def __init__(self):
-        self.tests_dir = Path(__file__).parent
-        self.test_data_dir = self.tests_dir / 'data'
-        self.nonempty_database = self.test_data_dir / 'other_points_nonempty.db'
-        self.empty_database = self.test_data_dir / 'other_points_empty.db'
+        self.test_data_dir = project_directory()/'tests/data'
+        self.nonempty_database = self.test_data_dir/'other_points_nonempty.db'
+        self.empty_database = self.test_data_dir/'other_points_empty.db'
         self.year = 2009
 
 @pytest.fixture(scope="session")

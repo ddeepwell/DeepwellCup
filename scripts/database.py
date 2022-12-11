@@ -3,20 +3,18 @@
 """
 import sqlite3
 import os
-from pathlib import Path
 import errno
 import warnings
 import pandas as pd
 from scripts import checks
+from scripts.directories import project_directory
 
 class DataBaseOperations():
     '''Class for functions to work with the database'''
 
     def __init__(self, database='database/DeepwellCup.db'):
         if database[0] != '/' and database[:5] != 'file:':
-            database_py_path = Path(__file__).absolute()
-            project_root = database_py_path.parents[1]
-            database_path = project_root / database
+            database_path = project_directory()/database
         else:
             database_path = database
         self.path = database_path

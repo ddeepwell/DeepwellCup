@@ -2,13 +2,13 @@
 Functions for creating plots
 '''
 import os
-from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from scripts.scores import Points
 from scripts.database import DataBaseOperations
+from scripts.directories import project_directory
 
 # set font to look like Latex
 font = {'family' : 'serif',
@@ -169,9 +169,7 @@ def add_legend(axis_list, other_data, year):
 
 def save_figure(file_name, year):
     '''Save to disk'''
-    scripts_dir = Path(os.path.dirname(__file__))
-    base_dir = scripts_dir.parent
-    figure_dir = base_dir / 'figures' / f'{year}'
+    figure_dir = project_directory() / 'figures' / f'{year}'
     if not os.path.exists(figure_dir):
         os.mkdir(figure_dir)
     plt.savefig(f'{figure_dir}/{file_name}.pdf', bbox_inches='tight', format='pdf')

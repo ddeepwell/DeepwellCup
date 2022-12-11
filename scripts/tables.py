@@ -5,7 +5,7 @@ import os
 import pandas as pd
 from jinja2 import Environment, FileSystemLoader
 from scripts import Selections
-from scripts.directories import tables_directory, project_directory
+from scripts.directories import project_directory
 from scripts.nhl_teams import shorten_team_name as stn
 from scripts.nhl_teams import lengthen_team_name as ltn
 from scripts.scores import IndividualScoring
@@ -50,7 +50,7 @@ class Tables():
             os.mkdir(directory)
 
     def _year_tables_directory(self):
-        return tables_directory() / str(self.year)
+        return project_directory()/f'tables/{self.year}'
 
     def _import_template(self, template):
         loader = FileSystemLoader(project_directory()/'scripts/templates/')
