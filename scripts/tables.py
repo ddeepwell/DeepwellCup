@@ -49,7 +49,7 @@ class Tables():
         if not os.path.exists(directory):
             os.mkdir(directory)
 
-    def _tables_directory(self):
+    def _year_tables_directory(self):
         return tables_directory() / str(self.year)
 
     def _import_template(self, template):
@@ -64,10 +64,12 @@ class Tables():
 
     def _build_pdftex(self, source_file):
         """Build the PDF from the Latex file"""
+        cwd = os.getcwd()
+        os.chdir(self._year_tables_directory())
         build_command = '/Library/TeX/texbin/pdflatex '\
-                    f'-output-directory={self._tables_directory()} '\
                     f'{source_file}'
         os.system(build_command)
+        os.chdir(cwd)
 
 
 
@@ -85,7 +87,7 @@ class Tables():
     @property
     def latex_file(self):
         """Return the name of the LaTex file"""
-        return self._tables_directory() / f"round{self.playoff_round}.tex"
+        return self._year_tables_directory() / f"round{self.playoff_round}.tex"
 
     def build_pdf(self):
         """Build the PDF for the selections in a playoff round"""
@@ -94,14 +96,14 @@ class Tables():
     def make_table(self):
         """Write contents of the LaTex file for a playoff round to disk"""
 
-        self._make_directory_if_missing(self._tables_directory())
+        self._make_directory_if_missing(self._year_tables_directory())
         contents = self._make_table_contents()
         self._write_file(self.latex_file, contents)
 
     def _make_table_contents(self):
         """Collect the contents of the LaTex file for a playoff round"""
 
-        ranking_image_path = "/Users/daviddeepwell/Documents/Hockey/HockeyPool/DeepwellCup/figures/"\
+        ranking_image_path = "../../figures/"\
             f"{self.year}/Points-{self.year}-Round{self.playoff_round-1}.pdf"
 
         template = self._import_template("round_selections.j2")
