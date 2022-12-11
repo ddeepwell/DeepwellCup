@@ -62,12 +62,13 @@ class Tables():
         with open(filename, "w+", encoding='utf-8') as file:
             file.writelines(contents)
 
-    def _build_pdftex(self, source_file):
+    def _build_pdftex(self, source_file, quiet=True):
         """Build the PDF from the Latex file"""
         cwd = os.getcwd()
         os.chdir(self._year_tables_directory())
-        build_command = '/Library/TeX/texbin/pdflatex '\
-                    f'{source_file}'
+        build_command = f'/Library/TeX/texbin/pdflatex -halt-on-error {source_file}'
+        if quiet:
+            build_command += " > /dev/null"
         os.system(build_command)
         os.chdir(cwd)
 
@@ -89,9 +90,9 @@ class Tables():
         """Return the name of the LaTex file"""
         return self._year_tables_directory() / f"round{self.playoff_round}.tex"
 
-    def build_pdf(self):
+    def build_pdf(self, quiet=True):
         """Build the PDF for the selections in a playoff round"""
-        self._build_pdftex(self.latex_file)
+        self._build_pdftex(self.latex_file, quiet)
 
     def make_table(self):
         """Write contents of the LaTex file for a playoff round to disk"""
