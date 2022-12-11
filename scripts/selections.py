@@ -2,6 +2,7 @@
 import re
 import math
 import pandas as pd
+import warnings
 from scripts import DataFile, DataBaseOperations
 from scripts import nhl_teams
 from scripts.nhl_teams import shorten_team_name as stn
@@ -109,7 +110,16 @@ class Selections(DataFile):
         # modify duration column
         mask = df.loc[:,'Duration'].str[0].isin(['4','5','6','7'])
         df.loc[~mask,'Duration'] = [None]*len(df.loc[~mask,'Duration'])
-        df.loc[mask,'Duration'] = df.loc[mask,'Duration'].str[0].astype("Int64")
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                category=FutureWarning,
+                message=(
+                    ".*will attempt to set the values inplace instead of always setting a new array. "
+                    "To retain the old behavior, use either.*"
+                ),
+            )
+            df.loc[mask,'Duration'] = df.loc[mask,'Duration'].str[0].astype("Int64")
         selections = df[['Team', 'Duration']]
         selections.sort_index(level=[0,1], sort_remaining=False, inplace=True)
 
