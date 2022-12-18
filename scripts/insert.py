@@ -1,5 +1,5 @@
 """Import round selections for a single round into the database"""
-import pandas as pd
+from pandas import isna
 import numpy as np
 import scripts as dc
 from scripts import DataFile
@@ -180,7 +180,7 @@ class Insert(DataFile):
 
         if isinstance(obj, list):
             return [self._convert_to_none(elem) for elem in obj]
-        elif pd.isna(obj):
+        elif isna(obj):
             return None
         else:
             return obj

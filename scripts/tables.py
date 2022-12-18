@@ -2,7 +2,7 @@
 Class for making LaTex table files
 """
 import os
-import pandas as pd
+from pandas import isna
 from jinja2 import Environment, FileSystemLoader
 from scripts import Selections
 from scripts.directories import project_directory
@@ -181,7 +181,7 @@ class Tables():
             series_selections = self._round_selections.selections.loc[:,:,series]
             team = stn(series_selections.loc[individual]['Team'][0])
             duration = series_selections.loc[individual]['Duration'][0]
-            duration = duration if not pd.isna(duration) else ""
+            duration = duration if not isna(duration) else ""
             return f"& \\mr{{{team}}} & \\mr{{{duration}}}"
 
 
