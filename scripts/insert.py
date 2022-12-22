@@ -152,7 +152,7 @@ class Insert(DataFile):
                         self.year,
                         self.playoff_round,
                         *utils.split_name(individual),
-                        int(self.other_points.points.loc[individual]['Points'])
+                        int(self.other_points.points.loc[individual])
                     )
 
     def add_missing_individuals(self, individuals, db):
