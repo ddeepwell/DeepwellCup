@@ -3,6 +3,7 @@ Functions for creating plots
 '''
 import os
 import numpy as np
+import pandas as pd
 from pandas import isna, isnull
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -19,8 +20,17 @@ def year_chart(year, max_round='Champions', save=False, **kwargs):
     '''Create a bar chart of the points standings in a year
     '''
 
-    year_points = Points(year, **kwargs)
-    points_unsorted_df = year_points.table
+    def create_points_table():
+        all_round_series = [Points(year, rnd, **kwargs).total_points for rnd in [1,2,3,4]]
+        all_round_series += [Points(year, 'Champions', **kwargs).total_points]
+        df = pd.concat(all_round_series, axis=1).transpose()
+        total = df.sum()
+        total.name = 'Total'
+        df_with_total = pd.concat([df, total.to_frame().transpose()])
+        df_with_total.sort_index(axis='columns', inplace=True)
+        return df_with_total.astype('Int64')
+
+    points_unsorted_df = create_points_table()
     round_names = points_unsorted_df.index[:-1].tolist()
     db_ops = DataBaseOperations(**kwargs)
     other_data = []

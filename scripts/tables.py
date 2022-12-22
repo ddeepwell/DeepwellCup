@@ -273,8 +273,7 @@ class Tables():
     def _scoring_table_contents(self):
         """Create the contents of the scoring table"""
 
-        scoring = IndividualScoring(self.year)
-        system = scoring.points_system()
+        system = IndividualScoring(self.year).scoring_system()
 
         # Series winner and series length points descriptor
         if self.year >= 2006 and self.year <= 2014:
