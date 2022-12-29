@@ -16,9 +16,13 @@ def update_and_create(year, playoff_round, account, **kwargs):
         indb.insert_other_points()
     elif account == 'results':
         indb.insert_results()
-        dc.year_chart(year, max_round=playoff_round, save=True, **kwargs)
+        plts = dc.Plots(year, max_round=playoff_round, save=True, **kwargs)
+        plts.standings()
+        plts.close()
         if playoff_round == 4:
-            dc.year_chart(year, max_round='Champions', save=True, **kwargs)
+            plts = dc.Plots(year, max_round='Champions', save=True, **kwargs)
+            plts.standings()
+            plts.close()
 
 def main():
     """Main argument processing"""

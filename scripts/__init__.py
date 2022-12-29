@@ -16,4 +16,4 @@ from scripts.results import Results
 from scripts.scores import Points
 from scripts.tables import Tables
 from scripts.insert import Insert
-from scripts.plots import year_chart
+from scripts.plots import Plots
