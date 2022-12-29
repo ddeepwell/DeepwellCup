@@ -9,7 +9,7 @@ def update_and_create(year, playoff_round, account, **kwargs):
 
     if account == 'selections':
         indb.insert_round_selections()
-        table = dc.Tables(year, playoff_round, **kwargs)
+        table = dc.Latex(year, playoff_round, **kwargs)
         table.make_table()
         table.build_pdf()
     elif account == 'other points':

@@ -14,6 +14,6 @@ from scripts.selections import Selections
 from scripts.other_points import OtherPoints
 from scripts.results import Results
 from scripts.scores import Points
-from scripts.tables import Tables
+from scripts.latex import Latex
 from scripts.insert import Insert
 from scripts.plots import Plots

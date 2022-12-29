@@ -10,7 +10,7 @@ from scripts.nhl_teams import shorten_team_name as stn
 from scripts.nhl_teams import lengthen_team_name as ltn
 from scripts.scores import IndividualScoring
 
-class Tables():
+class Latex():
     """Class making LaTex table files"""
 
     def __init__(self, year, playoff_round, selections_directory=None, **kwargs):

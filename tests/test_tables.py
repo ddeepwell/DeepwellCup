@@ -1,6 +1,6 @@
-"""Tests for Tables class"""
+"""Tests for LaTeX class"""
 import pytest
-from scripts import Tables
+from scripts import Latex
 from scripts.directories import project_directory
 
 class Settings:
@@ -20,7 +20,7 @@ def setup():
 def test_year(setup):
     """Test for year"""
     year = 2017
-    tables = Tables(
+    tables = Latex(
         year=year,
         playoff_round=1,
         selections_directory=setup.test_data_dir,
@@ -31,7 +31,7 @@ def test_year(setup):
 def test_playoff_round(setup):
     """Test for playoff round"""
     playoff_round = 1
-    tables = Tables(
+    tables = Latex(
         year=2017,
         playoff_round=playoff_round,
         selections_directory=setup.test_data_dir,
@@ -43,7 +43,7 @@ def test_playoff_round_latex_file(setup):
     """Test the latex_filename for PlayoffRoundTable"""
     year = 2017
     playoff_round = 1
-    tables = Tables(
+    tables = Latex(
         year=year,
         playoff_round=playoff_round,
         selections_directory=setup.test_data_dir,
