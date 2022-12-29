@@ -54,20 +54,21 @@ def test_individuals(setup):
 def expected_points(playoff_round):
     """Return the expected other points"""
 
+    R2 = pd.Series(
+            {
+                'Harry L': -7,
+                'Kollin H': -7
+            }
+        )
+    R2.index.name = 'Individual'
+    R4 = pd.Series({'Kollin H': -7})
+    R4.index.name = 'Individual'
+
     all_expected_points = {
         1: None,
-        2: pd.DataFrame(
-            {
-                'Points': {
-                    'Harry L': -7,
-                    'Kollin H': -7
-                }
-            }
-        ),
+        2: R2,
         3: None,
-        4: pd.DataFrame(
-            {'Points': {'Kollin H': -7}}
-        )
+        4: R4
     }
     return all_expected_points[playoff_round]
 
@@ -82,6 +83,9 @@ def test_points(playoff_round, database, expected_points, setup):
         selections_directory=setup.test_data_dir,
         database=str(database)
     )
+    if playoff_round == 2:
+        print(expected_points)
+        print(pts.points)
     if expected_points is None:
         assert pts.points is None
     else:
