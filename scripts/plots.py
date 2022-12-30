@@ -1,6 +1,5 @@
 """Functions for creating plots"""
 import os
-import numpy as np
 import pandas as pd
 from pandas import isna
 from matplotlib import rc, patches
@@ -117,7 +116,7 @@ class Plots():
         self._create_barchart()
 
         # modify axis lines and ticks
-        self.axis.set_yticks(np.arange(len(self.individuals)))
+        self.axis.set_yticks(range(len(self.individuals)))
         self.axis.set_yticklabels(self.individuals)
         self.axis.set_xlim(0, self._max_points*1.02)
         self.axis.spines['right'].set_visible(False)

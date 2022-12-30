@@ -1,6 +1,6 @@
 """Import round selections for a single round into the database"""
 from pandas import isna
-import numpy as np
+from numpy import int64
 import scripts as dc
 from scripts import DataFile
 from scripts import utils
@@ -157,7 +157,7 @@ class Insert(DataFile):
 
         if isinstance(obj, list):
             return [self._convert_to_int(elem) for elem in obj]
-        elif isinstance(obj, np.int64):
+        elif isinstance(obj, int64):
             return int(obj)
         else:
             return obj

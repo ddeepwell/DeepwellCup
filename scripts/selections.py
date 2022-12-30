@@ -1,8 +1,8 @@
 """Read participant round selection data from a data files"""
 import re
 import math
-import pandas as pd
 import warnings
+import pandas as pd
 from scripts import DataFile, DataBaseOperations
 from scripts import nhl_teams
 from scripts.nhl_teams import shorten_team_name as stn
