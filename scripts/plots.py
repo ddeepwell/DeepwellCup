@@ -27,6 +27,7 @@ class Plots():
         self._axis = self.figure.add_subplot(111)
         self._axis_list = []
         self._patch = None
+        self._points = None
 
     @property
     def figure(self):
@@ -87,7 +88,8 @@ class Plots():
 
     def add_column_to_table(self, rnd, category):
         """Modify returned Series to be the appropriate structure for making a Dataframe"""
-        column = getattr(Points(self.year, rnd, **self._kwargs), category)
+        self._points = Points(self.year, rnd, **self._kwargs)
+        column = getattr(self._points, category)
         if column is None:
             return pd.Series(name=self.rounds_to_plot[rnd], dtype='int64')
         if category == 'other_points':
