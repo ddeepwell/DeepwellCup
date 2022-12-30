@@ -1,6 +1,4 @@
-"""
-Functions for handling NHL team names
-"""
+"""Functions for handling NHL team names"""
 
 def shorten_team_name(team):
     '''Shorten the team name into its acronym'''

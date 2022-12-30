@@ -2,7 +2,7 @@
 from pathlib import Path
 import pandas as pd
 import pytest
-from scripts import OtherPoints
+from scripts.other_points import OtherPoints
 from scripts.directories import project_directory
 
 class Settings:

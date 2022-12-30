@@ -1,6 +1,6 @@
 """Tests for data_file"""
 import pytest
-from scripts import DataFile
+from scripts.data_files import DataFile
 from scripts.directories import project_directory
 
 class Settings:

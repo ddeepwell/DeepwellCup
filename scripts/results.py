@@ -1,6 +1,8 @@
 """Read the results in a playoff round"""
 import pandas as pd
-from scripts import DataFile, DataBaseOperations, Selections
+from scripts.selections import Selections
+from scripts.data_files import DataFile
+from scripts.database import DataBaseOperations
 
 class Results(DataFile):
     """Class for gathering the results for a playoff round"""

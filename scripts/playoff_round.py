@@ -1,13 +1,11 @@
 """Hold all data for a playoff round in a year"""
-from scripts import (
-    Selections,
-    Results,
-    OtherPoints,
-    Points,
-    Latex,
-    Plots,
-    Insert,
-)
+from scripts.results import Results
+from scripts.selections import Selections
+from scripts.scores import Points
+from scripts.other_points import OtherPoints
+from scripts.insert import Insert
+from scripts.latex import Latex
+from scripts.plots import Plots
 
 class PlayoffRound():
     """Class for all information about a playoff round"""

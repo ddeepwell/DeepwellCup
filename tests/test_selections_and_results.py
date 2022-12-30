@@ -3,7 +3,8 @@ from pathlib import Path
 from contextlib import nullcontext as does_not_raise
 import pandas as pd
 import pytest
-from scripts import Selections, Results
+from scripts.selections import Selections
+from scripts.results import Results
 from scripts.directories import project_directory
 
 class Settings:

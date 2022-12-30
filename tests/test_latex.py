@@ -1,6 +1,6 @@
 """Tests for LaTeX class"""
 import pytest
-from scripts import Latex
+from scripts.latex import Latex
 from scripts.directories import project_directory
 
 class Settings:

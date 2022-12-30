@@ -1,7 +1,7 @@
 '''Tests for database interactions'''
 import sqlite3
 import pytest
-from scripts import DataBaseOperations
+from scripts.database import DataBaseOperations
 
 temp_file = "file:memfile?mode=memory&cache=shared"
 

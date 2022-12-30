@@ -1,7 +1,9 @@
 """Functions for calculating the points awarded to individuals within a playoff round"""
 import pandas as pd
 from numpy import NaN, add
-from scripts import Selections, Results, OtherPoints
+from scripts.results import Results
+from scripts.selections import Selections
+from scripts.other_points import OtherPoints
 
 class Points():
     """Class for constructing a points table for a year"""

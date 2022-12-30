@@ -1,7 +1,8 @@
 """Participant other points in round"""
 import os
 from pandas import read_csv
-from scripts import DataFile, DataBaseOperations
+from scripts.data_files import DataFile
+from scripts.database import DataBaseOperations
 
 class OtherPoints(DataFile):
     """Class for gathering and processing information regarding other

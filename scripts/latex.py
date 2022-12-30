@@ -2,7 +2,7 @@
 import os
 from pandas import isna
 from jinja2 import Environment, FileSystemLoader
-from scripts import Selections
+from scripts.selections import Selections
 from scripts.directories import project_directory
 from scripts.scores import IndividualScoring
 from scripts.nhl_teams import (

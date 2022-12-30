@@ -1,25 +1,26 @@
 """Import round selections for a single round into the database"""
 from pandas import isna
 from numpy import int64
-import scripts as dc
+from scripts.other_points import OtherPoints
+from scripts.results import Results
+from scripts.selections import Selections
 from scripts import utils
+from scripts.database import DataBaseOperations
 from scripts.nhl_teams import lengthen_team_name
 
 class Insert():
     "User-friendly class for inserting round selections and results into the database"
 
     def __init__(self, year, playoff_round, selections_directory=None, **kwargs):
-        # inherit class objects from DataFile
-        # super().__init__(year=year, playoff_round=playoff_round, directory=selections_directory)
         self._year = year
         self._playoff_round = playoff_round
-        self._database = dc.DataBaseOperations(**kwargs)
+        self._database = DataBaseOperations(**kwargs)
 
         # import values
-        self._round_selections = dc.Selections(year, playoff_round, selections_directory, **kwargs)
-        self._champions_selections = dc.Selections(year, 'Champions', selections_directory, **kwargs)
-        self._results = dc.Results(year, playoff_round, selections_directory, **kwargs)
-        self._other_points = dc.OtherPoints(year, playoff_round, selections_directory, **kwargs)
+        self._round_selections = Selections(year, playoff_round, selections_directory, **kwargs)
+        self._champions_selections = Selections(year, 'Champions', selections_directory, **kwargs)
+        self._results = Results(year, playoff_round, selections_directory, **kwargs)
+        self._other_points = OtherPoints(year, playoff_round, selections_directory, **kwargs)
 
     @property
     def year(self):
@@ -130,7 +131,7 @@ class Insert():
                         self.year, self.playoff_round, conference, processed_results)
 
         if self.playoff_round == 4:
-            champions_results = dc.Results(self.year, 'Champions')
+            champions_results = Results(self.year, 'Champions')
             champions_list = self._convert_to_none(
                 champions_results.results.tolist()
             )
@@ -161,7 +162,7 @@ class Insert():
         ]
         new_individuals = sorted(list(set(individuals) - set(existing_individuals)))
         for individual in new_individuals:
-            self.database.add_new_individual(*dc.utils.split_name(individual))
+            self.database.add_new_individual(*utils.split_name(individual))
 
     def _convert_to_int(self, obj):
         """Convert all instances of numpy.int64 to int"""

@@ -3,7 +3,8 @@ import re
 import math
 import warnings
 import pandas as pd
-from scripts import DataFile, DataBaseOperations
+from scripts.data_files import DataFile
+from scripts.database import DataBaseOperations
 from scripts.nhl_teams import (
     conference as team_conference,
     shorten_team_name as stn

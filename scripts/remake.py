@@ -1,6 +1,6 @@
 """Script to populate and remake all figures and tables for a range of years"""
 import argparse
-from scripts import PlayoffRound
+from scripts.playoff_round import PlayoffRound
 
 def multi_year_remake(years, **kwargs):
     """Remake the entire database and all figures and tables between year1 and year2"""
