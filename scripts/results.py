@@ -9,7 +9,7 @@ class Results(DataFile):
         super().__init__(year=year, playoff_round=playoff_round, directory=selections_directory)
         self._database = DataBaseOperations(**kwargs)
         with self.database as db:
-            self._in_database = db.year_round_results_in_database(year, playoff_round)
+            self.in_database = db.year_round_results_in_database(year, playoff_round)
         self._selections = Selections(
             year,
             playoff_round,
@@ -36,7 +36,7 @@ class Results(DataFile):
     def _load_results(self):
         """Load the results from database or raw source file"""
 
-        if self._in_database:
+        if self.in_database:
             if self.playoff_round in [1,2,3,4]:
                 self._results = self._load_playoff_round_results_from_database()
             elif self.playoff_round == 'Champions':

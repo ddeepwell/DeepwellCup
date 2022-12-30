@@ -17,3 +17,4 @@ from scripts.scores import Points
 from scripts.latex import Latex
 from scripts.insert import Insert
 from scripts.plots import Plots
+from scripts.playoff_round import PlayoffRound

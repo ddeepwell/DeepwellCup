@@ -1,15 +1,22 @@
 """Script to populate and remake all figures and tables for a range of years"""
 import argparse
-from scripts.update import update_and_create
+from scripts import PlayoffRound
 
 def multi_year_remake(years, **kwargs):
     """Remake the entire database and all figures and tables between year1 and year2"""
 
     for year in years:
         for rnd in [1,2,3,4]:
-            update_and_create(year=year, playoff_round=rnd, account='selections', **kwargs)
-            update_and_create(year=year, playoff_round=rnd, account='other points', **kwargs)
-            update_and_create(year=year, playoff_round=rnd, account='results', **kwargs)
+            current_round = PlayoffRound(
+                year=year,
+                playoff_round=rnd,
+                **kwargs
+            )
+            current_round.add_selections_to_database()
+            current_round.add_other_points_to_database()
+            current_round.add_results_to_database()
+            current_round.make_latex_table()
+            current_round.make_standings_chart()
 
 def main():
     """Main argument processing"""

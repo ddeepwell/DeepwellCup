@@ -9,29 +9,16 @@ from scripts.nhl_teams import lengthen_team_name
 class Insert(DataFile):
     "User-friendly class for inserting round selections and results into the database"
 
-    def __init__(self, year, playoff_round, **kwargs):
-        # process the possible key word args for each class
-        selection_kwargs = {}
-        database_kwargs = {}
-        if 'directory' in kwargs:
-            selection_kwargs['directory'] = kwargs.get('directory')
-        if 'database' in kwargs:
-            database_kwargs['database'] = kwargs.get('database')
-
+    def __init__(self, year, playoff_round, selections_directory=None, **kwargs):
         # inherit class objects from DataFile
-        super().__init__(year=year, playoff_round=playoff_round, **selection_kwargs)
-        self._database = dc.DataBaseOperations(**database_kwargs)
+        super().__init__(year=year, playoff_round=playoff_round, directory=selections_directory)
+        self._database = dc.DataBaseOperations(**kwargs)
 
         # import values
-        self._round_selections = dc.Selections(year, playoff_round, **selection_kwargs)
-        self._champions_selections = dc.Selections(year, 'Champions', **selection_kwargs)
-        self._results = dc.Results(year, playoff_round, **selection_kwargs)
-        self._other_points = dc.OtherPoints(
-            year,
-            playoff_round,
-            **selection_kwargs,
-            **database_kwargs
-        )
+        self._round_selections = dc.Selections(year, playoff_round, selections_directory, **kwargs)
+        self._champions_selections = dc.Selections(year, 'Champions', selections_directory, **kwargs)
+        self._results = dc.Results(year, playoff_round, selections_directory, **kwargs)
+        self._other_points = dc.OtherPoints(year, playoff_round, selections_directory, **kwargs)
 
     @property
     def round_selections(self):
