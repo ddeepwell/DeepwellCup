@@ -4,7 +4,7 @@ import pandas as pd
 from pandas import isna
 from matplotlib import rc, patches
 import matplotlib.pyplot as plt
-from scripts.scores import Points
+from scripts import Points
 from scripts.directories import project_directory
 
 # set font to look like Latex

@@ -4,8 +4,10 @@ import math
 import warnings
 import pandas as pd
 from scripts import DataFile, DataBaseOperations
-from scripts import nhl_teams
-from scripts.nhl_teams import shorten_team_name as stn
+from scripts.nhl_teams import (
+    conference as team_conference,
+    shorten_team_name as stn
+)
 
 class Selections(DataFile):
     """Class for gathering and processing information about a playoff round"""
@@ -90,7 +92,7 @@ class Selections(DataFile):
         def get_conference(series: str):
             """The conference for the teams in the series"""
             return "None" if self.playoff_round == 4 else \
-                nhl_teams.conference(series[:3], self.year)
+                team_conference(series[:3], self.year)
 
         selections = pd.wide_to_long(data,
             stubnames=series,
@@ -150,7 +152,7 @@ class Selections(DataFile):
             if conference != 'Stanley Cup':
                 teams = row[champions_headers].values.tolist()
                 return teams[0] \
-                    if nhl_teams.conference(teams[0], self.year) == conference \
+                    if team_conference(teams[0], self.year) == conference \
                     else teams[1]
             else:
                 return row['Who will win the Stanley Cup?']
@@ -226,8 +228,8 @@ class Selections(DataFile):
         def correct_conference(series: str, conference: str):
             """Boolean for correct conference of the teams"""
             return True if self.playoff_round == 4 else \
-                nhl_teams.conference(series[:3], self.year) == conference \
-                and nhl_teams.conference(series[-3:], self.year) == conference
+                team_conference(series[:3], self.year) == conference \
+                and team_conference(series[-3:], self.year) == conference
 
         return {conf:
             [a_series for a_series in series if correct_conference(a_series, conf)]

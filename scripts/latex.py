@@ -1,14 +1,14 @@
-"""
-Class for making LaTex table files
-"""
+"""Class for making LaTex table files"""
 import os
 from pandas import isna
 from jinja2 import Environment, FileSystemLoader
 from scripts import Selections
 from scripts.directories import project_directory
-from scripts.nhl_teams import shorten_team_name as stn
-from scripts.nhl_teams import lengthen_team_name as ltn
 from scripts.scores import IndividualScoring
+from scripts.nhl_teams import (
+    shorten_team_name as stn,
+    lengthen_team_name as ltn
+)
 
 class Latex():
     """Class making LaTex table files"""

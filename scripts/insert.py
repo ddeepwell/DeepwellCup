@@ -2,8 +2,7 @@
 from pandas import isna
 from numpy import int64
 import scripts as dc
-from scripts import DataFile
-from scripts import utils
+from scripts import DataFile, utils
 from scripts.nhl_teams import lengthen_team_name
 
 class Insert(DataFile):
