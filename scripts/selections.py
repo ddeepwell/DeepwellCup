@@ -58,8 +58,8 @@ class Selections(DataFile):
     def _load_selections(self, **kwargs):
         """Load the selections from database or raw file"""
 
-        if self._in_database and kwargs["keep_results"]==False \
-            or self._in_database and self._results_in_database:
+        if self._in_database \
+            and (kwargs["keep_results"] is False or self._results_in_database):
             if self.playoff_round in [1,2,3,4]:
                 self._selections = self._load_playoff_round_selections_from_database()
             elif self.playoff_round == 'Champions':
