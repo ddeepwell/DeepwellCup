@@ -30,6 +30,12 @@ class Points():
             )
         else:
             self._other_points = None
+        self._scoring = IndividualScoring(
+            year,
+            playoff_round,
+            self.selections,
+            self.results
+        )
 
     @property
     def year(self):
@@ -76,16 +82,9 @@ class Points():
     def selection_points(self):
         """Points for each individual's selections in the playoff round"""
 
-        scoring = IndividualScoring(
-            self.year,
-            self.playoff_round,
-            self.selections,
-            self.results,
-        )
-
         round_points = {}
         for individual in self._selection_individuals:
-            round_points[individual] = scoring.individual_points(individual)
+            round_points[individual] = self._scoring.individual_points(individual)
             name = f"Round {self.playoff_round}" if self.playoff_round in [1,2,3,4] \
                 else "Champions"
         return pd.Series(
