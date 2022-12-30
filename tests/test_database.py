@@ -146,14 +146,14 @@ class TestDatabase:
     def test_check_if_individual_exists_true(self, temp_database):
         '''a test'''
         with temp_database as db:
-            returned_val = db._check_if_individual_exists('David','D')
+            returned_val = db.check_if_individual_exists('David','D')
         expected_val = True
         assert returned_val == expected_val
 
     def test_check_if_individual_exists_false(self, temp_database):
         '''a test'''
         with temp_database as db:
-            returned_val = db._check_if_individual_exists('Mark','D')
+            returned_val = db.check_if_individual_exists('Mark','D')
         expected_val = False
         assert returned_val == expected_val
 
