@@ -2,15 +2,17 @@
 from pandas import isna
 from numpy import int64
 import scripts as dc
-from scripts import DataFile, utils
+from scripts import utils
 from scripts.nhl_teams import lengthen_team_name
 
-class Insert(DataFile):
+class Insert():
     "User-friendly class for inserting round selections and results into the database"
 
     def __init__(self, year, playoff_round, selections_directory=None, **kwargs):
         # inherit class objects from DataFile
-        super().__init__(year=year, playoff_round=playoff_round, directory=selections_directory)
+        # super().__init__(year=year, playoff_round=playoff_round, directory=selections_directory)
+        self._year = year
+        self._playoff_round = playoff_round
         self._database = dc.DataBaseOperations(**kwargs)
 
         # import values
@@ -18,6 +20,21 @@ class Insert(DataFile):
         self._champions_selections = dc.Selections(year, 'Champions', selections_directory, **kwargs)
         self._results = dc.Results(year, playoff_round, selections_directory, **kwargs)
         self._other_points = dc.OtherPoints(year, playoff_round, selections_directory, **kwargs)
+
+    @property
+    def year(self):
+        """The year"""
+        return self._year
+
+    @property
+    def playoff_round(self):
+        """The playoff round"""
+        return self._playoff_round
+
+    @property
+    def database(self):
+        """Return the database"""
+        return self._database
 
     @property
     def round_selections(self):
@@ -38,11 +55,6 @@ class Insert(DataFile):
     def other_points(self):
         """Return the other points for the playoff round"""
         return self._other_points
-
-    @property
-    def database(self):
-        """Return the database"""
-        return self._database
 
     def insert_round_selections(self):
         """Insert selections for a given round into the database"""
