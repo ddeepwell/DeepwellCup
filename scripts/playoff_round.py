@@ -30,7 +30,9 @@ class PlayoffRound():
         else:
             self._other_points = OtherPoints(year, playoff_round, selections_directory, **kwargs)
         self._points = Points(year, playoff_round, selections_directory, **kwargs)
-        self._insert_class = None
+        self._insert = None
+        self._latex = None
+        self._plots = None
 
     @property
     def selections(self):
@@ -63,13 +65,20 @@ class PlayoffRound():
         conferences = list(set(self.results.index.get_level_values(0)))
         return {conference: list(self.results.loc[conference].index) for conference in conferences}
 
+    def _get_latex(self):
+        """Get the LaTeX class"""
+        if self._latex is None:
+            self._latex = Latex(
+                self.year,
+                self.playoff_round,
+                self._selections_directory,
+                **self._kwargs
+            )
+        return self._latex
+
     def make_latex_table(self):
         """Make the LaTeX table of everyone's selections"""
-        latex = Latex(
-            self.year,
-            self.playoff_round,
-            self._selections_directory,
-            **self._kwargs)
+        latex = self._get_latex()
         latex.make_table()
         latex.build_pdf()
 
@@ -83,19 +92,20 @@ class PlayoffRound():
         """Are selections in the database"""
         return self._results.in_database
 
-    def _get_insert_class(self):
-        if self._insert_class is None:
-            self._insert_class = Insert(
+    def _get_insert(self):
+        """Get the insert class"""
+        if self._insert is None:
+            self._insert = Insert(
                 self.year,
                 self.playoff_round,
                 self._selections_directory,
                 **self._kwargs
             )
-        return self._insert_class
+        return self._insert
 
     def add_selections_to_database(self):
         """Add all selections into the database"""
-        insert = self._get_insert_class()
+        insert = self._get_insert()
         insert.insert_round_selections()
 
     def add_other_points_to_database(self):
@@ -103,20 +113,32 @@ class PlayoffRound():
         if self.playoff_round == 'Champions':
             print('There are no other points to add to database in the Champions round')
         else:
-            insert = self._get_insert_class()
+            insert = self._get_insert()
             insert.insert_other_points()
 
     def add_results_to_database(self):
         """Add all selections into the database"""
-        insert = self._get_insert_class()
+        insert = self._get_insert()
         insert.insert_results()
+
+    def _get_plots(self, playoff_round):
+        """Get the plots class"""
+        if self._plots is None or self._plots.max_round != playoff_round:
+            self._plots = Plots(
+                self.year,
+                max_round=playoff_round,
+                save=True,
+                selections_directory=self._selections_directory,
+                **self._kwargs
+            )
+        return self._plots
 
     def make_standings_chart(self):
         """Create the figure of the standing for the current and previous playoff rounds"""
-        plts = Plots(self.year, max_round=self.playoff_round, save=True, **self._kwargs)
+        plts = self._get_plots(self.playoff_round)
         plts.standings()
         plts.close()
         if self.playoff_round == 4:
-            plts = Plots(self.year, max_round='Champions', save=True, **self._kwargs)
+            plts = self._get_plots('Champions')
             plts.standings()
             plts.close()
