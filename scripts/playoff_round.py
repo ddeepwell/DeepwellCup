@@ -1,8 +1,5 @@
 """Hold all data for a playoff round in a year"""
-from scripts.results import Results
-from scripts.selections import Selections
 from scripts.scores import Points
-from scripts.other_points import OtherPoints
 from scripts.insert import Insert
 from scripts.latex import Latex
 from scripts.plots import Plots
@@ -21,13 +18,10 @@ class PlayoffRound():
         self.playoff_round = playoff_round
         self._selections_directory = selections_directory
         self._kwargs = kwargs
-        self._selections = Selections(year, playoff_round, selections_directory, **kwargs)
-        self._results = Results(year, playoff_round, selections_directory, **kwargs)
-        if playoff_round == 'Champions':
-            self._other_points = None
-        else:
-            self._other_points = OtherPoints(year, playoff_round, selections_directory, **kwargs)
         self._points = Points(year, playoff_round, selections_directory, **kwargs)
+        self._selections = self._points._selections
+        self._results = self._points._results
+        self._other_points = self._points.other_points
         self._insert = None
         self._latex = None
         self._plots = None
