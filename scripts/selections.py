@@ -2,7 +2,7 @@
 import re
 import math
 import warnings
-import pandas as pd
+from pandas import read_csv, Index, wide_to_long
 from scripts.data_files import DataFile
 from scripts.database import DataBaseOperations
 from scripts.nhl_teams import (
@@ -78,7 +78,7 @@ class Selections(DataFile):
     def _load_playoff_round_selections_from_file(self, keep_results=False):
         """Return the playoff round selections from the raw file"""
 
-        data = pd.read_csv(self.selections_file, sep=',')
+        data = read_csv(self.selections_file, sep=',')
         series = [col for col in data.columns
                         if bool(re.match(r"^[A-Z]{3}-[A-Z]{3}$", col))]
         data.rename(columns={'Name:': 'Individual'}, inplace=True)
@@ -95,7 +95,7 @@ class Selections(DataFile):
             return "None" if self.playoff_round == 4 else \
                 team_conference(series[:3], self.year)
 
-        selections = pd.wide_to_long(data,
+        selections = wide_to_long(data,
             stubnames=series,
             i='Individual',
             j='Selections',
@@ -103,7 +103,7 @@ class Selections(DataFile):
 
         # add conference to index
         conf_index = [get_conference(a_series) for a_series in selections.index.get_level_values(1)]
-        selections.set_index(pd.Index(conf_index), append=True, inplace=True)
+        selections.set_index(Index(conf_index), append=True, inplace=True)
         selections.index.names = ['Individual', 'Series', 'Conference']
         df = selections.reorder_levels(['Individual', 'Conference', 'Series'])
 
@@ -158,7 +158,7 @@ class Selections(DataFile):
             else:
                 return row['Who will win the Stanley Cup?']
 
-        data = pd.read_csv(self.selections_file, sep=',')
+        data = read_csv(self.selections_file, sep=',')
         data.rename(columns={'Name:': 'Individual'}, inplace=True)
         data.index = data['Individual']
         if not keep_results:
@@ -189,7 +189,7 @@ class Selections(DataFile):
         series_list = [subval for values in self.series.values() for subval in values]
         data.drop(columns=['SeriesNumber'], inplace=True)
         data.set_index('Conference', append=True, inplace=True)
-        data.set_index(pd.Index(series_list*num_individuals), append=True, inplace=True)
+        data.set_index(Index(series_list*num_individuals), append=True, inplace=True)
         data.index.names = ['Individual', 'Conference', 'Series']
         data.columns.name = 'Selections'
 
@@ -221,7 +221,7 @@ class Selections(DataFile):
     def _conference_series_from_file(self):
         """Turn a list of series into a dictionary of series in each conference"""
 
-        data = pd.read_csv(self.selections_file, sep=',')
+        data = read_csv(self.selections_file, sep=',')
         # abbreviated series name
         series = [col for col in data.columns
                         if bool(re.match(r"^[A-Z]{3}-[A-Z]{3}$", col))]

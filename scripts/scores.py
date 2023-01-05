@@ -1,5 +1,5 @@
 """Functions for calculating the points awarded to individuals within a playoff round"""
-import pandas as pd
+from pandas import Series
 from numpy import NaN, add
 from scripts.results import Results
 from scripts.selections import Selections
@@ -89,7 +89,7 @@ class Points():
             round_points[individual] = self._scoring.individual_points(individual)
             name = f"Round {self.playoff_round}" if self.playoff_round in [1,2,3,4] \
                 else "Champions"
-        return pd.Series(
+        return Series(
             round_points,
             index=round_points.keys(),
             name=name

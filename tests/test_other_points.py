@@ -1,6 +1,6 @@
 """Tests for Selections class"""
 from pathlib import Path
-import pandas as pd
+from pandas import Series
 import pytest
 from scripts.other_points import OtherPoints
 from scripts.directories import project_directory
@@ -54,14 +54,14 @@ def test_individuals(setup):
 def expected_points(playoff_round):
     """Return the expected other points"""
 
-    R2 = pd.Series(
+    R2 = Series(
             {
                 'Harry L': -7,
                 'Kollin H': -7
             }
         )
     R2.index.name = 'Individual'
-    R4 = pd.Series({'Kollin H': -7})
+    R4 = Series({'Kollin H': -7})
     R4.index.name = 'Individual'
 
     all_expected_points = {

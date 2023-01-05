@@ -1,5 +1,5 @@
 """Read the results in a playoff round"""
-import pandas as pd
+from pandas import Index, Int64Dtype
 from scripts.selections import Selections
 from scripts.data_files import DataFile
 from scripts.database import DataBaseOperations
@@ -55,7 +55,7 @@ class Results(DataFile):
         series_list = [subval for values in self.series.values() for subval in values]
         data.drop(columns=['SeriesNumber'], inplace=True)
         data.set_index('Conference', inplace=True)
-        data.set_index(pd.Index(series_list), append=True, inplace=True)
+        data.set_index(Index(series_list), append=True, inplace=True)
         data.index.names = ['Conference', 'Series']
         data.columns.name = 'Selections'
 
@@ -65,7 +65,7 @@ class Results(DataFile):
         }
         data.rename(columns=new_names, inplace=True)
         if self.playoff_round != 'Champions':
-            data['Duration'] = data['Duration'].astype(pd.Int64Dtype())
+            data['Duration'] = data['Duration'].astype(Int64Dtype())
         return data
 
     def _load_champions_results_from_database(self):

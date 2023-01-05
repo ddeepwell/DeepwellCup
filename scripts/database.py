@@ -5,7 +5,7 @@ import sqlite3
 import os
 import errno
 import warnings
-import pandas as pd
+from pandas import read_sql_query
 from scripts.directories import project_directory
 from scripts.nhl_teams import shorten_team_name as stn
 
@@ -190,7 +190,7 @@ class DataBaseOperations():
         '''Return the Stanley Cup picks for the requested year
         in a pandas dataframe'''
         check_if_year_is_valid(year)
-        sc_selections = pd.read_sql_query(
+        sc_selections = read_sql_query(
                 f'SELECT * FROM StanleyCupSelections WHERE Year={year}', self.conn)
         individuals = sc_selections.loc[:,'IndividualID'].apply(self._get_individual_from_id)
         sc_selections.drop(['Year','IndividualID'], axis='columns', inplace=True)
@@ -202,7 +202,7 @@ class DataBaseOperations():
         '''Return the Stanley Cup results for the requested year
         in a pandas dataframe'''
         check_if_year_is_valid(year)
-        sc_selections = pd.read_sql_query(
+        sc_selections = read_sql_query(
                 f'SELECT * FROM StanleyCupResults WHERE Year={year}', self.conn)
         if sc_selections.empty:
             raise  Exception(f'The year ({year}) was not in the StanleyCupResults Table')
@@ -237,7 +237,7 @@ class DataBaseOperations():
         self.check_playoff_round(playoff_round)
         self.check_conference(playoff_round, conference)
         series_id = self._get_series_id(year, playoff_round, conference, series_number)
-        series_data = pd.read_sql_query(
+        series_data = read_sql_query(
                 f'SELECT * FROM Series WHERE YearRoundSeriesID={series_id}', self.conn)
         series_data.drop('YearRoundSeriesID', axis='columns', inplace=True)
         return series_data
@@ -275,7 +275,7 @@ class DataBaseOperations():
     def get_all_series_in_round(self, year, playoff_round):
         '''Return all the series data for the playoff round in the given year'''
         check_if_year_is_valid(year)
-        series_data = pd.read_sql_query(
+        series_data = read_sql_query(
             f'SELECT * FROM Series WHERE Year="{year}" and Round="{playoff_round}"',
             self.conn).sort_values(by=['Conference','SeriesNumber'])
         return series_data
@@ -337,7 +337,7 @@ class DataBaseOperations():
         self.check_conference(playoff_round, conference)
         series_id = self._get_series_id(year, playoff_round, conference, series_number)
         individual_id = self._get_individual_id(first_name, last_name)
-        series_data = pd.read_sql_query(
+        series_data = read_sql_query(
                 'SELECT * FROM SeriesSelections '\
                 f'WHERE YearRoundSeriesID={series_id} '\
                 f'AND IndividualID={individual_id}', self.conn)
@@ -348,7 +348,7 @@ class DataBaseOperations():
     def get_all_round_selections(self, year, playoff_round):
         '''Return all the selections for a playoff round in a pandas dataframe'''
         check_if_year_is_valid(year)
-        series_data = pd.read_sql_query(f'''
+        series_data = read_sql_query(f'''
             SELECT Ser.Conference, Ser.SeriesNumber,
                 Ind.FirstName, Ind.LastName,
                 SS.TeamSelection, SS.GameSelection, SS.PlayerSelection
@@ -401,7 +401,7 @@ class DataBaseOperations():
         self.check_playoff_round(playoff_round)
         self.check_conference(playoff_round, conference)
         series_id = self._get_series_id(year, playoff_round, conference, series_number)
-        series_data = pd.read_sql_query(
+        series_data = read_sql_query(
                 'SELECT * FROM SeriesResults '\
                 f'WHERE YearRoundSeriesID={series_id}',\
                 self.conn)
@@ -411,7 +411,7 @@ class DataBaseOperations():
     def get_all_round_results(self, year, playoff_round):
         '''Return all the results for a playoff round in a pandas dataframe'''
         check_if_year_is_valid(year)
-        series_data = pd.read_sql_query(f'''
+        series_data = read_sql_query(f'''
             SELECT Ser.Conference, Ser.SeriesNumber,
                 SR.Winner, SR.Games, Sr.Player
             FROM SeriesResults as SR
@@ -441,7 +441,7 @@ class DataBaseOperations():
     def get_other_points(self, year, playoff_round):
         '''Return the list of other points in a pandas dataframe'''
         check_if_year_is_valid(year)
-        points_data = pd.read_sql_query(f'''
+        points_data = read_sql_query(f'''
                 SELECT * FROM OtherPoints
                 WHERE Year={year}
                 AND Round={playoff_round}''',

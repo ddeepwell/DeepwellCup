@@ -1,6 +1,6 @@
 """Functions for creating plots"""
 import os
-import pandas as pd
+from pandas import Series, concat
 from pandas import isna
 from matplotlib import rc, patches
 import matplotlib.pyplot as plt
@@ -91,7 +91,7 @@ class Plots():
         self._points = Points(self.year, rnd, **self._kwargs)
         column = getattr(self._points, category)
         if column is None:
-            return pd.Series(name=self.rounds_to_plot[rnd], dtype='int64')
+            return Series(name=self.rounds_to_plot[rnd], dtype='int64')
         if category == 'other_points':
             column.name = self.rounds_to_plot[rnd]
         return column
@@ -100,10 +100,10 @@ class Plots():
         """Create a table of values for a category for each individual"""
         all_round_series = [self.add_column_to_table(rnd, category)
                             for rnd in self.rounds_to_plot.keys()]
-        df = pd.concat(all_round_series, axis=1).transpose()
+        df = concat(all_round_series, axis=1).transpose()
         total = df.sum()
         total.name = 'Total'
-        df_with_total = pd.concat([df, total.to_frame().transpose()])
+        df_with_total = concat([df, total.to_frame().transpose()])
         df_with_total.columns.name = 'Individuals'
         # df_with_total.sort_index(axis='columns', inplace=True)
         return df_with_total.astype('Int64').sort_values(

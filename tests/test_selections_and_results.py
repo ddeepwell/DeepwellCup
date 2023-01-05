@@ -1,7 +1,7 @@
 """Tests for Selections class"""
 from pathlib import Path
 from contextlib import nullcontext as does_not_raise
-import pandas as pd
+from pandas import DataFrame, Series
 import pytest
 from scripts.selections import Selections
 from scripts.results import Results
@@ -99,7 +99,7 @@ def expected_selections(playoff_round):
     """Return the expected selections"""
 
     all_expected_selections = {
-        1: pd.DataFrame(
+        1: DataFrame(
             {
                 'Team': {
                     ('Alita D', 'East', 'WSH-TOR'): 'Washington Capitals',
@@ -181,7 +181,7 @@ def expected_selections(playoff_round):
                 }
             }
         ),
-        2: pd.DataFrame(
+        2: DataFrame(
             {
                 'Team': {
                     ('Alita D', 'East', 'OTT-NYR'): 'New York Rangers',
@@ -227,7 +227,7 @@ def expected_selections(playoff_round):
                 }
             }
         ),
-        3: pd.DataFrame(
+        3: DataFrame(
             {
                 'Team': {
                     ('Alita D', 'East', 'PIT-OTT'): 'Ottawa Senators',
@@ -255,7 +255,7 @@ def expected_selections(playoff_round):
                 }
             }
         ),
-        4: pd.DataFrame(
+        4: DataFrame(
             {
                 'Team': {
                     ('Alita D', 'None', 'PIT-NSH'): 'Pittsburgh Penguins',
@@ -277,7 +277,7 @@ def expected_selections(playoff_round):
                 }
             }
         ),
-        'Champions': pd.DataFrame(
+        'Champions': DataFrame(
             {
                 'East': {
                     'Alita D': 'Montreal Canadiens',
@@ -325,7 +325,7 @@ def expected_results(playoff_round):
     """Return the expected results"""
 
     all_expected_results = {
-        1: pd.DataFrame(
+        1: DataFrame(
             {
                 'Team': {
                     ('East', 'WSH-TOR'): 'Washington Capitals',
@@ -359,7 +359,7 @@ def expected_results(playoff_round):
                 }
             }
         ),
-        2: pd.DataFrame(
+        2: DataFrame(
             {
                 'Team': {
                     ('East', 'OTT-NYR'): 'Ottawa Senators',
@@ -381,7 +381,7 @@ def expected_results(playoff_round):
                 }
             }
         ),
-        3: pd.DataFrame(
+        3: DataFrame(
             {
                 'Team': {
                     ('East', 'PIT-OTT'): 'Pittsburgh Penguins',
@@ -397,14 +397,14 @@ def expected_results(playoff_round):
                 }
             }
         ),
-        4: pd.DataFrame(
+        4: DataFrame(
             {
                 'Team': {('None', 'PIT-NSH'): 'Pittsburgh Penguins'},
                 'Duration': {('None', 'PIT-NSH'): 6},
                 'Player': {('None', 'PIT-NSH'): None}
             }
         ),
-        'Champions': pd.Series(
+        'Champions': Series(
             {
                 'East': 'Pittsburgh Penguins',
                 'West': 'Nashville Predators',
