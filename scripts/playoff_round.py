@@ -130,7 +130,3 @@ class PlayoffRound():
         plts = self._get_plots(self.playoff_round)
         plts.standings()
         plts.close()
-        if self.playoff_round == 4:
-            plts = self._get_plots('Champions')
-            plts.standings()
-            plts.close()

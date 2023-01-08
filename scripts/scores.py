@@ -1,6 +1,8 @@
 """Functions for calculating the points awarded to individuals within a playoff round"""
 from pandas import Series
 from numpy import NaN, add
+from sympy import symbols
+from sympy.utilities.lambdify import lambdify
 from scripts.results import Results
 from scripts.selections import Selections
 from scripts.other_points import OtherPoints
@@ -8,7 +10,13 @@ from scripts.other_points import OtherPoints
 class Points():
     """Class for constructing a points table for a year"""
 
-    def __init__(self, year, playoff_round, selections_directory=None, **kwargs):
+    def __init__(self,
+                year,
+                playoff_round,
+                selections_directory=None,
+                keep_stanley_cup_winner_points=True,
+                **kwargs
+        ):
         self._year = year
         self._playoff_round = playoff_round
         self._selections = Selections(
@@ -36,7 +44,8 @@ class Points():
             year,
             playoff_round,
             self.selections,
-            self.results
+            self.results,
+            keep_stanley_cup_winner_points
         )
 
     @property
@@ -128,11 +137,13 @@ class IndividualScoring():
             playoff_round=None,
             selections=None,
             results=None,
+            keep_stanley_cup_winner_points=True,
         ):
         self.year = year
         self.playoff_round = playoff_round
         self.selections = selections.selections if selections is not None else None
         self.results = results.results if results is not None else None
+        self.keep_stanley_cup_winner_points = keep_stanley_cup_winner_points
 
 
     def scoring_system(self):
@@ -142,7 +153,6 @@ class IndividualScoring():
             '2006_2007': {
                 'stanley_cup_winner': 25,
                 'stanley_cup_runnerup': 15,
-                'stanley_cup_finalist': 0,
                 'correct_team': 10,
                 'correct_length': 7,
                 'correct_7game_series': 2
@@ -174,6 +184,12 @@ class IndividualScoring():
                 'correct_length_rounds_123': 5,
                 'correct_team_rounds_4': 20,
                 'correct_length_rounds_4': 10,
+            },
+            '2018': {
+                'stanley_cup_winner': 3,
+                'stanley_cup_finalist': 3,
+                'f_correct': "9-abs(P-C)",
+                'f_incorrect': "P+C-8",
             }
         }
         if self.year in [2006, 2007]:
@@ -186,6 +202,8 @@ class IndividualScoring():
             return all_systems['2015_2016']
         if self.year == 2017:
             return all_systems['2017']
+        if self.year == 2018:
+            return all_systems['2018']
 
     def individual_points(self, individual):
         """Return the points for an individual in a playoff round"""
@@ -198,12 +216,14 @@ class IndividualScoring():
         """Return the points for an individual in playoff rounds 1, 2, 3, or 4"""
 
         if self.year in range(2006, 2017+1):
-            get_round_points = self._round_points_2006_2007__2009_2017
+            get_round_points = self._round_points_paradigm1
+        elif self.year in [2018]:
+            get_round_points = self._round_points_paradigm2
 
         return get_round_points(individual) \
             if individual in self.selections.index.get_level_values('Individual') else 0
 
-    def _round_points_2006_2007__2009_2017(self, individual):
+    def _round_points_paradigm1(self, individual):
         """Return the points for an individual in playoff rounds 1, 2, 3, or 4"""
 
         system = self.scoring_system()
@@ -238,17 +258,42 @@ class IndividualScoring():
 
         return score
 
+    def _round_points_paradigm2(self, individual):
+        """Return the points for an individual in playoff rounds 1, 2, 3, or 4"""
+
+        system = self.scoring_system()
+        selections = self.selections.loc[individual]
+        C, P = symbols("C P")
+
+        f_correct = lambdify((C, P), system['f_correct'], "numpy")
+        f_incorrect = lambdify((C, P), system['f_incorrect'], "numpy")
+
+        comparison = selections.compare(self.results, keep_shape=True, keep_equal=True)
+        correct = comparison.query("@comparison.Team.self == @comparison.Team.other")
+        incorrect = comparison.query("@comparison.Team.self != @comparison.Team.other")
+
+        correct_points = f_correct(
+            correct[('Duration','self')].to_numpy(),
+            correct[('Duration','other')].to_numpy()
+        ).sum()
+        incorrect_points = f_incorrect(
+            incorrect[('Duration','self')].to_numpy(),
+            incorrect[('Duration','other')].to_numpy()
+        ).sum()
+
+        return correct_points + incorrect_points
+
     def champions_points(self, individual):
         """Return the points for an individual in the champions round"""
 
         if self.year in [2006, 2007] + list(range(2009, 2016+1)):
-            get_champions_points = self._champions_points_2006_2007__2009_2016
-        if self.year in [2008, 2017]:
-            get_champions_points = self._champions_points_2008__2017
+            get_champions_points = self._champions_points_winner_runnerup
+        if self.year in [2008, 2017, 2018]:
+            get_champions_points = self._champions_points_winner_finalist
 
         return get_champions_points(individual)
 
-    def _champions_points_2006_2007__2009_2016(self, individual):
+    def _champions_points_winner_runnerup(self, individual):
         """Return the points for an individual in champsions round"""
 
         system = self.scoring_system()
@@ -268,8 +313,8 @@ class IndividualScoring():
         total_points = winner_points + runnerup_points
         return NaN if total_points == 0 else total_points
 
-    def _champions_points_2008__2017(self, individual):
-        """Return the points for an individual in champsions round"""
+    def _champions_points_winner_finalist(self, individual):
+        """Return the points for an individual in champions round"""
 
         system = self.scoring_system()
         selections = self.selections.loc[individual]
@@ -287,7 +332,8 @@ class IndividualScoring():
                                 if team in finalists
         )
         champion_points = system['stanley_cup_winner'] \
-                            if selected_champion == champion else 0
+            if selected_champion == champion and self.keep_stanley_cup_winner_points \
+            else 0
 
         total_points = finalist_points + champion_points
         return NaN if total_points == 0 else total_points

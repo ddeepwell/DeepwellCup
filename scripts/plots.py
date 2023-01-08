@@ -4,7 +4,7 @@ from pandas import Series, concat
 from pandas import isna
 from matplotlib import rc, patches
 import matplotlib.pyplot as plt
-from scripts.scores import Points
+from scripts.scores import Points, IndividualScoring
 from scripts.directories import project_directory
 
 # set font to look like Latex
@@ -15,12 +15,14 @@ rc('font', **font)
 class Plots():
     """Class for creating plots"""
 
-    def __init__(self, year, max_round='Champions', save=False, show=False, **kwargs):
+    def __init__(self, year, max_round=4, plot_champions=True, save=False, show=False, **kwargs):
         self.year = year
         self.max_round = max_round
+        self.plot_champions = plot_champions
         self.save = save
         self.show = show
         self._kwargs = kwargs
+        self._scoring_system = IndividualScoring(year).scoring_system()
         self._total_points = self._create_table('total_points')
         self._other_points = self._create_table('other_points')
         self._figure = plt.figure(figsize=(8, 0.5*len(self.individuals)))
@@ -83,12 +85,24 @@ class Plots():
     @property
     def rounds_to_plot(self):
         """The list of rounds to be plotted"""
-        index = 5 if self.max_round == 'Champions' else self.max_round
-        return dict(list(self._round_names.items())[:index])
+        index = 5 if self.max_round == 4 and self.plot_champions else self.max_round
+        rounds_to_keep = dict(list(self._round_names.items())[:index])
+        if self.max_round == 3 and self.plot_champions \
+            and 'stanley_cup_finalist' in self._scoring_system:
+            rounds_to_keep['Champions'] = 'Champions'
+        return rounds_to_keep
 
     def add_column_to_table(self, rnd, category):
         """Modify returned Series to be the appropriate structure for making a Dataframe"""
-        self._points = Points(self.year, rnd, **self._kwargs)
+        keep_stanley_cup_winner_points = not (self.max_round==3 and self.plot_champions)
+        self._points = Points(
+                        self.year,
+                        rnd,
+                        keep_stanley_cup_winner_points=keep_stanley_cup_winner_points,
+                        **self._kwargs
+        )
+        # warning, do not use self._points as it depends on the last call to this function
+        # it is used here, so that a UML diagram catches the compositional use of Points
         column = getattr(self._points, category)
         if column is None:
             return Series(name=self.rounds_to_plot[rnd], dtype='int64')
@@ -128,9 +142,9 @@ class Plots():
         self.axis.xaxis.set_ticks_position('none')
         self.axis.get_xaxis().set_ticks([])
         # figure title
-        fig_title = f'Points - {self.year}'
-        if self.max_round != 'Champions':
-            fig_title += f' - Round {self.max_round}'
+        fig_title = f'Points - {self.year} - Round {self.max_round}'
+        if not self.plot_champions:
+            fig_title += f' - no Champions'
         self.axis.set_title(fig_title)
 
         self._add_legend()

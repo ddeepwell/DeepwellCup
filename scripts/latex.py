@@ -1,6 +1,9 @@
 """Class for making LaTex table files"""
 import os
+from numpy import array
 from pandas import isna
+from sympy import latex, symbols
+from sympy.utilities.lambdify import lambdify
 from jinja2 import Environment, FileSystemLoader
 from scripts.selections import Selections
 from scripts.directories import project_directory
@@ -26,6 +29,7 @@ class Latex():
             playoff_round='Champions',
             selections_directory=selections_directory,
             **kwargs)
+        self._system = IndividualScoring(self.year).scoring_system()
 
     @property
     def year(self):
@@ -114,6 +118,8 @@ class Latex():
             main_table=self._make_main_table(),
             scoring_table=self._make_scoring_table(),
             counts_table=self._make_counts_table(),
+            correct_points=self._correct_points_table(),
+            incorrect_points=self._incorrect_points_table(),
             ranking_image_path=ranking_image_path
         )
 
@@ -273,7 +279,7 @@ class Latex():
     def _scoring_table_contents(self):
         """Create the contents of the scoring table"""
 
-        system = IndividualScoring(self.year).scoring_system()
+        system = self._system
 
         # Series winner and series length points descriptor
         if self.year >= 2006 and self.year <= 2014:
@@ -286,6 +292,15 @@ f'''        Correct team (rounds 1,2,3):	& ${system['correct_team_rounds_123']}$
         Correct series length (rounds 1,2,3 - regardless of series winner):	& ${system['correct_length_rounds_123']}$\\\\
         Correct team (round 4):	& ${system['correct_team_rounds_4']}$\\\\
         Correct series length (round 4 - regardless of series winner):	& ${system['correct_length_rounds_4']}$\\\\'''
+        elif self.year >= 2018:
+            C, P = symbols("C P")
+            correct = latex(eval(system['f_correct']))
+            incorrect = latex(eval(system['f_incorrect']))
+            descriptor = \
+f'''        Let $C$ be the correct number of games\\\\
+        Let $P$ be the predicted number of games\\\\
+        If correct team chosen:	   & ${correct}$\\\\
+        if incorrect team chosen:  & ${incorrect}$\\\\'''
 
         # Stanley Cup and other points descriptor
         if self.year in [2006, 2007]:
@@ -305,10 +320,11 @@ f'''        Correct team (rounds 1,2,3):	& ${system['correct_team_rounds_123']}$
             descriptor += f'''
         Stanley Cup champion:	& {system['stanley_cup_winner']}\\\\
         Stanley Cup finalist:	& {system['stanley_cup_runnerup']}\\\\'''
-        elif self.year == 2017:
+        elif self.year in [2017, 2018]:
             descriptor += f'''
         Stanley Cup champion:	& {system['stanley_cup_winner']}\\\\
         Stanley Cup finalist:	& {system['stanley_cup_finalist']}\\\\'''
+
         return descriptor
 
     def _make_counts_table(self):
@@ -344,3 +360,35 @@ f'''        Correct team (rounds 1,2,3):	& ${system['correct_team_rounds_123']}$
         lower_seed_line  =  lower_seed_line[:-2]+"\\\\"
 
         return higher_seed_line + lower_seed_line
+
+    def _correct_points_table(self):
+        """Create the points table for the correctly selected team"""
+        if self.year < 2018:
+            return None
+        system = self._system
+        C, P = symbols("C P")
+        f_correct = lambdify((C, P), system['f_correct'], "numpy")
+        return self._points_table(f_correct)
+
+    def _incorrect_points_table(self):
+        """Create the points table for the incorrectly selected team"""
+        if self.year < 2018:
+            return None
+        system = self._system
+        C, P = symbols("C P")
+        f_incorrect = lambdify((C, P), system['f_incorrect'], "numpy")
+        return self._points_table(f_incorrect)
+
+    def _points_table(self, func):
+        """Return the table of points per predicted and correct series duration"""
+        return r"""        \mccn{2}{} & \mccn{4}{Predicted}\\
+        & & 4 & 5 & 6 & 7\\\cline{2-6}""" + '\n' \
+            + r"        \parbox[t]{2mm}{\multirow{4}{*}{\rotatebox[origin=c]{90}{Correct}}}" \
+            + f" & 4 & {self._make_points_string(func, 4)}" + r"\\" + '\n' \
+            + f"        & 5 & {self._make_points_string(func, 5)}" + r"\\" + '\n' \
+            + f"        & 6 & {self._make_points_string(func, 6)}" + r"\\" + '\n' \
+            + f"        & 7 & {self._make_points_string(func, 7)}"
+
+    def _make_points_string(self, func, correct_games):
+        """Create the string for the points for a specific series duration"""
+        return " & ".join(func(correct_games, array([4,5,6,7])).astype(str).tolist())
