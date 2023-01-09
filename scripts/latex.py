@@ -228,8 +228,6 @@ class Latex():
 
     def _champions_table(self):
         """Create the Champions table"""
-
-        # if self.year in [2006, 2007, 2008]:
         east = self._champions_row('East')
         west = self._champions_row('West')
         stanley = self._champions_row('Stanley Cup')
@@ -253,8 +251,9 @@ class Latex():
                 duration = selections.loc[individual]['Duration']
             else:
                 selection = ''
+                duration = None
 
-            if self.year in [2006, 2007, 2008] and category == "Stanley Cup":
+            if duration is not None and category == "Stanley Cup":
                 row += f' & {selection} & {duration}'
             else:
                 if index % 2 == 0:
@@ -282,17 +281,17 @@ class Latex():
         system = self._system
 
         # Series winner and series length points descriptor
-        if self.year >= 2006 and self.year <= 2014:
-            descriptor = \
-f'''        Correct team:	& ${system['correct_team']}$\\\\
-        Correct series length (regardless of series winner):	& ${system['correct_length']}$\\\\'''
-        elif self.year in [2015, 2016, 2017]:
+        if "correct_team_rounds_123" in system:
             descriptor = \
 f'''        Correct team (rounds 1,2,3):	& ${system['correct_team_rounds_123']}$\\\\
         Correct series length (rounds 1,2,3 - regardless of series winner):	& ${system['correct_length_rounds_123']}$\\\\
         Correct team (round 4):	& ${system['correct_team_rounds_4']}$\\\\
         Correct series length (round 4 - regardless of series winner):	& ${system['correct_length_rounds_4']}$\\\\'''
-        elif self.year >= 2018:
+        elif "correct_team" in system:
+            descriptor = \
+f'''        Correct team:	& ${system['correct_team']}$\\\\
+        Correct series length (regardless of series winner):	& ${system['correct_length']}$\\\\'''
+        elif "f_correct" in system:
             C, P = symbols("C P")
             correct = latex(eval(system['f_correct']))
             incorrect = latex(eval(system['f_incorrect']))
@@ -303,16 +302,16 @@ f'''        Let $C$ be the correct number of games\\\\
         if incorrect team chosen:  & ${incorrect}$\\\\'''
 
         # Stanley Cup and other points descriptor
-        if self.year in [2006, 2007]:
+        if "correct_7game_series" in system:
             descriptor += f'''
         Correct team in a seven game series    & ${system['correct_7game_series']}$\\\\
         Stanley Cup champion:	& {system['stanley_cup_winner']}\\\\
         Stanley Cup runner-up:	& {system['stanley_cup_runnerup']}\\\\'''
-        elif self.year in [2008, 2017, 2018]:
+        elif "stanley_cup_finalist" in system:
             descriptor += f'''
         Stanley Cup champion:	& {system['stanley_cup_winner']}\\\\
         Stanley Cup finalist:	& {system['stanley_cup_finalist']}\\\\'''
-        elif 2008 < self.year < 2017:
+        elif "stanley_cup_runnerup" in system:
             descriptor += f'''
         Stanley Cup champion:	& {system['stanley_cup_winner']}\\\\
         Stanley Cup runner-up:	& {system['stanley_cup_runnerup']}\\\\'''
@@ -355,18 +354,18 @@ f'''        Let $C$ be the correct number of games\\\\
 
     def _correct_points_table(self):
         """Create the points table for the correctly selected team"""
-        if self.year < 2018:
-            return None
         system = self._system
+        if 'f_correct' not in system:
+            return None
         C, P = symbols("C P")
         f_correct = lambdify((C, P), system['f_correct'], "numpy")
         return self._points_table(f_correct)
 
     def _incorrect_points_table(self):
         """Create the points table for the incorrectly selected team"""
-        if self.year < 2018:
-            return None
         system = self._system
+        if 'f_incorrect' not in system:
+            return None
         C, P = symbols("C P")
         f_incorrect = lambdify((C, P), system['f_incorrect'], "numpy")
         return self._points_table(f_incorrect)
