@@ -308,22 +308,14 @@ f'''        Let $C$ be the correct number of games\\\\
         Correct team in a seven game series    & ${system['correct_7game_series']}$\\\\
         Stanley Cup champion:	& {system['stanley_cup_winner']}\\\\
         Stanley Cup runner-up:	& {system['stanley_cup_runnerup']}\\\\'''
-        elif self.year == 2008:
+        elif self.year in [2008, 2017, 2018]:
             descriptor += f'''
-        Stanley Cup champion (in addition to finalist):	& {system['stanley_cup_winner']}\\\\
+        Stanley Cup champion:	& {system['stanley_cup_winner']}\\\\
         Stanley Cup finalist:	& {system['stanley_cup_finalist']}\\\\'''
-        elif self.year == 2009:
+        elif 2008 < self.year < 2017:
             descriptor += f'''
         Stanley Cup champion:	& {system['stanley_cup_winner']}\\\\
         Stanley Cup runner-up:	& {system['stanley_cup_runnerup']}\\\\'''
-        elif 2009 < self.year < 2017:
-            descriptor += f'''
-        Stanley Cup champion:	& {system['stanley_cup_winner']}\\\\
-        Stanley Cup finalist:	& {system['stanley_cup_runnerup']}\\\\'''
-        elif self.year in [2017, 2018]:
-            descriptor += f'''
-        Stanley Cup champion:	& {system['stanley_cup_winner']}\\\\
-        Stanley Cup finalist:	& {system['stanley_cup_finalist']}\\\\'''
 
         return descriptor
 
