@@ -92,7 +92,7 @@ class Plots():
             rounds_to_keep['Champions'] = 'Champions'
         return rounds_to_keep
 
-    def add_column_to_table(self, rnd, category):
+    def _add_column_to_table(self, rnd, category):
         """Modify returned Series to be the appropriate structure for making a Dataframe"""
         keep_stanley_cup_winner_points = not (self.max_round==3 and self.plot_champions)
         self._points = Points(
@@ -112,7 +112,7 @@ class Plots():
 
     def _create_table(self, category):
         """Create a table of values for a category for each individual"""
-        all_round_series = [self.add_column_to_table(rnd, category)
+        all_round_series = [self._add_column_to_table(rnd, category)
                             for rnd in self.rounds_to_plot.keys()]
         df = concat(all_round_series, axis=1).transpose()
         total = df.sum()
@@ -176,7 +176,7 @@ class Plots():
                     left_end += round_points
             self._add_total_point_text(individual, individual_index, left_end)
 
-    def text_location(self):
+    def _text_location(self):
         """Position to place the string within the stacked bar"""
         patch = self._patch[0]
         patch_horizontal_center = patch.get_x() + patch.get_width()/2
@@ -187,7 +187,7 @@ class Plots():
         """Add string of the points earned by the individual in a playoff round"""
 
         # find position to place the string
-        patch_horizontal_center, patch_vertical_center = self.text_location()
+        patch_horizontal_center, patch_vertical_center = self._text_location()
 
         # create the string
         point_string = f"{round_points}"
