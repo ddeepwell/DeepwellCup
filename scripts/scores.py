@@ -190,7 +190,16 @@ class IndividualScoring():
                 'stanley_cup_finalist': 3,
                 'f_correct': "9-abs(P-C)",
                 'f_incorrect': "P+C-8",
-            }
+            },
+            '2019': {
+                'stanley_cup_winner': 20,
+                'stanley_cup_finalist': 20,
+                'f_correct': "15-2*abs(P-C)",
+                'f_incorrect': "P+C-8",
+                'Player': 10,
+                'Overtime': 10,
+                'Overtime (1 game off)': 5,
+            },
         }
         if self.year in [2006, 2007]:
             return all_systems['2006_2007']
@@ -204,6 +213,8 @@ class IndividualScoring():
             return all_systems['2017']
         if self.year == 2018:
             return all_systems['2018']
+        if self.year == 2019:
+            return all_systems['2019']
 
     def individual_points(self, individual):
         """Return the points for an individual in a playoff round"""
@@ -217,7 +228,7 @@ class IndividualScoring():
 
         if self.year in range(2006, 2017+1):
             get_round_points = self._round_points_paradigm1
-        elif self.year in [2018]:
+        elif self.year > 2017:
             get_round_points = self._round_points_paradigm2
 
         return get_round_points(individual) \
@@ -288,7 +299,7 @@ class IndividualScoring():
 
         if self.year in [2006, 2007] + list(range(2009, 2016+1)):
             get_champions_points = self._champions_points_winner_runnerup
-        if self.year in [2008, 2017, 2018]:
+        if self.year == 2008 or self.year > 2016:
             get_champions_points = self._champions_points_winner_finalist
 
         return get_champions_points(individual)

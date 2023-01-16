@@ -44,10 +44,12 @@
 {\bf Points}\\
 \begin{minipage}{ {{- '12cm' if year<2018 else '10cm' -}} }
 {{ scoring_table }}
+{%- if year != 2019 %}
 
     \vspace{1cm}
     {\bf Number of picks per team:}\\
 {{ counts_table }}
+{% endif -%}
 \end{minipage}
 {%- if year >= 2018 %}
 \begin{minipage}[t!]{4cm}
@@ -73,5 +75,12 @@
     \end{figure}
 \end{minipage}
 {% else %}
+{% endif %}
+{%- if year == 2019 -%}
+\begin{minipage}[t!]{15cm}
+    \vspace{-3.5cm}
+    {\bf Number of picks per team:}\\
+{{ counts_table }}
+\end{minipage}
 {% endif %}
 \end{document}

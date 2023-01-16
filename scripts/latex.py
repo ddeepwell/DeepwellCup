@@ -48,6 +48,13 @@ class Latex():
             self._round_selections.selections.index.get_level_values('Individual').unique()
         )
 
+    @property
+    def _long_form(self):
+        """Whether to use long forms of team names or not"""
+        if self.year == 2019:
+            return False
+        return True
+
     def _make_directory_if_missing(self, directory):
         """Create a directory is it doesn't exist"""
         if not os.path.exists(directory):
@@ -190,11 +197,15 @@ class Latex():
             duration = duration if not isna(duration) else ""
             return f"& \\mr{{{team}}} & \\mr{{{duration}}}"
 
+        if self._long_form:
+            modify_team = ltn
+        else:
+            modify_team = lambda arg: arg
 
-        higher_seed = series.split('-')[0]
-        lower_seed  = series.split('-')[1]
-        first_part = f"          {ltn(higher_seed)}{'&'*(self._number_of_columns-1)}\\\\\n"
-        second_part = f"          {ltn(lower_seed)} " \
+        higher_seed = modify_team(series.split('-')[0])
+        lower_seed  = modify_team(series.split('-')[1])
+        first_part = f"          {higher_seed}{'&'*(self._number_of_columns-1)}\\\\\n"
+        second_part = f"          {lower_seed} " \
             + ' '.join([a_selection(individual) for individual in self.individuals]) \
             + r"\\\hline"+"\n"
         return first_part + second_part
@@ -315,6 +326,15 @@ f'''        Let $C$ be the correct number of games\\\\
             descriptor += f'''
         Stanley Cup champion:	& {system['stanley_cup_winner']}\\\\
         Stanley Cup runner-up:	& {system['stanley_cup_runnerup']}\\\\'''
+
+        # Other points
+        if "Player" in system:
+            descriptor += f'''
+        Player:                 & {system['Player']}\\\\'''
+        if "Overtime" in system:
+            descriptor += f'''
+        Overtime:               & {system['Overtime']}\\\\
+        Overtime (1 game off):  & {system['Overtime (1 game off)']}\\\\'''
 
         return descriptor
 
