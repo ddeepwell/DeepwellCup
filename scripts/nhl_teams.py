@@ -208,3 +208,22 @@ def conference(team, year):
         raise Exception(f'The team ({team}) was not understood')
 
     return conf
+
+def team_of_player(player):
+    """Return the team that a player plays for in 2019"""
+    if player == 'Brad Marchand':
+        return 'Boston Bruins'
+    elif player == 'Artemi Panarin':
+        return 'Columbus Blue Jackets'
+    elif player == 'Matthew Barzal':
+        return 'New York Islanders'
+    elif player == 'Sebastian Aho':
+        return 'Carolina Hurricanes'
+    elif player == "Ryan O'Reilly":
+        return 'St Louis Blues'
+    elif player == "Tyler Seguin":
+        return 'Dallas Stars'
+    elif player == "Brent Burns":
+        return "San Jose Sharks"
+    elif player == "Nathan MacKinnon":
+        return "Colorado Avalanche"
