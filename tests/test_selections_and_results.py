@@ -153,32 +153,6 @@ def expected_selections(playoff_round):
                     ('Michael D', 'West', 'ANA-CGY'): 6,
                     ('Michael D', 'West', 'EDM-SJS'): 6
                 },
-                'Player': {
-                    ('Alita D', 'East', 'WSH-TOR'): None,
-                    ('Alita D', 'East', 'PIT-CBJ'): None,
-                    ('Alita D', 'East', 'MTL-NYR'): None,
-                    ('Alita D', 'East', 'OTT-BOS'): None,
-                    ('Alita D', 'West', 'CHI-NSH'): None,
-                    ('Alita D', 'West', 'MIN-STL'): None,
-                    ('Alita D', 'West', 'ANA-CGY'): None,
-                    ('Alita D', 'West', 'EDM-SJS'): None,
-                    ('Andre D', 'East', 'WSH-TOR'): None,
-                    ('Andre D', 'East', 'PIT-CBJ'): None,
-                    ('Andre D', 'East', 'MTL-NYR'): None,
-                    ('Andre D', 'East', 'OTT-BOS'): None,
-                    ('Andre D', 'West', 'CHI-NSH'): None,
-                    ('Andre D', 'West', 'MIN-STL'): None,
-                    ('Andre D', 'West', 'ANA-CGY'): None,
-                    ('Andre D', 'West', 'EDM-SJS'): None,
-                    ('Michael D', 'East', 'WSH-TOR'): None,
-                    ('Michael D', 'East', 'PIT-CBJ'): None,
-                    ('Michael D', 'East', 'MTL-NYR'): None,
-                    ('Michael D', 'East', 'OTT-BOS'): None,
-                    ('Michael D', 'West', 'CHI-NSH'): None,
-                    ('Michael D', 'West', 'MIN-STL'): None,
-                    ('Michael D', 'West', 'ANA-CGY'): None,
-                    ('Michael D', 'West', 'EDM-SJS'): None
-                }
             }
         ),
         2: DataFrame(
@@ -211,20 +185,6 @@ def expected_selections(playoff_round):
                     ('Jackson L', 'West', 'STL-NSH'): 6,
                     ('Jackson L', 'West', 'ANA-EDM'): 6
                 },
-                'Player': {
-                    ('Alita D', 'East', 'OTT-NYR'): None,
-                    ('Alita D', 'East', 'WSH-PIT'): None,
-                    ('Alita D', 'West', 'STL-NSH'): None,
-                    ('Alita D', 'West', 'ANA-EDM'): None,
-                    ('Brian M', 'East', 'OTT-NYR'): None,
-                    ('Brian M', 'East', 'WSH-PIT'): None,
-                    ('Brian M', 'West', 'STL-NSH'): None,
-                    ('Brian M', 'West', 'ANA-EDM'): None,
-                    ('Jackson L', 'East', 'OTT-NYR'): None,
-                    ('Jackson L', 'East', 'WSH-PIT'): None,
-                    ('Jackson L', 'West', 'STL-NSH'): None,
-                    ('Jackson L', 'West', 'ANA-EDM'): None
-                }
             }
         ),
         3: DataFrame(
@@ -245,14 +205,6 @@ def expected_selections(playoff_round):
                     ('Michael D', 'East', 'PIT-OTT'): 6,
                     ('Michael D', 'West', 'ANA-NSH'): 6
                 },
-                'Player': {
-                    ('Alita D', 'East', 'PIT-OTT'): None,
-                    ('Alita D', 'West', 'ANA-NSH'): None,
-                    ('Kyle L', 'East', 'PIT-OTT'): None,
-                    ('Kyle L', 'West', 'ANA-NSH'): None,
-                    ('Michael D', 'East', 'PIT-OTT'): None,
-                    ('Michael D', 'West', 'ANA-NSH'): None
-                }
             }
         ),
         4: DataFrame(
@@ -269,12 +221,6 @@ def expected_selections(playoff_round):
                     ('Jackson L', 'None', 'PIT-NSH'): 5,
                     ('Josh H', 'None', 'PIT-NSH'): 6
                 },
-                'Player': {
-                    ('Alita D', 'None', 'PIT-NSH'): None,
-                    ('David D', 'None', 'PIT-NSH'): None,
-                    ('Jackson L', 'None', 'PIT-NSH'): None,
-                    ('Josh H', 'None', 'PIT-NSH'): None
-                }
             }
         ),
         'Champions': DataFrame(
@@ -347,16 +293,6 @@ def expected_results(playoff_round):
                     ('West', 'ANA-CGY'): 4,
                     ('West', 'EDM-SJS'): 6
                 },
-                'Player': {
-                    ('East', 'WSH-TOR'): None,
-                    ('East', 'PIT-CBJ'): None,
-                    ('East', 'MTL-NYR'): None,
-                    ('East', 'OTT-BOS'): None,
-                    ('West', 'CHI-NSH'): None,
-                    ('West', 'MIN-STL'): None,
-                    ('West', 'ANA-CGY'): None,
-                    ('West', 'EDM-SJS'): None
-                }
             }
         ),
         2: DataFrame(
@@ -373,12 +309,6 @@ def expected_results(playoff_round):
                     ('West', 'STL-NSH'): 6,
                     ('West', 'ANA-EDM'): 7
                 },
-                'Player': {
-                    ('East', 'OTT-NYR'): None,
-                    ('East', 'WSH-PIT'): None,
-                    ('West', 'STL-NSH'): None,
-                    ('West', 'ANA-EDM'): None
-                }
             }
         ),
         3: DataFrame(
@@ -391,17 +321,12 @@ def expected_results(playoff_round):
                     ('East', 'PIT-OTT'): 7,
                     ('West', 'ANA-NSH'): 6
                 },
-                'Player': {
-                    ('East', 'PIT-OTT'): None,
-                    ('West', 'ANA-NSH'): None
-                }
             }
         ),
         4: DataFrame(
             {
                 'Team': {('None', 'PIT-NSH'): 'Pittsburgh Penguins'},
                 'Duration': {('None', 'PIT-NSH'): 6},
-                'Player': {('None', 'PIT-NSH'): None}
             }
         ),
         'Champions': Series(

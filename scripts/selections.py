@@ -126,9 +126,6 @@ class Selections(DataFile):
         selections = df[['Team', 'Duration']]
         selections.sort_index(level=[0,1], sort_remaining=False, inplace=True)
 
-        if "PlayerSelection" not in selections.columns:
-            selections.insert(2, "Player", [None]*len(selections))
-
         return selections
 
     def _load_champions_selections_from_file(self, keep_results=False):
@@ -199,6 +196,9 @@ class Selections(DataFile):
             'PlayerSelection': 'Player',
         }
         data.rename(columns=new_names, inplace=True)
+        no_player_picks = data['Player'].tolist().count(None) == len(data['Player'])
+        if no_player_picks:
+            data.drop(columns=['Player'], inplace=True)
         data['Duration'] = data['Duration'].astype("Int64")
         return data
 

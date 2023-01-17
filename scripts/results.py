@@ -64,6 +64,9 @@ class Results(DataFile):
             'Games': 'Duration',
         }
         data.rename(columns=new_names, inplace=True)
+        no_player_picks = data['Player'].tolist().count(None) == len(data['Player'])
+        if no_player_picks:
+            data.drop(columns=['Player'], inplace=True)
         if self.playoff_round != 'Champions':
             data['Duration'] = data['Duration'].astype(Int64Dtype())
         return data
