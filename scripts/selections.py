@@ -7,7 +7,9 @@ from scripts.data_files import DataFile
 from scripts.database import DataBaseOperations
 from scripts.nhl_teams import (
     conference as team_conference,
-    shorten_team_name as stn
+    shorten_team_name as stn,
+    lengthen_team_name as ltn,
+    team_of_player,
 )
 
 class Selections(DataFile):
@@ -46,17 +48,42 @@ class Selections(DataFile):
         """The database"""
         return self._database
 
+    def _raise_error_if_champions_round(self):
+        if self.playoff_round == 'Champions':
+            raise ValueError('The playoff round must not be the Champions round')
+
     @property
     def series(self):
         """Return the teams in each series in each conference"""
-
-        if self.playoff_round not in [1,2,3,4]:
-            raise ValueError('The series method does not apply for the Champions playoff round')
-
+        self._raise_error_if_champions_round()
         if self.in_database:
             return self._conference_series_from_database()
         else:
             return self._conference_series_from_file()
+
+    @property
+    def players_selected(self):
+        """Return a boolean indicating if players where selected"""
+        return True if 'Player' in self.selections.columns else False
+
+    @property
+    def players(self):
+        """Return the players in each series in each conference"""
+        self._raise_error_if_champions_round()
+        if not self.players_selected:
+            raise Exception("The 'players' category doesn't exist in "\
+                f"round {self.playoff_round} in {self.year}")
+        return {conference: [self._players_in_series(series) for series in series_teams]
+                for conference, series_teams in self.series.items()}
+
+    def _players_in_series(self, series):
+        """Return the players in the series"""
+        players = list(set(self.selections['Player']))
+        teams_in_series = [ltn(team) for team in series.split('-')]
+        players_to_keep = [player for player in players if team_of_player(player) in teams_in_series]
+        if team_of_player(players_to_keep[0]) != teams_in_series[0]:
+            players_to_keep.reverse()
+        return players_to_keep
 
     def _load_selections(self, **kwargs):
         """Load the selections from database or raw file"""
@@ -107,7 +134,11 @@ class Selections(DataFile):
         selections.index.names = ['Individual', 'Series', 'Conference']
         df = selections.reorder_levels(['Individual', 'Conference', 'Series'])
 
+        selection_columns = ['Team', 'Duration']
         df.rename(columns={' series length:': 'Duration'}, inplace=True)
+        if ' Who will score more points?' in df.columns:
+            df.rename(columns={' Who will score more points?': 'Player'}, inplace=True)
+            selection_columns += ['Player']
         # modify team column
         df.replace(to_replace=math.nan, value=None, inplace=True)
         # modify duration column
@@ -123,7 +154,7 @@ class Selections(DataFile):
                 ),
             )
             df.loc[mask,'Duration'] = df.loc[mask,'Duration'].str[0].astype("Int64")
-        selections = df[['Team', 'Duration']]
+        selections = df[selection_columns]
         selections.sort_index(level=[0,1], sort_remaining=False, inplace=True)
 
         return selections

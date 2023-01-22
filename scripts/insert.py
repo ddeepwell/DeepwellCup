@@ -6,7 +6,7 @@ from scripts.results import Results
 from scripts.selections import Selections
 from scripts import utils
 from scripts.database import DataBaseOperations
-from scripts.nhl_teams import lengthen_team_name
+from scripts.nhl_teams import lengthen_team_name as ltn
 
 class Insert():
     "User-friendly class for inserting round selections and results into the database"
@@ -70,6 +70,10 @@ class Insert():
 
             for conference in sorted(set(selections.index.get_level_values(1))):
                 series_pair_list = series[conference]
+                if self.round_selections.players_selected:
+                    players_list = self.round_selections.players[conference]
+                else:
+                    players_list = [[]] * len(series_pair_list)
                 processed_selections = []
                 for individual in individuals:
                     picks = [
@@ -84,8 +88,8 @@ class Insert():
                     )
 
                 series_list_for_database = [
-                    list(map(lengthen_team_name, a_series.split('-')))
-                    for a_series in series_pair_list
+                    [ltn(team) for team in series_name.split('-')] + players
+                    for series_name, players  in zip(series_pair_list, players_list)
                 ]
                 db.add_year_round_series_for_conference(
                         self.year, self.playoff_round, conference, series_list_for_database)

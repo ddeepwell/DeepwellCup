@@ -292,7 +292,15 @@ class IndividualScoring():
             incorrect[('Duration','other')].to_numpy()
         ).sum()
 
-        return correct_points + incorrect_points
+        if 'Player' in self.selections.columns:
+            num_correct_players = sum(
+                selections['Player'].fillna("").values == self.results['Player'].values)
+            player_points = num_correct_players * system['Player']
+            # no points are awarded for ties in points by Players
+        else:
+            player_points = 0
+
+        return correct_points + incorrect_points + player_points
 
     def champions_points(self, individual):
         """Return the points for an individual in the champions round"""

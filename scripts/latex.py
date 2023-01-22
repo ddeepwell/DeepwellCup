@@ -10,7 +10,8 @@ from scripts.directories import project_directory
 from scripts.scores import IndividualScoring
 from scripts.nhl_teams import (
     shorten_team_name as stn,
-    lengthen_team_name as ltn
+    lengthen_team_name as ltn,
+    conference as team_conference,
 )
 
 class Latex():
@@ -45,7 +46,7 @@ class Latex():
     def individuals(self):
         """The individuals in the playoff round"""
         return sorted(
-            self._round_selections.selections.index.get_level_values('Individual').unique()
+            self._selections.index.get_level_values('Individual').unique()
         )
 
     @property
@@ -94,7 +95,7 @@ class Latex():
     #         self.year = Tables.year
     #         self.playoff_round = Tables.playoff_round
     #         print(self.playoff_round)
-    #         # self.selections = Tables._round_selections.selections
+    #         # self.selections = Tables._selections
 
     @property
     def latex_file(self):
@@ -136,9 +137,24 @@ class Latex():
         return 2*len(self.individuals) + 1
 
     @property
+    def _selections(self):
+        """Return the selections"""
+        return self._round_selections.selections
+
+    @property
+    def _series(self):
+        """Return the dictionary of series in each conference"""
+        return self._round_selections.series
+
+    @property
+    def _players(self):
+        """Return the dictionary of series in each conference"""
+        return self._round_selections.players
+
+    @property
     def _number_of_series_in_round(self):
         '''Return the number of series in the playoff round'''
-        return sum(len(elem) for elem in self._round_selections.series.values())
+        return sum(len(elem) for elem in self._series.values())
 
     @property
     def _number_of_series_in_round_per_conference(self):
@@ -174,7 +190,7 @@ class Latex():
         column_header += r" \\\thickline"
 
         round_table = ''
-        for conference in self._round_selections.series:
+        for conference in self._series:
             round_table += self._selections_table_conference(conference)
 
         template = self._import_template("main_selections_table.j2")
@@ -189,11 +205,15 @@ class Latex():
 
     def _create_row(self, series):
         """Create a single row of the main column"""
+        return self._row_team_selection(series) \
+            + self._row_player_selection(series)
 
+    def _row_team_selection(self, series):
+        """Create the team selection component for a row"""
         def a_selection(individual):
-            series_selections = self._round_selections.selections.loc[:,:,series]
-            team = stn(series_selections.loc[individual]['Team'][0])
-            duration = series_selections.loc[individual]['Duration'][0]
+            series_selections = self._selections.loc[:,:,series]
+            team = stn(series_selections['Team'][individual][0])
+            duration = series_selections['Duration'][individual][0]
             duration = duration if not isna(duration) else ""
             return f"& \\mr{{{team}}} & \\mr{{{duration}}}"
 
@@ -204,11 +224,31 @@ class Latex():
 
         higher_seed = modify_team(series.split('-')[0])
         lower_seed  = modify_team(series.split('-')[1])
-        first_part = f"          {higher_seed}{'&'*(self._number_of_columns-1)}\\\\\n"
-        second_part = f"          {lower_seed} " \
-            + ' '.join([a_selection(individual) for individual in self.individuals]) \
+        first_row = f"          {higher_seed}{'&'*(self._number_of_columns-1)}\\\\\n"
+        second_row = f"          {lower_seed} " \
+            + ' '.join([a_selection(individual) for individual in self.individuals])
+        if self._round_selections.players_selected:
+            second_row += r"\\"+"\n"
+        else:
+            second_row += r"\\\hline"+"\n"
+        return first_row + second_row
+
+    def _row_player_selection(self, series_name):
+        """Create the player selection component for a row"""
+        if not self._round_selections.players_selected:
+            return ""
+
+        def a_selection(index, individual):
+            selections = self._selections
+            player = shorten_player_name(selections['Player'][individual,:,series_name][0])
+            if index % 2:
+                return f"& \\mcl{{{player}}} "
+            return f"& \\mclg{{{player}}} "
+
+        return "          Player" \
+            + ' '.join([a_selection(index, individual)
+            for index, individual in enumerate(self.individuals)]) \
             + r"\\\hline"+"\n"
-        return first_part + second_part
 
     def _selections_table_conference(self, conference):
         '''Create the interior of the table of individuals selections
@@ -224,8 +264,9 @@ class Latex():
         # subtitles
         conference_table = ""
         if self.playoff_round in [1,2,3]:
-            conference_table += f"        {{\\bf {conference}}} "+(num_columns-1)*"&"+"\\\\\\hline\n"
-        for index, series in enumerate(self._round_selections.series[conference]):
+            conference_table += f"        {{\\bf {conference}}} " \
+                +(num_columns-1)*"&"+"\\\\\\hline\n"
+        for index, series in enumerate(self._series[conference]):
             conference_table += self._create_row(series)
 
             if index == num_series-1 and conference == 'East':
@@ -351,10 +392,14 @@ f'''        Let $C$ be the correct number of games\\\\
 
     def _counts_table_contents(self):
         """Create the contents for the counts table"""
+        return self._counts_table_teams() + self._counts_table_players()
 
-        picks_per_team = self._round_selections.selections['Team'].value_counts()
+    def _counts_table_teams(self):
+        """Create the team counts for the counts table"""
+
+        picks_per_team = self._selections['Team'].value_counts()
         series = [tuple(series.split('-'))
-                    for conference_series in self._round_selections.series.values()
+                    for conference_series in self._series.values()
                     for series in conference_series]
 
         higher_seed_line = "        "
@@ -366,6 +411,31 @@ f'''        Let $C$ be the correct number of games\\\\
                 if ltn(lower_seed) in picks_per_team else 0
             higher_seed_line += f'{higher_seed} & {higher_counts} & '
             lower_seed_line  += f'{lower_seed} & {lower_counts } & '
+
+        higher_seed_line = higher_seed_line[:-2]+"\\\\\n"
+        lower_seed_line  =  lower_seed_line[:-2]+"\\\\"
+
+        return higher_seed_line + lower_seed_line
+
+    def _counts_table_players(self):
+        """Create the players counts for the counts table"""
+        if not self._round_selections.players_selected:
+            return ""
+
+        picks_per_player = self._selections['Player'].value_counts()
+        players = [tuple(series_players)
+                    for conference_players in self._players.values()
+                    for series_players in conference_players]
+
+        higher_seed_line = "        "
+        lower_seed_line  = "        "
+        for higher_seed, lower_seed in players:
+            higher_counts = picks_per_player[higher_seed] \
+                if higher_seed in picks_per_player else 0
+            lower_counts = picks_per_player[lower_seed] \
+                if lower_seed in picks_per_player else 0
+            higher_seed_line += f'{higher_seed.split(" ")[1]} & {higher_counts} & '
+            lower_seed_line  += f'{lower_seed.split(" ")[1]} & {lower_counts } & '
 
         higher_seed_line = higher_seed_line[:-2]+"\\\\\n"
         lower_seed_line  =  lower_seed_line[:-2]+"\\\\"
@@ -403,3 +473,9 @@ f'''        Let $C$ be the correct number of games\\\\
     def _make_points_string(self, func, correct_games):
         """Create the string for the points for a specific series duration"""
         return " & ".join(func(correct_games, array([4,5,6,7])).astype(str).tolist())
+
+def shorten_player_name(name):
+    """Shorten a player name"""
+    last_name = name.split(' ')[1]
+    num_letters = min(len(last_name),7)
+    return last_name[:num_letters]

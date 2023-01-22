@@ -81,7 +81,7 @@ class DataBaseOperations():
                 raise Exception(f'The series length, {game_selection}, is invalid. '\
                     'It must be in {4,5,6,7} or None')
         if player_selection not in \
-                series_data[['PlayerHigherSeed','PlayerLowerSeed']].values[0].tolist() + [None]:
+                series_data[['PlayerHigherSeed','PlayerLowerSeed']].values[0].tolist() + [None, 'tie']:
             raise Exception(f'The selected player, {player_selection}, '
                             f'is invalid for the series, {series_acronym}')
 
