@@ -128,7 +128,7 @@ class DataBaseOperations():
     def year_round_in_database(self, year, playoff_round):
         """Check if the playoff round for the year is in the database"""
         series_data = self.get_all_series_in_round(year, playoff_round)
-        return True if len(series_data) > 0 else False
+        return len(series_data) > 0
 
     def year_round_results_in_database(self, year, playoff_round):
         """Check if the results for a playoff round for a year are in the database"""
@@ -139,17 +139,17 @@ class DataBaseOperations():
                 results_data = []
         else:
             results_data = self.get_all_round_results(year, playoff_round)
-        return True if len(results_data) > 0 else False
+        return len(results_data) > 0
 
     def year_round_other_points_in_database(self, year, playoff_round):
         """Check if the playoff round has other points for the year is in the database"""
         data = self.get_other_points(year, playoff_round)
-        return True if len(data) > 0 else False
+        return len(data) > 0
 
     def champions_round_in_database(self, year):
         """Check if the Champions round for the year is in the database"""
         data = self.get_stanley_cup_selections(year)
-        return True if len(data) > 0 else False
+        return len(data) > 0
 
     def add_stanley_cup_selection(self, year,
             first_name, last_name, east_pick, west_pick, stanley_pick, games_pick=None):
