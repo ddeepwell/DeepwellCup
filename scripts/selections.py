@@ -64,7 +64,7 @@ class Selections(DataFile):
     @property
     def players_selected(self):
         """Return a boolean indicating if players where selected"""
-        return True if 'Player' in self.selections.columns else False
+        return 'Player' in self.selections.columns
 
     @property
     def players(self):
