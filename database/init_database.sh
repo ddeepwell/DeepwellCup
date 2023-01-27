@@ -18,3 +18,4 @@ $DATABASE_DIR/add_Series_table.sh $db_file
 $DATABASE_DIR/add_SeriesSelections_table.sh $db_file
 $DATABASE_DIR/add_SeriesResults_table.sh $db_file
 $DATABASE_DIR/add_OtherPoints_table.sh $db_file
+$DATABASE_DIR/add_Overtime_table.sh $db_file
