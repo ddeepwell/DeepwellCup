@@ -31,6 +31,7 @@ class Selections(DataFile):
             else:
                 self.in_database = db.champions_round_in_database(year)
             self._results_in_database = db.year_round_results_in_database(year, playoff_round)
+        self._selections_overtime = None
         self._load_selections(keep_results=keep_results)
 
     @property
@@ -75,6 +76,17 @@ class Selections(DataFile):
                 f"round {self.playoff_round} in {self.year}")
         return {conference: [self._players_in_series(series) for series in series_teams]
                 for conference, series_teams in self.series.items()}
+
+    @property
+    def overtime_selected(self):
+        """Return a boolean indicating if overtime was selected"""
+        return self._selections_overtime is not None
+
+    @property
+    def selections_overtime(self):
+        """Return the overtime selected"""
+        self._raise_error_if_champions_round()
+        return self._selections_overtime
 
     def _players_in_series(self, series):
         """Return the players in the series"""
@@ -121,6 +133,16 @@ class Selections(DataFile):
             """The conference for the teams in the series"""
             return "None" if self.playoff_round == 4 else \
                 team_conference(series[:3], self.year)
+
+        if 'How many overtime games will occur this round?' in data.columns:
+            data.rename(
+                columns={'How many overtime games will occur this round?': 'Overtime'},
+                inplace=True
+            )
+            overtime_data = data[['Individual','Overtime']]
+            overtime_data.set_index('Individual', inplace=True)
+            self._selections_overtime = overtime_data.squeeze().sort_index()
+            data.drop(columns=['Overtime'], inplace=True)
 
         selections = wide_to_long(data,
             stubnames=series,
@@ -212,6 +234,7 @@ class Selections(DataFile):
 
         with self.database as db:
             data = db.get_all_round_selections(self.year, self.playoff_round)
+            self._selections_overtime = db.get_overtime_selections(self.year, self.playoff_round)
 
         num_individuals = len(data.index.unique())
         series_list = [subval for values in self.series.values() for subval in values]

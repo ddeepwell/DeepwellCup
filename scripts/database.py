@@ -452,6 +452,55 @@ class DataBaseOperations():
         points_data.set_index('Individual', inplace=True)
         return points_data
 
+    def add_overtime_selections(self, year, playoff_round,
+            first_name, last_name, overtime):
+        '''Add overtime selection for an individual in a round to the database'''
+        check_if_year_is_valid(year)
+        self.check_if_individual_exists(first_name, last_name)
+        individual_id = self._get_individual_id(first_name, last_name)
+        overtime_data = [(individual_id, year, playoff_round, overtime)]
+        self.cursor.executemany(\
+            'INSERT INTO OvertimeSelections '\
+            'VALUES (?,?,?,?)',\
+            overtime_data)
+        self.conn.commit()
+
+    def add_overtime_results(self, year, playoff_round, overtime):
+        '''Add overtime selection for an individual in a round to the database'''
+        check_if_year_is_valid(year)
+        overtime_data = [(year, playoff_round, overtime)]
+        self.cursor.executemany(\
+            'INSERT INTO OvertimeResults '\
+            'VALUES (?,?,?)',\
+            overtime_data)
+        self.conn.commit()
+
+    def get_overtime_selections(self, year, playoff_round):
+        '''Return the list of overtime selections in a pandas dataframe'''
+        check_if_year_is_valid(year)
+        overtime_data = read_sql_query(f'''
+                SELECT * FROM OvertimeSelections
+                WHERE Year={year}
+                AND Round={playoff_round}''',
+                self.conn)
+        if overtime_data.empty:
+            return None
+        individuals = overtime_data.loc[:,'IndividualID'].apply(self._get_individual_from_id)
+        overtime_data.drop(['IndividualID','Year','Round'], axis='columns', inplace=True)
+        overtime_data.insert(0,'Individual', individuals)
+        overtime_data.set_index('Individual', inplace=True)
+        return overtime_data.squeeze().sort_index()
+
+    def get_overtime_results(self, year, playoff_round):
+        '''Return the overtime result'''
+        check_if_year_is_valid(year)
+        overtime_data = read_sql_query(f'''
+                SELECT * FROM OvertimeResults
+                WHERE Year={year}
+                AND Round={playoff_round}''',
+                self.conn)
+        return overtime_data['Overtime'][0]
+
 def check_if_year_is_valid(year):
     '''Check if the year is valid'''
     if not isinstance(year, int):

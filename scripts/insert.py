@@ -96,6 +96,15 @@ class Insert():
                 db.add_series_selections_for_conference(
                         self.year, self.playoff_round, conference, processed_selections)
 
+            if self.round_selections.overtime_selected:
+                for individual in individuals:
+                    db.add_overtime_selections(
+                        self.year,
+                        self.playoff_round,
+                        *utils.split_name(individual),
+                        self.round_selections.selections_overtime[individual]
+                    )
+
         if self.playoff_round == 1:
             self.insert_champions_selections()
 
@@ -133,6 +142,14 @@ class Insert():
             with self.database as db:
                 db.add_series_results_for_conference(
                         self.year, self.playoff_round, conference, processed_results)
+
+        if self.round_selections.overtime_selected:
+            with self.database as db:
+                db.add_overtime_results(
+                    self.year,
+                    self.playoff_round,
+                    self.results.results_overtime
+                )
 
         if self.playoff_round == 4:
             champions_results = Results(self.year, 'Champions')

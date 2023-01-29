@@ -1,5 +1,5 @@
 """Read the results in a playoff round"""
-from pandas import Index, Int64Dtype
+from pandas import Index, Int64Dtype, read_csv
 from scripts.selections import Selections
 from scripts.data_files import DataFile
 from scripts.database import DataBaseOperations
@@ -25,6 +25,16 @@ class Results(DataFile):
         """The results for the playoff round"""
         return self._results
 
+    def _raise_error_if_champions_round(self):
+        if self.playoff_round == 'Champions':
+            raise ValueError('The playoff round must not be the Champions round')
+
+    @property
+    def results_overtime(self):
+        """Return the overtime results"""
+        self._raise_error_if_champions_round()
+        return self._results_overtime
+
     @property
     def database(self):
         """The database"""
@@ -41,10 +51,12 @@ class Results(DataFile):
         if self.in_database:
             if self.playoff_round in [1,2,3,4]:
                 self._results = self._load_playoff_round_results_from_database()
+                self._results_overtime = self._load_overtime_results_from_database()
             elif self.playoff_round == 'Champions':
                 self._results = self._load_champions_results_from_database()
         else:
             self._results = self._selections.selections.loc['Results']
+            self._results_overtime = self._get_overtime_result()
 
     def _load_playoff_round_results_from_database(self):
         """Return the playoff round results from the database"""
@@ -85,3 +97,14 @@ class Results(DataFile):
         }
         data.rename(columns=new_names, inplace=True)
         return data.squeeze()
+
+    def _load_overtime_results_from_database(self):
+        """Return the result of the overtime category"""
+        with self.database as db:
+            return db.get_overtime_results(self.year, self.playoff_round)
+
+    def _get_overtime_result(self):
+        """Return the result of the overtime category"""
+        data = read_csv(self._selections.selections_file, sep=',')
+        data.set_index('Name:', inplace=True)
+        return data["How many overtime games will occur this round?"]["Results"]
