@@ -107,4 +107,6 @@ class Results(DataFile):
         """Return the result of the overtime category"""
         data = read_csv(self._selections.selections_file, sep=',')
         data.set_index('Name:', inplace=True)
-        return data["How many overtime games will occur this round?"]["Results"]
+        if 'How many overtime games will occur this round?' in data.columns:
+            return data["How many overtime games will occur this round?"]["Results"]
+        return None

@@ -499,7 +499,7 @@ class DataBaseOperations():
                 WHERE Year={year}
                 AND Round={playoff_round}''',
                 self.conn)
-        return overtime_data['Overtime'][0]
+        return None if overtime_data.empty else overtime_data['Overtime'][0]
 
 def check_if_year_is_valid(year):
     '''Check if the year is valid'''

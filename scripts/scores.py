@@ -142,7 +142,11 @@ class IndividualScoring():
         self.year = year
         self.playoff_round = playoff_round
         self.selections = selections.selections if selections is not None else None
+        self.selections_overtime = selections.selections_overtime \
+            if (self.selections is not None and playoff_round != 'Champions') else None
         self.results = results.results if results is not None else None
+        self.results_overtime = results.results_overtime \
+            if (self.results is not None and playoff_round != 'Champions') else None
         self.keep_stanley_cup_winner_points = keep_stanley_cup_winner_points
 
 
@@ -300,7 +304,33 @@ class IndividualScoring():
         else:
             player_points = 0
 
-        return correct_points + incorrect_points + player_points
+        if self.selections_overtime is not None:
+            exact = system['Overtime'] \
+                if self.selections_overtime[individual] == str(self.results_overtime) \
+                else 0
+            if (self.selections_overtime[individual] == "More than 3" \
+            or str(self.results_overtime) == "More than 3") \
+            and self.selections_overtime[individual] != str(self.results_overtime):
+                if (self.selections_overtime[individual] == "More than 3" \
+                and self.results_overtime == 3) \
+                or (self.results_overtime == "More than 3" \
+                and self.selections_overtime[individual] == '3'):
+                    off_by_1 = system['Overtime (1 game off)']
+                else:
+                    off_by_1 = 0
+            elif abs(self.results_overtime - int(self.selections_overtime[individual])) == 1:
+                off_by_1 = system['Overtime (1 game off)']
+            else:
+                off_by_1 = 0
+            # else:
+            #     off_by_1 = system['Overtime (1 game off)'] \
+            #     if self.selections_overtime[individual] != str(self.results_overtime) \
+            #     else 0
+            overtime_points = exact + off_by_1
+        else:
+            overtime_points = 0
+
+        return correct_points + incorrect_points + player_points + overtime_points
 
     def champions_points(self, individual):
         """Return the points for an individual in the champions round"""

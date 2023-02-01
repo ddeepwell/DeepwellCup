@@ -193,6 +193,9 @@ class Latex():
         for conference in self._series:
             round_table += self._selections_table_conference(conference)
 
+        if self._round_selections.overtime_selected:
+            round_table += self._overtime_rows()
+
         template = self._import_template("main_selections_table.j2")
         return template.render(
             column_format=column_format,
@@ -278,13 +281,24 @@ class Latex():
 
         return conference_table
 
+    def _overtime_rows(self):
+        """Row for the overtime selections"""
+        blanker = (self._number_of_columns-1)*"&"+" \\\\\n"
+        row = f"{blanker}          Overtime"
+        for index, individual in enumerate(self.individuals):
+            if index % 2 == 0:
+                row += f' & \\mclg{{{self._round_selections.selections_overtime[individual]}}}'
+            else:
+                row += f' & \\mcl{{{self._round_selections.selections_overtime[individual]}}}'
+        row += "\\\\\n"
+        return row
+
     def _champions_table(self):
         """Create the Champions table"""
         east = self._champions_row('East')
         west = self._champions_row('West')
         stanley = self._champions_row('Stanley Cup')
         return east + west + stanley
-
 
     def _champions_row(self, category):
         """Return a row in the champions table"""
@@ -392,7 +406,9 @@ f'''        Let $C$ be the correct number of games\\\\
 
     def _counts_table_contents(self):
         """Create the contents for the counts table"""
-        return self._counts_table_teams() + self._counts_table_players()
+        return self._counts_table_teams() \
+            + self._counts_table_players() \
+            + self._counts_table_overtime()
 
     def _counts_table_teams(self):
         """Create the team counts for the counts table"""
@@ -440,7 +456,22 @@ f'''        Let $C$ be the correct number of games\\\\
         higher_seed_line = higher_seed_line[:-2]+"\\\\\n"
         lower_seed_line  =  lower_seed_line[:-2]+"\\\\"
 
-        return higher_seed_line + lower_seed_line
+        return "\n" + higher_seed_line + lower_seed_line
+
+    def _counts_table_overtime(self):
+        """Create the overtime counts for the counts table"""
+        if not self._round_selections.overtime_selected:
+            return ""
+
+        num_series = self._number_of_series_in_round
+        picks_per_length = self._round_selections.selections_overtime.value_counts()
+        lengths = [0, 1, 2, 3, "More than 3"]
+        length_line = "\n"
+        for length in lengths:
+            value = picks_per_length[length] if length in picks_per_length.index else 0
+            vspace = r"\rule{0pt}{3.5ex}" if length == 0 else ""
+            length_line += f"        {vspace}{length} & {value} "+"& "*num_series+"\\\\\n"
+        return length_line[:-3]
 
     def _correct_points_table(self):
         """Create the points table for the correctly selected team"""
