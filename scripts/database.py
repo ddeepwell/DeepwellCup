@@ -489,7 +489,7 @@ class DataBaseOperations():
         overtime_data.drop(['IndividualID','Year','Round'], axis='columns', inplace=True)
         overtime_data.insert(0,'Individual', individuals)
         overtime_data.set_index('Individual', inplace=True)
-        return overtime_data.squeeze().sort_index()
+        return overtime_data.squeeze().sort_index().astype('str')
 
     def get_overtime_results(self, year, playoff_round):
         '''Return the overtime result'''
@@ -499,7 +499,7 @@ class DataBaseOperations():
                 WHERE Year={year}
                 AND Round={playoff_round}''',
                 self.conn)
-        return None if overtime_data.empty else overtime_data['Overtime'][0]
+        return None if overtime_data.empty else str(overtime_data['Overtime'][0])
 
 def check_if_year_is_valid(year):
     '''Check if the year is valid'''

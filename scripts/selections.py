@@ -141,7 +141,7 @@ class Selections(DataFile):
             )
             overtime_data = data[['Individual','Overtime']]
             overtime_data.set_index('Individual', inplace=True)
-            self._selections_overtime = overtime_data.squeeze().sort_index()
+            self._selections_overtime = overtime_data.squeeze().sort_index().astype('str')
             data.drop(columns=['Overtime'], inplace=True)
 
         selections = wide_to_long(data,

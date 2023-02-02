@@ -56,7 +56,8 @@ class Results(DataFile):
                 self._results = self._load_champions_results_from_database()
         else:
             self._results = self._selections.selections.loc['Results']
-            self._results_overtime = self._get_overtime_result()
+            self._results_overtime = self._selections.selections_overtime['Results'] \
+                if self.playoff_round != 'Champions' else None
 
     def _load_playoff_round_results_from_database(self):
         """Return the playoff round results from the database"""
@@ -102,11 +103,3 @@ class Results(DataFile):
         """Return the result of the overtime category"""
         with self.database as db:
             return db.get_overtime_results(self.year, self.playoff_round)
-
-    def _get_overtime_result(self):
-        """Return the result of the overtime category"""
-        data = read_csv(self._selections.selections_file, sep=',')
-        data.set_index('Name:', inplace=True)
-        if 'How many overtime games will occur this round?' in data.columns:
-            return data["How many overtime games will occur this round?"]["Results"]
-        return None

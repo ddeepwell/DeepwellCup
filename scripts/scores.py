@@ -318,14 +318,10 @@ class IndividualScoring():
                     off_by_1 = system['Overtime (1 game off)']
                 else:
                     off_by_1 = 0
-            elif abs(self.results_overtime - int(self.selections_overtime[individual])) == 1:
+            elif abs(int(self.results_overtime) - int(self.selections_overtime[individual])) == 1:
                 off_by_1 = system['Overtime (1 game off)']
             else:
                 off_by_1 = 0
-            # else:
-            #     off_by_1 = system['Overtime (1 game off)'] \
-            #     if self.selections_overtime[individual] != str(self.results_overtime) \
-            #     else 0
             overtime_points = exact + off_by_1
         else:
             overtime_points = 0
