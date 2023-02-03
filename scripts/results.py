@@ -57,7 +57,9 @@ class Results(DataFile):
         else:
             self._results = self._selections.selections.loc['Results']
             self._results_overtime = self._selections.selections_overtime['Results'] \
-                if self.playoff_round != 'Champions' else None
+                if self.playoff_round != 'Champions' \
+                and self._selections.selections_overtime is not None \
+                else None
 
     def _load_playoff_round_results_from_database(self):
         """Return the playoff round results from the database"""
