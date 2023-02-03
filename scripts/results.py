@@ -1,5 +1,6 @@
 """Read the results in a playoff round"""
-from pandas import Index, Int64Dtype, read_csv
+from pandas import Index, Int64Dtype
+from scripts import utils
 from scripts.selections import Selections
 from scripts.data_files import DataFile
 from scripts.database import DataBaseOperations
@@ -49,7 +50,7 @@ class Results(DataFile):
         """Load the results from database or raw source file"""
 
         if self.in_database:
-            if self.playoff_round in [1,2,3,4]:
+            if self.playoff_round in utils.selection_rounds(self.year):
                 self._results = self._load_playoff_round_results_from_database()
                 self._results_overtime = self._load_overtime_results_from_database()
             elif self.playoff_round == 'Champions':

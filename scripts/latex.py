@@ -5,13 +5,13 @@ from pandas import isna
 from sympy import latex, symbols
 from sympy.utilities.lambdify import lambdify
 from jinja2 import Environment, FileSystemLoader
+from scripts import utils
 from scripts.selections import Selections
 from scripts.directories import project_directory
 from scripts.scores import IndividualScoring
 from scripts.nhl_teams import (
     shorten_team_name as stn,
     lengthen_team_name as ltn,
-    conference as team_conference,
 )
 
 class Latex():
@@ -159,7 +159,7 @@ class Latex():
     @property
     def _number_of_series_in_round_per_conference(self):
         '''Return the number of series in a conference in the playoff round'''
-        if self.playoff_round in [1,2,3]:
+        if self.playoff_round in utils.selection_rounds_with_conference(self.year):
             return self._number_of_series_in_round//2
         return self._number_of_series_in_round
 
@@ -266,7 +266,7 @@ class Latex():
 
         # subtitles
         conference_table = ""
-        if self.playoff_round in [1,2,3]:
+        if self.playoff_round in utils.selection_rounds_with_conference(self.year):
             conference_table += f"        {{\\bf {conference}}} " \
                 +(num_columns-1)*"&"+"\\\\\\hline\n"
         for index, series in enumerate(self._series[conference]):

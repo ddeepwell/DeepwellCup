@@ -3,6 +3,7 @@ import re
 import math
 import warnings
 from pandas import read_csv, Index, wide_to_long
+from scripts import utils
 from scripts.data_files import DataFile
 from scripts.database import DataBaseOperations
 from scripts.nhl_teams import (
@@ -26,7 +27,7 @@ class Selections(DataFile):
         super().__init__(year=year, playoff_round=playoff_round, directory=selections_directory)
         self._database = DataBaseOperations(**kwargs)
         with self.database as db:
-            if playoff_round in [1,2,3,4]:
+            if playoff_round in utils.selection_rounds(self.year):
                 self.in_database = db.year_round_in_database(year, playoff_round)
             else:
                 self.in_database = db.champions_round_in_database(year)
@@ -102,14 +103,14 @@ class Selections(DataFile):
 
         if self.in_database \
             and (kwargs["keep_results"] is False or self._results_in_database):
-            if self.playoff_round in [1,2,3,4]:
+            if self.playoff_round in utils.selection_rounds(self.year):
                 self._selections = self._load_playoff_round_selections_from_database()
             elif self.playoff_round == 'Champions':
                 self._selections = self._load_champions_selections_from_database()
         else:
             print(f'Round data for {self.playoff_round} in {self.year} is not '\
                     f'in the database with path\n {self.database.path}')
-            if self.playoff_round in [1,2,3,4]:
+            if self.playoff_round in utils.selection_rounds(self.year):
                 self._selections = self._load_playoff_round_selections_from_file(**kwargs)
             elif self.playoff_round == 'Champions':
                 self._selections = self._load_champions_selections_from_file(**kwargs)
@@ -320,5 +321,5 @@ class Selections(DataFile):
 
         if self.playoff_round == 4:
             return ["None"]
-        elif self.playoff_round in [1,2,3]:
+        elif self.playoff_round in utils.selection_rounds_with_conference(self.year):
             return ['East', 'West']

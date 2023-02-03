@@ -3,6 +3,7 @@ from pandas import Series
 from numpy import NaN, add
 from sympy import symbols
 from sympy.utilities.lambdify import lambdify
+from scripts import utils
 from scripts.results import Results
 from scripts.selections import Selections
 from scripts.other_points import OtherPoints
@@ -96,7 +97,8 @@ class Points():
         round_points = {}
         for individual in self._selection_individuals:
             round_points[individual] = self._scoring.individual_points(individual)
-            name = f"Round {self.playoff_round}" if self.playoff_round in [1,2,3,4] \
+            name = f"Round {self.playoff_round}" \
+                if self.playoff_round in utils.selection_rounds(self.year) \
                 else "Champions"
         return Series(
             round_points,
@@ -223,7 +225,7 @@ class IndividualScoring():
     def individual_points(self, individual):
         """Return the points for an individual in a playoff round"""
 
-        if self.playoff_round in [1,2,3,4]:
+        if self.playoff_round in utils.selection_rounds(self.year):
             return self.round_points(individual)
         return self.champions_points(individual)
 
@@ -253,7 +255,7 @@ class IndividualScoring():
             team_key = 'correct_team'
             duration_key = 'correct_length'
         elif self.year in [2015, 2016, 2017]:
-            if self.playoff_round in [1,2,3]:
+            if self.playoff_round in utils.selection_rounds_with_conference(self.year):
                 team_key = 'correct_team_rounds_123'
                 duration_key = 'correct_length_rounds_123'
             else:

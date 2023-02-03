@@ -6,6 +6,7 @@ import os
 import errno
 import warnings
 from pandas import read_sql_query
+from scripts import utils
 from scripts.directories import project_directory
 from scripts.nhl_teams import shorten_team_name as stn
 
@@ -48,16 +49,18 @@ class DataBaseOperations():
             exists = True
         return exists
 
-    def check_playoff_round(self, playoff_round):
+    def check_playoff_round(self, year, playoff_round):
         """Check for valid playoff round"""
-        if playoff_round not in [1,2,3,4]:
-            raise Exception("The playoff round must be one of [1,2,3,4].")
+        selection_rounds = utils.selection_rounds(year)
+        if playoff_round not in selection_rounds:
+            raise Exception(f"The playoff round must be one of {selection_rounds}.")
 
-    def check_conference(self, playoff_round, conference):
+    def check_conference(self, year, playoff_round, conference):
         """Check for valid conference"""
         if playoff_round == 4 and conference != "None":
             raise Exception("The conference in the 4th round must be 'None'")
-        if playoff_round in [1,2,3] and conference not in ['East', 'West']:
+        if playoff_round in utils.selection_rounds_with_conference(year) \
+                and conference not in ['East', 'West']:
             raise Exception(\
                 f'The submitted conference ({conference}) is invalid. '\
                 'It must be either "East" or "West"')
@@ -216,8 +219,8 @@ class DataBaseOperations():
         '''Add a series ID to the database'''
         # checks on inputs
         check_if_year_is_valid(year)
-        self.check_playoff_round(playoff_round)
-        self.check_conference(playoff_round, conference)
+        self.check_playoff_round(year, playoff_round)
+        self.check_conference(year, playoff_round, conference)
         # add checks for valid team names
 
         series_data = [(year, playoff_round, conference, series_number,
@@ -234,8 +237,8 @@ class DataBaseOperations():
         '''Return the series data for the series
         in a pandas dataframe'''
         check_if_year_is_valid(year)
-        self.check_playoff_round(playoff_round)
-        self.check_conference(playoff_round, conference)
+        self.check_playoff_round(year, playoff_round)
+        self.check_conference(year, playoff_round, conference)
         series_id = self._get_series_id(year, playoff_round, conference, series_number)
         series_data = read_sql_query(
                 f'SELECT * FROM Series WHERE YearRoundSeriesID={series_id}', self.conn)
@@ -252,8 +255,8 @@ class DataBaseOperations():
     def _get_series_id(self, year, playoff_round, conference, series_number):
         '''Return the primary key from the database for the series'''
         check_if_year_is_valid(year)
-        self.check_playoff_round(playoff_round)
-        self.check_conference(playoff_round, conference)
+        self.check_playoff_round(year, playoff_round)
+        self.check_conference(year, playoff_round, conference)
         try:
             if conference is None:
                 series_id = self.cursor.execute(
@@ -283,7 +286,7 @@ class DataBaseOperations():
     def get_teams_in_year_round(self, year, playoff_round):
         '''Get list of team pairs for each series in each conference'''
         series_data = self.get_all_series_in_round(year, playoff_round)
-        if playoff_round in [1,2,3]:
+        if playoff_round in utils.selection_rounds_with_conference(year):
             full_east_data = series_data.query('Conference=="East"')
             full_west_data = series_data.query('Conference=="West"')
             east_data = full_east_data[['TeamHigherSeed','TeamLowerSeed']].values.tolist()
@@ -300,8 +303,8 @@ class DataBaseOperations():
         '''Add series selections to the database'''
         # checks on inputs
         check_if_year_is_valid(year)
-        self.check_playoff_round(playoff_round)
-        self.check_conference(playoff_round, conference)
+        self.check_playoff_round(year, playoff_round)
+        self.check_conference(year, playoff_round, conference)
         self.check_if_selections_are_valid(
             year, playoff_round, conference, series_number,
             team_selection, game_selection, player_selection)
@@ -333,8 +336,8 @@ class DataBaseOperations():
             first_name, last_name):
         '''Return the series selection data for the series in a pandas dataframe'''
         check_if_year_is_valid(year)
-        self.check_playoff_round(playoff_round)
-        self.check_conference(playoff_round, conference)
+        self.check_playoff_round(year, playoff_round)
+        self.check_conference(year, playoff_round, conference)
         series_id = self._get_series_id(year, playoff_round, conference, series_number)
         individual_id = self._get_individual_id(first_name, last_name)
         series_data = read_sql_query(
@@ -372,8 +375,8 @@ class DataBaseOperations():
         '''Add series results to the database'''
         # checks on inputs
         check_if_year_is_valid(year)
-        self.check_playoff_round(playoff_round)
-        self.check_conference(playoff_round, conference)
+        self.check_playoff_round(year, playoff_round)
+        self.check_conference(year, playoff_round, conference)
         self.check_if_selections_are_valid(
             year, playoff_round, conference, series_number,
             team_winner, game_length, player_winner)
@@ -398,8 +401,8 @@ class DataBaseOperations():
     def get_series_results(self, year, playoff_round, conference, series_number):
         '''Return the series result data for the series in a pandas dataframe'''
         check_if_year_is_valid(year)
-        self.check_playoff_round(playoff_round)
-        self.check_conference(playoff_round, conference)
+        self.check_playoff_round(year, playoff_round)
+        self.check_conference(year, playoff_round, conference)
         series_id = self._get_series_id(year, playoff_round, conference, series_number)
         series_data = read_sql_query(
                 'SELECT * FROM SeriesResults '\
