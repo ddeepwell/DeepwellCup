@@ -29,3 +29,9 @@ def selection_rounds_with_conference(year):
     conference_rounds = selection_rounds(year)
     conference_rounds.remove(4)
     return conference_rounds
+
+def series_duration_options(playoff_round):
+    """List of possible number of games in a series"""
+    if playoff_round == 'Q':
+        return [3,4,5]
+    return [4,5,6,7]

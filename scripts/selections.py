@@ -165,7 +165,7 @@ class Selections(DataFile):
         # modify team column
         df.replace(to_replace=math.nan, value=None, inplace=True)
         # modify duration column
-        mask = df.loc[:,'Duration'].str[0].isin(['4','5','6','7'])
+        mask = df.loc[:,'Duration'].str[0].isin(utils.series_duration_options(self.playoff_round))
         df.loc[~mask,'Duration'] = [None]*len(df.loc[~mask,'Duration'])
         with warnings.catch_warnings():
             warnings.filterwarnings(

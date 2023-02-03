@@ -79,10 +79,11 @@ class DataBaseOperations():
             if team_selection is not None:
                 raise Exception(f'The selected team, {team_selection}, '
                                 f'is invalid for the series, {series_acronym}')
-        if game_selection not in [4,5,6,7]:
+        possible_lengths = utils.series_duration_options(playoff_round)
+        if game_selection not in possible_lengths:
             if game_selection is not None:
                 raise Exception(f'The series length, {game_selection}, is invalid. '\
-                    'It must be in {4,5,6,7} or None')
+                    f'It must be in {possible_lengths} or None')
         if player_selection not in \
                 series_data[['PlayerHigherSeed','PlayerLowerSeed']].values[0].tolist() + [None, 'tie']:
             raise Exception(f'The selected player, {player_selection}, '
