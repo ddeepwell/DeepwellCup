@@ -361,7 +361,7 @@ class DataBaseOperations():
                 ON Ser.YearRoundSeriesID = SS.YearRoundSeriesID)
             ON Ind.IndividualID = SS.IndividualID
             WHERE Ser.Year = {year}
-            AND Ser.Round = {playoff_round}
+            AND Ser.Round = "{playoff_round}"
             ORDER BY FirstName, LastName, Conference, SeriesNumber
             ''', self.conn)
         series_data['Individual'] = (series_data['FirstName'] + ' ' + series_data['LastName']).apply(lambda x: x.strip())
@@ -421,7 +421,7 @@ class DataBaseOperations():
             Inner JOIN Series as Ser
             ON Ser.YearRoundSeriesID = SR.YearRoundSeriesID
             WHERE Ser.Year = {year}
-            AND Ser.Round = {playoff_round}
+            AND Ser.Round = "{playoff_round}"
             ORDER BY Conference, SeriesNumber
             ''', self.conn)
         return series_data
@@ -447,7 +447,7 @@ class DataBaseOperations():
         points_data = read_sql_query(f'''
                 SELECT * FROM OtherPoints
                 WHERE Year={year}
-                AND Round={playoff_round}''',
+                AND Round="{playoff_round}"''',
                 self.conn)
         individuals = points_data.loc[:,'IndividualID'].apply(self._get_individual_from_id)
         points_data.drop(['IndividualID'], axis='columns', inplace=True)
@@ -484,7 +484,7 @@ class DataBaseOperations():
         overtime_data = read_sql_query(f'''
                 SELECT * FROM OvertimeSelections
                 WHERE Year={year}
-                AND Round={playoff_round}''',
+                AND Round="{playoff_round}"''',
                 self.conn)
         if overtime_data.empty:
             return None
@@ -500,7 +500,7 @@ class DataBaseOperations():
         overtime_data = read_sql_query(f'''
                 SELECT * FROM OvertimeResults
                 WHERE Year={year}
-                AND Round={playoff_round}''',
+                AND Round="{playoff_round}"''',
                 self.conn)
         return None if overtime_data.empty else str(overtime_data['Overtime'][0])
 
