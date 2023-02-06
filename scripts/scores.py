@@ -206,6 +206,14 @@ class IndividualScoring():
                 'Overtime': 10,
                 'Overtime (1 game off)': 5,
             },
+            '2020': {
+                'stanley_cup_winner': 5,
+                'stanley_cup_finalist': 5,
+                'f_correct': "9-abs(P-C)",
+                'f_incorrect': "P+C-8",
+                'f_correct_round_Q': "8-abs(P-C)",
+                'f_incorrect_round_Q': "P+C-6",
+            },
         }
         if self.year in [2006, 2007]:
             return all_systems['2006_2007']
@@ -221,6 +229,8 @@ class IndividualScoring():
             return all_systems['2018']
         if self.year == 2019:
             return all_systems['2019']
+        if self.year == 2020:
+            return all_systems['2020']
 
     def individual_points(self, individual):
         """Return the points for an individual in a playoff round"""
@@ -230,7 +240,7 @@ class IndividualScoring():
         return self.champions_points(individual)
 
     def round_points(self, individual):
-        """Return the points for an individual in playoff rounds 1, 2, 3, or 4"""
+        """Return the points for an individual in playoff rounds"""
 
         if self.year in range(2006, 2017+1):
             get_round_points = self._round_points_paradigm1
@@ -241,7 +251,7 @@ class IndividualScoring():
             if individual in self.selections.index.get_level_values('Individual') else 0
 
     def _round_points_paradigm1(self, individual):
-        """Return the points for an individual in playoff rounds 1, 2, 3, or 4"""
+        """Return the points for an individual in playoff rounds"""
 
         system = self.scoring_system()
         selections = self.selections.loc[individual]
@@ -276,14 +286,21 @@ class IndividualScoring():
         return score
 
     def _round_points_paradigm2(self, individual):
-        """Return the points for an individual in playoff rounds 1, 2, 3, or 4"""
+        """Return the points for an individual in playoff rounds"""
 
         system = self.scoring_system()
         selections = self.selections.loc[individual]
         C, P = symbols("C P")
 
-        f_correct = lambdify((C, P), system['f_correct'], "numpy")
-        f_incorrect = lambdify((C, P), system['f_incorrect'], "numpy")
+        if self.playoff_round == 'Q':
+            correct_handle = 'f_correct_round_Q'
+            incorrect_handle = 'f_incorrect_round_Q'
+        else:
+            correct_handle = 'f_correct'
+            incorrect_handle = 'f_incorrect'
+
+        f_correct = lambdify((C, P), system[correct_handle], "numpy")
+        f_incorrect = lambdify((C, P), system[incorrect_handle], "numpy")
 
         comparison = selections.compare(self.results, keep_shape=True, keep_equal=True)
         correct = comparison.query("@comparison.Team.self == @comparison.Team.other")
