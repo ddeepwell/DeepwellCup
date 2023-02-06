@@ -25,11 +25,14 @@ class Latex():
             playoff_round=playoff_round,
             selections_directory=selections_directory,
             **kwargs)
-        self._champions_selections = Selections(
-            year=year,
-            playoff_round='Champions',
-            selections_directory=selections_directory,
-            **kwargs)
+        if playoff_round != 'Q':
+            self._champions_selections = Selections(
+                year=year,
+                playoff_round='Champions',
+                selections_directory=selections_directory,
+                **kwargs)
+        else:
+            self._champions_selections = None
         self._system = IndividualScoring(self.year).scoring_system()
 
     @property
@@ -116,11 +119,16 @@ class Latex():
     def _make_table_contents(self):
         """Collect the contents of the LaTex file for a playoff round"""
 
+        if self.playoff_round == 'Q':
+            previous_round = ''
+        else:
+            previous_round = self.playoff_round-1
         ranking_image_path = "../../figures/"\
-            f"{self.year}/Points-{self.year}-Round{self.playoff_round-1}.pdf"
+            f"{self.year}/Points-{self.year}-Round{previous_round}.pdf"
 
         template = self._import_template("round_selections.j2")
         return template.render(
+            paperheight=self._paperheight(),
             year=self.year,
             playoff_round=self.playoff_round,
             main_table=self._make_main_table(),
@@ -163,6 +171,12 @@ class Latex():
             return self._number_of_series_in_round//2
         return self._number_of_series_in_round
 
+    def _paperheight(self):
+        """Define the paper height for the latex file"""
+        if len(self.individuals) < 18:
+            return ""
+        return f",paperheight={len(self.individuals)-3}in"
+
     def _make_main_table(self):
         """Create the main table"""
 
@@ -171,7 +185,9 @@ class Latex():
                         + (" g g" if num_individuals%2 else "")
 
         # table title and column names
-        if self.playoff_round == 1:
+        if self.playoff_round == 'Q':
+            table_title = "Qualification Round"
+        elif self.playoff_round == 1:
             table_title = "Round 1: Division Semi-Finals"
         elif self.playoff_round == 2:
             table_title = "Round 2: Division Finals"
@@ -227,8 +243,8 @@ class Latex():
 
         higher_seed = modify_team(series.split('-')[0])
         lower_seed  = modify_team(series.split('-')[1])
-        first_row = f"          {higher_seed}{'&'*(self._number_of_columns-1)}\\\\\n"
-        second_row = f"          {lower_seed} " \
+        first_row = f"          {stn(higher_seed)}{'&'*(self._number_of_columns-1)}\\\\\n"
+        second_row = f"          {stn(lower_seed)} " \
             + ' '.join([a_selection(individual) for individual in self.individuals])
         if self._round_selections.players_selected:
             second_row += r"\\"+"\n"
@@ -295,6 +311,8 @@ class Latex():
 
     def _champions_table(self):
         """Create the Champions table"""
+        if self.playoff_round == 'Q':
+            return ""
         east = self._champions_row('East')
         west = self._champions_row('West')
         stanley = self._champions_row('Stanley Cup')
@@ -358,9 +376,15 @@ f'''        Correct team (rounds 1,2,3):	& ${system['correct_team_rounds_123']}$
 f'''        Correct team:	& ${system['correct_team']}$\\\\
         Correct series length (regardless of series winner):	& ${system['correct_length']}$\\\\'''
         elif "f_correct" in system:
+            if self.playoff_round == 'Q':
+                correct_handle = 'f_correct_round_Q'
+                incorrect_handle = 'f_incorrect_round_Q'
+            else:
+                correct_handle = 'f_correct'
+                incorrect_handle = 'f_incorrect'
             C, P = symbols("C P")
-            correct = latex(eval(system['f_correct']))
-            incorrect = latex(eval(system['f_incorrect']))
+            correct = latex(eval(system[correct_handle]))
+            incorrect = latex(eval(system[incorrect_handle]))
             descriptor = \
 f'''        Let $C$ be the correct number of games\\\\
         Let $P$ be the predicted number of games\\\\
@@ -478,8 +502,12 @@ f'''        Let $C$ be the correct number of games\\\\
         system = self._system
         if 'f_correct' not in system:
             return None
+        if self.playoff_round == 'Q':
+            handle = 'f_correct_round_Q'
+        else:
+            handle = 'f_correct'
         C, P = symbols("C P")
-        f_correct = lambdify((C, P), system['f_correct'], "numpy")
+        f_correct = lambdify((C, P), system[handle], "numpy")
         return self._points_table(f_correct)
 
     def _incorrect_points_table(self):
@@ -487,12 +515,23 @@ f'''        Let $C$ be the correct number of games\\\\
         system = self._system
         if 'f_incorrect' not in system:
             return None
+        if self.playoff_round == 'Q':
+            handle = 'f_incorrect_round_Q'
+        else:
+            handle = 'f_incorrect'
         C, P = symbols("C P")
-        f_incorrect = lambdify((C, P), system['f_incorrect'], "numpy")
+        f_incorrect = lambdify((C, P), system[handle], "numpy")
         return self._points_table(f_incorrect)
 
     def _points_table(self, func):
         """Return the table of points per predicted and correct series duration"""
+        if self.playoff_round == 'Q':
+            return r"""        \mccn{2}{} & \mccn{3}{Predicted}\\
+        & & 3 & 4 & 5\\\cline{2-4}""" + '\n' \
+            + r"        \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Correct}}}" \
+            + f" & 3 & {self._make_points_string(func, 3)}" + r"\\" + '\n' \
+            + f"        & 4 & {self._make_points_string(func, 4)}" + r"\\" + '\n' \
+            + f"        & 5 & {self._make_points_string(func, 5)}"
         return r"""        \mccn{2}{} & \mccn{4}{Predicted}\\
         & & 4 & 5 & 6 & 7\\\cline{2-6}""" + '\n' \
             + r"        \parbox[t]{2mm}{\multirow{4}{*}{\rotatebox[origin=c]{90}{Correct}}}" \
@@ -503,7 +542,9 @@ f'''        Let $C$ be the correct number of games\\\\
 
     def _make_points_string(self, func, correct_games):
         """Create the string for the points for a specific series duration"""
-        return " & ".join(func(correct_games, array([4,5,6,7])).astype(str).tolist())
+        return " & ".join(
+            func(correct_games, array(utils.series_duration_options(self.playoff_round))
+        ).astype(str).tolist())
 
 def shorten_player_name(name):
     """Shorten a player name"""

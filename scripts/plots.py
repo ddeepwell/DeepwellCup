@@ -68,13 +68,14 @@ class Plots():
     @property
     def _colors(self):
         """Colors to use in bar chart"""
-        round_colors = ['#95c4e8','#a3e6be','#fbee9d','#fbbf9d','#e29dfb']
+        round_colors = ['#B87D63','#95c4e8','#a3e6be','#fbee9d','#fbbf9d','#e29dfb']
         return dict(zip(self._round_names.values(), round_colors))
 
     @property
     def _round_names(self):
         """Dictionary of the names for each round from the round number"""
         return {
+            'Q': "Round Q",
             1: "Round 1",
             2: "Round 2",
             3: "Round 3",
@@ -85,8 +86,15 @@ class Plots():
     @property
     def rounds_to_plot(self):
         """The list of rounds to be plotted"""
-        index = 5 if self.max_round == 4 and self.plot_champions else self.max_round
-        rounds_to_keep = dict(list(self._round_names.items())[:index])
+        if self.max_round == 'Q':
+            end = 1
+        elif self.max_round == 4 and self.plot_champions:
+            end = 6
+        else:
+            end = self.max_round+1
+        start = 1 if self.year != 2020 else 0
+        indices = slice(start,end)
+        rounds_to_keep = dict(list(self._round_names.items())[indices])
         if self.max_round == 3 and self.plot_champions \
             and 'stanley_cup_finalist' in self._scoring_system:
             rounds_to_keep['Champions'] = 'Champions'

@@ -18,7 +18,10 @@ class Insert():
 
         # import values
         self._round_selections = Selections(year, playoff_round, selections_directory, **kwargs)
-        self._champions_selections = Selections(year, 'Champions', selections_directory, **kwargs)
+        if playoff_round == 1:
+            self._champions_selections = Selections(year, 'Champions', selections_directory, **kwargs)
+        else:
+            self._champions_selections = None
         self._results = Results(year, playoff_round, selections_directory, **kwargs)
         self._other_points = OtherPoints(year, playoff_round, selections_directory, **kwargs)
 

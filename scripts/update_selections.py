@@ -1,5 +1,6 @@
 """Populate the database and make the selections table for a specific playoff round"""
 import argparse
+from scripts import utils
 from scripts.playoff_round import PlayoffRound
 
 def update_selections(year, playoff_round, **kwargs):
@@ -25,7 +26,6 @@ def main():
                             help = "Year to update",
                             required = True)
     required.add_argument("-r", "--playoff_round",
-                            type=int,
                             help = "Playoff round to update",
                             required = True)
     # optional arguments
@@ -34,6 +34,9 @@ def main():
                             help = "Database to import data into")
     # parse the arguments
     args = parser.parse_args()
+    selection_rounds = utils.selection_rounds(args.year)
+    if args.playoff_round not in selection_rounds:
+        raise Exception(f'The playoff round must be one of {selection_rounds}')
 
     # parse the database
     database = {} if args.database is None else {'database': args.database}
