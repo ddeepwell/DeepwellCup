@@ -1,0 +1,112 @@
+
+%----------------------------------------------------------------------------------------
+%	Settings and packages
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt]{article}
+
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{ctable}
+\usepackage{float}
+\usepackage[landscape,margin=0.25in,legalpaper]{geometry}
+
+
+\newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
+\newcommand{\mccn}[2]{\multicolumn{#1}{c}{#2}}
+\newcommand{\mcl}[1]{\multicolumn{2}{l}{#1}}
+\newcommand{\mclg}[1]{\multicolumn{2}{l}{\gr #1}}
+\newcommand{\mcc}[1]{\multicolumn{2}{c}{#1}}
+\newcommand{\mccg}[1]{\multicolumn{2}{c}{\gr #1}}
+\newcommand{\mr}[1]{\multirow{-2}{*}{#1}}
+\definecolor{Gray}{gray}{0.90}
+\newcommand{\gr}{\cellcolor{Gray}}
+
+\newcommand{\thickline}{\specialrule{.1em}{.05em}{.05em}}
+
+\setlength\parindent{0pt}
+
+% column colours
+\newcolumntype{g}{>{\columncolor{Gray}}l}
+\newcolumntype{w}{>{\columncolor{white}}l}
+
+%----------------------------------------------------------------------------------------
+%	Table
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\thispagestyle{empty}
+{\bf 2020 Deepwell Cup}
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w g g w w}
+        \rowcolor{black}\mcn{25}{\color{white}\bf Round 3: Conference Finals} \\
+        \rowcolor{white}\\
+        &  \mccg{Alisha K}&  \mcc{Andre D}&  \mccg{Andrew N}&  \mcc{Anthony C}&  \mccg{Brian M}&  \mcc{David D}&  \mccg{Jackson L}&  \mcc{Jon M}&  \mccg{Josh H}&  \mcc{Kyle L}&  \mccg{Mark D}&  \mcc{Nathan S} \\\thickline
+        {\bf East} &&&&&&&&&&&&&&&&&&&&&&&&\\\hline
+          TBL&&&&&&&&&&&&&&&&&&&&&&&&\\
+          NYI & \mr{TBL} & \mr{4} & \mr{TBL} & \mr{7} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{7} & \mr{TBL} & \mr{5} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{5} & \mr{TBL} & \mr{6}\\\hline
+          &&&&&&&&&&&&&&&&&&&&&&&& \\
+        {\bf West} &&&&&&&&&&&&&&&&&&&&&&&&\\\hline
+          VGK&&&&&&&&&&&&&&&&&&&&&&&&\\
+          DAL & \mr{DAL} & \mr{5} & \mr{VGK} & \mr{6} & \mr{VGK} & \mr{5} & \mr{DAL} & \mr{6} & \mr{VGK} & \mr{6} & \mr{DAL} & \mr{6} & \mr{VGK} & \mr{6} & \mr{VGK} & \mr{7} & \mr{VGK} & \mr{6} & \mr{DAL} & \mr{6} & \mr{VGK} & \mr{7} & \mr{DAL} & \mr{7}\\\hline
+          \rowcolor{white}\\
+        \rowcolor{black} \mcn{25}{\color{white}\bf Conference Champions} \\
+          Eastern & \mclg{MTL} & \mcl{TBL} & \mclg{NYI} & \mcl{TBL} & \mclg{BOS} & \mcl{PHI} & \mclg{CAR} & \mcl{TBL} & \mclg{PHI} & \mcl{MTL} & \mclg{PHI} & \mcl{PHI}\\
+          Western & \mclg{STL} & \mcl{VGK} & \mclg{STL} & \mcl{STL} & \mclg{COL} & \mcl{DAL} & \mclg{COL} & \mcl{VGK} & \mclg{COL} & \mcl{VAN} & \mclg{VGK} & \mcl{COL}\\
+          Stanley Cup & \mclg{MTL} & \mcl{TBL} & \mclg{CAR} & \mcl{VGK} & \mclg{COL} & \mcl{BOS} & \mclg{WSH} & \mcl{TBL} & \mclg{COL} & \mcl{VAN} & \mclg{VGK} & \mcl{COL}
+    \end{tabular}
+\end{table}
+
+{\bf Points}\\
+\begin{minipage}{10cm}
+    \begin{tabular}{l l}
+        Let $C$ be the correct number of games\\
+        Let $P$ be the predicted number of games\\
+        If correct team chosen:	   & $9 - \left|{C - P}\right|$\\
+        if incorrect team chosen:  & $C + P - 8$\\
+        Stanley Cup champion:	& 5\\
+        Stanley Cup finalist:	& 5\\
+    \end{tabular}
+
+    \vspace{1cm}
+    {\bf Number of picks:}\\
+    \begin{tabular}{lc | lc }
+        TBL & 12 & VGK & 7 \\
+        NYI & 0 & DAL & 5 \\
+    \end{tabular}
+\end{minipage}
+\begin{minipage}[t!]{4cm}
+    \vspace{-2cm}
+    \qquad Correct team Points\\
+    \begin{tabular}{c l | c c c c }
+        \mccn{2}{} & \mccn{4}{Predicted}\\
+        & & 4 & 5 & 6 & 7\\\cline{2-6}
+        \parbox[t]{2mm}{\multirow{4}{*}{\rotatebox[origin=c]{90}{Correct}}} & 4 & 9 & 8 & 7 & 6\\
+        & 5 & 8 & 9 & 8 & 7\\
+        & 6 & 7 & 8 & 9 & 8\\
+        & 7 & 6 & 7 & 8 & 9
+    \end{tabular}
+\end{minipage}
+\begin{minipage}[t!]{4cm}
+    \vspace{-2cm}
+    \qquad Incorrect team Points\\
+    \begin{tabular}{c l | c c c c }
+        \mccn{2}{} & \mccn{4}{Predicted}\\
+        & & 4 & 5 & 6 & 7\\\cline{2-6}
+        \parbox[t]{2mm}{\multirow{4}{*}{\rotatebox[origin=c]{90}{Correct}}} & 4 & 0 & 1 & 2 & 3\\
+        & 5 & 1 & 2 & 3 & 4\\
+        & 6 & 2 & 3 & 4 & 5\\
+        & 7 & 3 & 4 & 5 & 6
+    \end{tabular}
+\end{minipage}
+\begin{minipage}[t]{13cm}
+    \begin{figure}[H]
+        \vspace{-3.5cm}
+        \includegraphics[width=12cm]{../../figures/2020/Points-2020-Round2.pdf}
+    \end{figure}
+\end{minipage}
+
+\end{document}
