@@ -236,6 +236,10 @@ class Plots():
             # move 'Champions' to the end of the list
             correct_list.remove('Champions')
             correct_list.append('Champions')
+        if 'Round Q' in correct_list:
+            # move 'Round Q' to the start of the list
+            correct_list.remove('Round Q')
+            correct_list = ['Round Q'] + correct_list
         index_order = [round_list.index(round) for round in correct_list]
         ordered_handles = [self._axis_list[i] for i in index_order]
 
