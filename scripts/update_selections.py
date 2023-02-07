@@ -34,6 +34,8 @@ def main():
                             help = "Database to import data into")
     # parse the arguments
     args = parser.parse_args()
+    if args.playoff_round.isdigit():
+        args.playoff_round = int(args.playoff_round)
     selection_rounds = utils.selection_rounds(args.year)
     if args.playoff_round not in selection_rounds:
         raise Exception(f'The playoff round must be one of {selection_rounds}')
