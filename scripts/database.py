@@ -59,8 +59,11 @@ class DataBaseOperations():
         """Check for valid conference"""
         if playoff_round == 4 and conference != "None":
             raise Exception("The conference in the 4th round must be 'None'")
+        if year == 2021 and conference != "None":
+            raise Exception("The conference must be 'None' in 2021")
         if playoff_round in utils.selection_rounds_with_conference(year) \
-                and conference not in ['East', 'West']:
+                and conference not in ['East', 'West'] \
+                and year != 2021:
             raise Exception(\
                 f'The submitted conference ({conference}) is invalid. '\
                 'It must be either "East" or "West"')

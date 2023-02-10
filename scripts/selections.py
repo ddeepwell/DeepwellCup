@@ -132,8 +132,8 @@ class Selections(DataFile):
 
         def get_conference(series: str):
             """The conference for the teams in the series"""
-            return "None" if self.playoff_round == 4 else \
-                team_conference(series[:3], self.year)
+            return "None" if self.playoff_round == 4 or self.year == 2021 \
+                else team_conference(series[:3], self.year)
 
         if 'How many overtime games will occur this round?' in data.columns:
             data.rename(
@@ -253,7 +253,7 @@ class Selections(DataFile):
             'PlayerSelection': 'Player',
         }
         data.rename(columns=new_names, inplace=True)
-        no_player_picks = data['Player'].tolist().count(None) == len(data['Player'])
+        no_player_picks = all(item is None for item in data['Player'])
         if no_player_picks:
             data.drop(columns=['Player'], inplace=True)
         data['Duration'] = data['Duration'].astype("Int64")
@@ -285,6 +285,8 @@ class Selections(DataFile):
 
         def correct_conference(series: str, conference: str):
             """Boolean for correct conference of the teams"""
+            if self.year == 2021:
+                return True
             return True if self.playoff_round == 4 else \
                 team_conference(series[:3], self.year) == conference \
                 and team_conference(series[-3:], self.year) == conference
@@ -304,7 +306,6 @@ class Selections(DataFile):
         def series_name(conference, series_number):
             """Get the series name for a series number in a conference
             from the pandas table from the database"""
-
             # conference = conference if conference=="None" else f'"{conference}"'
             return '-'.join(
                 list(map(stn, series_table.query(
@@ -320,8 +321,7 @@ class Selections(DataFile):
 
     def _conference_list(self):
         """List the conferences in the current playoff round"""
-
-        if self.playoff_round == 4:
+        if self.playoff_round == 4 or self.year == 2021:
             return ["None"]
-        elif self.playoff_round in utils.selection_rounds_with_conference(self.year):
+        if self.playoff_round in utils.selection_rounds_with_conference(self.year):
             return ['East', 'West']

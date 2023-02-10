@@ -214,6 +214,12 @@ class IndividualScoring():
                 'f_correct_round_Q': "8-abs(P-C)",
                 'f_incorrect_round_Q': "P+C-6",
             },
+            '2021': {
+                'stanley_cup_winner': 20,
+                'stanley_cup_finalist': 20,
+                'f_correct': "15-2*abs(P-C)",
+                'f_incorrect': "P+C-8",
+            },
         }
         if self.year in [2006, 2007]:
             return all_systems['2006_2007']
@@ -231,6 +237,8 @@ class IndividualScoring():
             return all_systems['2019']
         if self.year == 2020:
             return all_systems['2020']
+        if self.year == 2021:
+            return all_systems['2021']
 
     def individual_points(self, individual):
         """Return the points for an individual in a playoff round"""

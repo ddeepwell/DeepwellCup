@@ -167,9 +167,7 @@ class Latex():
     @property
     def _number_of_series_in_round_per_conference(self):
         '''Return the number of series in a conference in the playoff round'''
-        if self.playoff_round in utils.selection_rounds_with_conference(self.year):
-            return self._number_of_series_in_round//2
-        return self._number_of_series_in_round
+        return self._number_of_series_in_round // len(self._round_selections.series)
 
     def _paperheight(self):
         """Define the paper height for the latex file"""
