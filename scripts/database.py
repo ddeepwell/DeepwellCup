@@ -75,7 +75,8 @@ class DataBaseOperations():
         series_data = self.get_year_round_series(year, playoff_round, conference, series_number)
 
         # get series and, shortened form of the teams in the series
-        series = series_data[['TeamHigherSeed','TeamLowerSeed']].values[0]
+        series_str = ','.join(series_data[['TeamHigherSeed','TeamLowerSeed']].values[0])
+        series = series_str.split(',')
         series_acronym = list(map(stn, series))
 
         if team_selection not in series:

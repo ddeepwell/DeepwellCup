@@ -442,20 +442,26 @@ f'''        Let $C$ be the correct number of games\\\\
                     for conference_series in self._series.values()
                     for series in conference_series]
 
-        higher_seed_line = "        "
-        lower_seed_line  = "        "
-        for higher_seed, lower_seed in series:
-            higher_counts = picks_per_team[ltn(higher_seed)] \
-                if ltn(higher_seed) in picks_per_team else 0
-            lower_counts = picks_per_team[ltn(lower_seed)] \
-                if ltn(lower_seed) in picks_per_team else 0
-            higher_seed_line += f'{higher_seed} & {higher_counts} & '
-            lower_seed_line  += f'{lower_seed} & {lower_counts } & '
+        def team_counts_string(team):
+            counts = picks_per_team[ltn(team)] \
+                    if ltn(team) in picks_per_team else 0
+            return f'{team} & {counts} & '
 
-        higher_seed_line = higher_seed_line[:-2]+"\\\\\n"
-        lower_seed_line  =  lower_seed_line[:-2]+"\\\\"
+        def team_counts_line(teams):
+            line = "        "
+            for team in teams:
+                line += team_counts_string(team)
+            return line[:-2]+r"\\"
 
-        return higher_seed_line + lower_seed_line
+        count_strings = [team_counts_line(teams) for teams in list(zip(*series))]
+        count_strings[0] = count_strings[0]+'\n'
+        if self.year == 2021 and self.playoff_round == 2:
+            count_strings[1] = count_strings[1]+'\n'
+            third_team = series[1][2]
+            count = picks_per_team[ltn(third_team)]
+            count_strings += [f"        & & {third_team} & {count} & & & &"+r'\\']
+
+        return ''.join(count_strings)
 
     def _counts_table_players(self):
         """Create the players counts for the counts table"""

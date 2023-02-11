@@ -94,6 +94,10 @@ class Insert():
                     [ltn(team) for team in series_name.split('-')] + players
                     for series_name, players  in zip(series_pair_list, players_list)
                 ]
+                if self.year == 2021 and self.playoff_round == 2:
+                    series_list_for_database = [
+                        item if len(item)==2 else [item[0],','.join(item[1:])] for item in series_list_for_database
+                    ]
                 db.add_year_round_series_for_conference(
                         self.year, self.playoff_round, conference, series_list_for_database)
                 db.add_series_selections_for_conference(

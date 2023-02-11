@@ -119,8 +119,7 @@ class Selections(DataFile):
         """Return the playoff round selections from the raw file"""
 
         data = read_csv(self.selections_file, sep=',')
-        series = [col for col in data.columns
-                        if bool(re.match(r"^[A-Z]{3}-[A-Z]{3}$", col))]
+        series = self._series_from_file()
         data.rename(columns={'Name:': 'Individual'}, inplace=True)
         data.rename(columns=dict(list(zip(series, [f'{ser}Team' for ser in series]))), inplace=True)
         if not keep_results:
@@ -275,13 +274,18 @@ class Selections(DataFile):
         data.rename(columns=new_names, inplace=True)
         return data
 
+    def _series_from_file(self):
+        """List the series without conference from file"""
+        data = read_csv(self.selections_file, sep=',')
+        # abbreviated series name
+        return [col for col in data.columns
+                if bool(re.match(r"^[A-Z]{3}-[A-Z]{3}$", col)) \
+                or bool(re.match(r"^[A-Z]{3}-[A-Z]{3}-[A-Z]{3}$", col))]
+
     def _conference_series_from_file(self):
         """Turn a list of series into a dictionary of series in each conference"""
 
-        data = read_csv(self.selections_file, sep=',')
-        # abbreviated series name
-        series = [col for col in data.columns
-                        if bool(re.match(r"^[A-Z]{3}-[A-Z]{3}$", col))]
+        series = self._series_from_file()
 
         def correct_conference(series: str, conference: str):
             """Boolean for correct conference of the teams"""
@@ -307,12 +311,11 @@ class Selections(DataFile):
             """Get the series name for a series number in a conference
             from the pandas table from the database"""
             # conference = conference if conference=="None" else f'"{conference}"'
-            return '-'.join(
-                list(map(stn, series_table.query(
+            series_str = ','.join(series_table.query(
                     f'Conference in ["{conference}"] and SeriesNumber=={series_number}'
-                )
-                [['TeamHigherSeed','TeamLowerSeed']].values[0]))
+                )[['TeamHigherSeed','TeamLowerSeed']].values[0]
             )
+            return '-'.join(map(stn, series_str.split(',')))
 
         return {conf:
             [series_name(conf, num) for num in range(1, num_series+1)]
