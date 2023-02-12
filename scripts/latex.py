@@ -493,14 +493,13 @@ f'''        Let $C$ be the correct number of games\\\\
         if not self._round_selections.overtime_selected:
             return ""
 
-        num_series = self._number_of_series_in_round
         picks_per_length = self._round_selections.selections_overtime.value_counts()
         lengths = ['0', '1', '2', '3', "More than 3"]
         length_line = "\n"
         for length in lengths:
             value = picks_per_length[length] if length in picks_per_length.index else 0
             vspace = r"\rule{0pt}{3.5ex}" if length == '0' else ""
-            length_line += f"        {vspace}{length} & {value} "+"& "*num_series+"\\\\\n"
+            length_line += f"        {vspace}{length} & {value}"+"\\\\\n"
         return length_line[:-3]
 
     def _correct_points_table(self):
