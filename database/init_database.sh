@@ -11,12 +11,12 @@ fi
 
 DATABASE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-$DATABASE_DIR/add_Individuals_table.sh $db_file
-$DATABASE_DIR/add_StanleyCupSelections_table.sh $db_file
-$DATABASE_DIR/add_StanleyCupResults_table.sh $db_file
-$DATABASE_DIR/add_Series_table.sh $db_file
-$DATABASE_DIR/add_SeriesSelections_table.sh $db_file
-$DATABASE_DIR/add_SeriesResults_table.sh $db_file
-$DATABASE_DIR/add_OtherPoints_table.sh $db_file
-$DATABASE_DIR/add_OvertimeSelections_table.sh $db_file
-$DATABASE_DIR/add_OvertimeResults_table.sh $db_file
+$DATABASE_DIR/add_table.sh $db_file $DATABASE_DIR/'Individuals'
+$DATABASE_DIR/add_table.sh $db_file $DATABASE_DIR/'StanleyCupSelections'
+$DATABASE_DIR/add_table.sh $db_file $DATABASE_DIR/'StanleyCupResults'
+$DATABASE_DIR/add_table.sh $db_file $DATABASE_DIR/'Series'
+$DATABASE_DIR/add_table.sh $db_file $DATABASE_DIR/'SeriesSelections'
+$DATABASE_DIR/add_table.sh $db_file $DATABASE_DIR/'SeriesResults'
+$DATABASE_DIR/add_table.sh $db_file $DATABASE_DIR/'OtherPoints'
+$DATABASE_DIR/add_table.sh $db_file $DATABASE_DIR/'OvertimeSelections'
+$DATABASE_DIR/add_table.sh $db_file $DATABASE_DIR/'OvertimeResults'

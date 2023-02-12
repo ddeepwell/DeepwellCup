@@ -35,3 +35,8 @@ def series_duration_options(playoff_round):
     if playoff_round == 'Q':
         return [3,4,5]
     return [4,5,6,7]
+
+def read_file_to_string(filename):
+    """Read entire file contents into a string"""
+    with open(filename, 'r') as file:
+        return file.read().replace('\n', '')

@@ -98,7 +98,7 @@ class DataBaseOperations():
         The name will be a pair of the first name and last initial'''
         return self.cursor.execute('SELECT FirstName, LastName FROM Individuals').fetchall()
 
-    def add_new_individual(self, first_name, last_name):
+    def add_new_individual(self, first_name, last_name, nickname=None):
         '''Add a new individual to the database'''
         if len(last_name) > 1:
             raise Exception('Last name must be only 1 character long')
@@ -107,8 +107,8 @@ class DataBaseOperations():
         else:
             self.cursor.executemany(\
                 'INSERT INTO Individuals('\
-                'FirstName, LastName) '\
-                'VALUES (?,?)', [(first_name, last_name)])
+                'FirstName, LastName, Nickname) '\
+                'VALUES (?,?,?)', [(first_name, last_name, nickname)])
             self.conn.commit()
 
     def _get_individual_id(self, first_name, last_name):

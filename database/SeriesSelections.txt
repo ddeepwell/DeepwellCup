@@ -1,9 +1,4 @@
-#!/bin/bash
-
-db_file=$1
-
-sqlite3 $db_file \
-"CREATE TABLE SeriesSelections (
+CREATE TABLE SeriesSelections (
     YearRoundSeriesID INTEGER      REFERENCES Series (YearRoundSeriesID) 
                                    NOT NULL,
     IndividualID      INTEGER      REFERENCES Individuals (IndividualID) 
@@ -15,4 +10,4 @@ sqlite3 $db_file \
         YearRoundSeriesID,
         IndividualID
     )
-);"
+);

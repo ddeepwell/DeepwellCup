@@ -1,9 +1,4 @@
-#!/bin/bash
-
-db_file=$1
-
-sqlite3 $db_file \
-"CREATE TABLE StanleyCupSelections (
+CREATE TABLE StanleyCupSelections (
     IndividualID        INTEGER      REFERENCES Individuals (IndividualID) 
                                      NOT NULL,
     Year                INTEGER      NOT NULL,
@@ -15,4 +10,4 @@ sqlite3 $db_file \
         IndividualID,
         Year
     )
-);"
+);

@@ -1,9 +1,4 @@
-#!/bin/bash
-
-db_file=$1
-
-sqlite3 $db_file \
-"CREATE TABLE SeriesResults (
+CREATE TABLE SeriesResults (
     YearRoundSeriesID INTEGER      UNIQUE
                                    REFERENCES SeriesSelections (YearRoundSeriesID) 
                                    PRIMARY KEY
@@ -11,4 +6,4 @@ sqlite3 $db_file \
     Winner            VARCHAR (40) NOT NULL,
     Games             INTEGER (1)  NOT NULL,
     Player            VARCHAR (40) 
-);"
+);

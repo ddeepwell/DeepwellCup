@@ -2,6 +2,7 @@
 import sqlite3
 import pytest
 from scripts.database import DataBaseOperations
+from scripts import utils
 
 temp_file = "file:memfile?mode=memory&cache=shared"
 
@@ -15,17 +16,14 @@ def open_database():
 def create_individuals_table(open_database):
     '''Create and populate the individuals table'''
     cursor = open_database
-    cursor.execute('''
-        CREATE TABLE Individuals 
-        (IndividualID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL, 
-        FirstName VARCHAR (20) NOT NULL, 
-        LastName VARCHAR (20) NOT NULL)''')
+    sql_command = utils.read_file_to_string('database/Individuals.txt')
+    cursor.execute(sql_command)
     sample_individual_data = [
-        ('David','D'),
-        ('Michael','D')
+        ('David', 'D', None),
+        ('Michael', 'D', None)
     ]
-    cursor.executemany('INSERT INTO Individuals(FirstName, LastName) '\
-        'VALUES (?,?)', sample_individual_data)
+    cursor.executemany('INSERT INTO Individuals(FirstName, LastName, Nickname) '\
+        'VALUES (?,?,?)', sample_individual_data)
     cursor.commit()
     yield cursor
 
@@ -33,16 +31,8 @@ def create_individuals_table(open_database):
 def create_stanley_cup_selections_table(create_individuals_table):
     '''Create and populate the Stanley Cup table'''
     cursor = create_individuals_table
-    cursor.execute('''
-        CREATE TABLE StanleyCupSelections (
-            IndividualID INTEGER REFERENCES Individuals (IndividualID) NOT NULL,
-            Year INTEGER NOT NULL,
-            EastSelection VARCHAR (40),
-            WestSelection VARCHAR (40),
-            StanleyCupSelection VARCHAR (40),
-            GameSelection INTEGER,
-            PRIMARY KEY (IndividualID, Year)
-        )''')
+    sql_command = utils.read_file_to_string('database/StanleyCupSelections.txt')
+    cursor.execute(sql_command)
     sample_stanley_cup_data = [
         ('1','2011','Boston Bruins','Vancouver Canucks','Toronto Maple Leafs',6),
         ('2','2011','Tampa Bay Lightning','Vancouver Canucks','Vancouver Canucks',5)
@@ -56,14 +46,8 @@ def create_stanley_cup_selections_table(create_individuals_table):
 def create_stanley_cup_results_table(create_stanley_cup_selections_table):
     '''Create and populate the Stanley Cup table'''
     cursor = create_stanley_cup_selections_table
-    cursor.execute('''
-        CREATE TABLE StanleyCupResults (
-            Year INT (4) PRIMARY KEY UNIQUE NOT NULL,
-            EastWinner VARCHAR (40) NOT NULL,
-            WestWinner VARCHAR (40) NOT NULL,
-            StanleyCupWinner VARCHAR (40),
-            Games INT (1)
-        )''')
+    sql_command = utils.read_file_to_string('database/StanleyCupResults.txt')
+    cursor.execute(sql_command)
     sample_stanley_cup_data = [
         ('2011','Boston Bruins','Vancouver Canucks','Toronto Maple Leafs',None)]
     cursor.executemany('INSERT INTO StanleyCupResults '\
@@ -75,18 +59,8 @@ def create_stanley_cup_results_table(create_stanley_cup_selections_table):
 def create_series_table(create_stanley_cup_results_table):
     '''Create and populate the Series table'''
     cursor = create_stanley_cup_results_table
-    cursor.execute('''
-        CREATE TABLE Series (
-            YearRoundSeriesID INTEGER PRIMARY KEY UNIQUE NOT NULL,
-            Year INTEGER (4) NOT NULL,
-            Round INTEGER (1) NOT NULL,
-            Conference CHAR (4),
-            SeriesNumber INTEGER (1) NOT NULL,
-            TeamHigherSeed VARCHAR (40) NOT NULL,
-            TeamLowerSeed VARCHAR (40) NOT NULL,
-            PlayerHigherSeed VARCHAR (40),
-            PlayerLowerSeed VARCHAR (40)
-        )''')
+    sql_command = utils.read_file_to_string('database/Series.txt')
+    cursor.execute(sql_command)
     series_data = [
         (2020,1,'East',1,'Toronto Maple Leafs','Carolina Hurricanes',None,None),
         (2020,2,'East',1,'Toronto Maple Leafs','Boston Bruins','John Tavares','Brad Marchand')]
@@ -102,15 +76,8 @@ def create_series_table(create_stanley_cup_results_table):
 def create_series_selections_table(create_series_table):
     '''Create and populate the SeriesSelections table'''
     cursor = create_series_table
-    cursor.execute('''
-        CREATE TABLE SeriesSelections (
-            YearRoundSeriesID INTEGER REFERENCES Series (YearRoundSeriesID) NOT NULL,
-            IndividualID INTEGER REFERENCES Individuals (IndividualID) NOT NULL,
-            TeamSelection VARCHAR (40) NOT NULL,
-            GameSelection INTEGER (1),
-            PlayerSelection VARCHAR (40),
-            PRIMARY KEY (YearRoundSeriesID, IndividualID)
-        )''')
+    sql_command = utils.read_file_to_string('database/SeriesSelections.txt')
+    cursor.execute(sql_command)
     series_data = [(1,1,'Toronto Maple Leafs',5,None)]
     cursor.executemany('INSERT INTO SeriesSelections VALUES (?,?,?,?,?)', series_data)
     cursor.commit()
@@ -120,14 +87,8 @@ def create_series_selections_table(create_series_table):
 def create_series_results_table(create_series_selections_table):
     '''Create and populate the SeriesResults table'''
     cursor = create_series_selections_table
-    cursor.execute('''
-        CREATE TABLE SeriesResults (
-            YearRoundSeriesID INTEGER UNIQUE REFERENCES SeriesResults
-            (YearRoundSeriesID) PRIMARY KEY NOT NULL,
-            Winner VARCHAR (40) NOT NULL,
-            Games INTEGER (1) NOT NULL,
-            Player VARCHAR (40)
-        )''')
+    sql_command = utils.read_file_to_string('database/SeriesResults.txt')
+    cursor.execute(sql_command)
     series_data = [(1,'Toronto Maple Leafs',6,None)]
     cursor.executemany('INSERT INTO SeriesResults VALUES (?,?,?,?)', series_data)
     cursor.commit()

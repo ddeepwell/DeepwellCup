@@ -10,7 +10,7 @@ class Settings:
     def __init__(self):
         self.test_data_dir = project_directory()/'tests/data'
         self.nonempty_database = self.test_data_dir/'other_points_nonempty.db'
-        self.empty_database = self.test_data_dir/'other_points_empty.db'
+        self.empty_database = self.test_data_dir/'empty.db'
         self.year = 2009
 
 @pytest.fixture(scope="session")
