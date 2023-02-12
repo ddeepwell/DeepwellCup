@@ -171,9 +171,9 @@ class Latex():
 
     def _paperheight(self):
         """Define the paper height for the latex file"""
-        if len(self.individuals) < 18:
+        if len(self.individuals) < 17:
             return ""
-        return f",paperheight={len(self.individuals)-3}in"
+        return f",paperheight={len(self.individuals)-2}in"
 
     def _make_main_table(self):
         """Create the main table"""
