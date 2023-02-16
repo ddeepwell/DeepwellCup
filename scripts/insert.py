@@ -70,6 +70,8 @@ class Insert():
 
         with self.database as db:
             self.add_missing_individuals(individuals, db)
+            if self.round_selections.nicknames:
+                self.add_nicknames(db)
 
             for conference in sorted(set(selections.index.get_level_values(1))):
                 series_pair_list = series[conference]
@@ -191,6 +193,13 @@ class Insert():
         new_individuals = sorted(list(set(individuals) - set(existing_individuals)))
         for individual in new_individuals:
             self.database.add_new_individual(*utils.split_name(individual))
+
+    def add_nicknames(self, db):
+        """Add Nicknames to the database"""
+        for individual, nickname in self.round_selections.nicknames.items():
+            db.add_nickname_in_series(
+                self.year, self.playoff_round,
+                *utils.split_name(individual), nickname)
 
     def _convert_to_int(self, obj):
         """Convert all instances of numpy.int64 to int"""

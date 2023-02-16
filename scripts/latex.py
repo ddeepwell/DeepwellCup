@@ -202,6 +202,16 @@ class Latex():
             else:
                 column_header += f"&  \\mcc{{{individual}}}"
         column_header += r" \\\thickline"
+        if self._round_selections.nicknames:
+            column_header = column_header[:-10]+'\n'
+            for index, individual in enumerate(self.individuals):
+                value = self._round_selections.nicknames[individual]
+                nickname = value if value is not None else ""
+                if index % 2 == 0:
+                    column_header += f"&  \\mccg{{{nickname}}}"
+                else:
+                    column_header += f"&  \\mcc{{{nickname}}}"
+            column_header += r" \\\thickline"
 
         round_table = ''
         for conference in self._series:

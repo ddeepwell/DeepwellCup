@@ -98,7 +98,7 @@ class DataBaseOperations():
         The name will be a pair of the first name and last initial'''
         return self.cursor.execute('SELECT FirstName, LastName FROM Individuals').fetchall()
 
-    def add_new_individual(self, first_name, last_name, nickname=None):
+    def add_new_individual(self, first_name, last_name):
         '''Add a new individual to the database'''
         if len(last_name) > 1:
             raise Exception('Last name must be only 1 character long')
@@ -107,8 +107,8 @@ class DataBaseOperations():
         else:
             self.cursor.executemany(\
                 'INSERT INTO Individuals('\
-                'FirstName, LastName, Nickname) '\
-                'VALUES (?,?,?)', [(first_name, last_name, nickname)])
+                'FirstName, LastName) '\
+                'VALUES (?,?)', [(first_name, last_name)])
             self.conn.commit()
 
     def _get_individual_id(self, first_name, last_name):
@@ -508,6 +508,56 @@ class DataBaseOperations():
                 AND Round="{playoff_round}"''',
                 self.conn)
         return None if overtime_data.empty else str(overtime_data['Overtime'][0])
+
+    def add_nickname_in_series(self,
+            year, playoff_round,
+            first_name, last_name, nickname):
+        '''Add an individuals nickname in a series to the database'''
+        # checks on inputs
+        check_if_year_is_valid(year)
+        self.check_playoff_round(year, playoff_round)
+
+        individual_id = self._get_individual_id(first_name, last_name)
+
+        series_data = [(year, playoff_round, individual_id, nickname)]
+        self.cursor.executemany(\
+            'INSERT INTO Nicknames '\
+            'VALUES (?,?,?,?)',\
+            series_data)
+        self.conn.commit()
+
+    def get_nickname_in_series(self, year, playoff_round,
+            first_name, last_name):
+        '''Return the nickname for an individual for a series'''
+        check_if_year_is_valid(year)
+        self.check_playoff_round(year, playoff_round)
+        individual_id = self._get_individual_id(first_name, last_name)
+        series_data = read_sql_query(
+                'SELECT * FROM Nicknames '\
+                f'WHERE Year={year} '\
+                f'AND Round={playoff_round} '\
+                f'AND IndividualID={individual_id}', self.conn)
+        return series_data['Nickname'][0]
+
+    def get_all_round_nicknames(self, year, playoff_round):
+        '''Return all the nicknames for a playoff round in a pandas dataframe'''
+        check_if_year_is_valid(year)
+        series_data = read_sql_query(f'''
+            SELECT Ind.FirstName, Ind.LastName,
+                NN.Nickname
+            FROM Individuals as Ind
+            LEFT JOIN Nicknames as NN
+            ON Ind.IndividualID = NN.IndividualID
+            WHERE NN.Year = {year}
+            AND NN.Round = "{playoff_round}"
+            ORDER BY FirstName, LastName
+            ''', self.conn)
+        series_data['Individual'] = \
+            (series_data['FirstName'] + ' ' + series_data['LastName']).apply(lambda x: x.strip())
+        series_data.set_index('Individual', inplace=True)
+        series_data.drop(['FirstName', 'LastName'], axis='columns', inplace=True)
+        nicknames = series_data.squeeze().sort_index().to_dict()
+        return nicknames if nicknames else None
 
 def check_if_year_is_valid(year):
     '''Check if the year is valid'''

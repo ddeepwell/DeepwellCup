@@ -3,6 +3,5 @@ CREATE TABLE Individuals (
                               UNIQUE
                               NOT NULL,
     FirstName    VARCHAR (20) NOT NULL,
-    LastName     VARCHAR (20) NOT NULL,
-    Nickname     VARCHAR (20)
+    LastName     VARCHAR (20) NOT NULL
 );

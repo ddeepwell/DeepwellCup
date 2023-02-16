@@ -46,6 +46,11 @@ class Selections(DataFile):
         return sorted(set(self.selections.index.get_level_values('Individual')))
 
     @property
+    def nicknames(self):
+        """The nicknames for individuals in the playoff round"""
+        return self._nicknames
+
+    @property
     def database(self):
         """The database"""
         return self._database
@@ -126,8 +131,14 @@ class Selections(DataFile):
             data = data[data.Individual != 'Results']
         data.drop(columns=['Timestamp'], inplace=True)
         if self.playoff_round == 1:
-            # drop champions data
-            data.drop(columns=data.columns[17:], inplace=True)
+            data.drop(columns=self._champions_headers(), inplace=True)
+        if 'Nickname' in data.columns:
+            nicknames = data[['Individual','Nickname']]
+            nicknames = nicknames.set_index('Individual').squeeze().sort_index()
+            self._nicknames = nicknames.replace(to_replace=math.nan, value=None).to_dict()
+            data.drop(columns=['Nickname'], inplace=True)
+        else:
+            self._nicknames = None
 
         def get_conference(series: str):
             """The conference for the teams in the series"""
@@ -189,19 +200,7 @@ class Selections(DataFile):
         def select_conference_team(row, conference):
             """Return the team in the dataframe row for a particular conference"""
 
-            # need to fix this for the new archived years
-            if self.year == 2017:
-                champions_headers = [
-                    'Who will win the Stanley Cup?',
-                    'Who will be the Stanley Cup runner-up?'
-                ]
-            else:
-                champions_headers = [
-                    "Who will win the Western Conference?",
-                    "Who will win the Eastern Conference?",
-                    "Who will win the Stanley Cup?"
-                ]
-
+            champions_headers = self._champions_headers()
             if conference != 'Stanley Cup':
                 teams = row[champions_headers].values.tolist()
                 return teams[0] \
@@ -237,6 +236,7 @@ class Selections(DataFile):
         with self.database as db:
             data = db.get_all_round_selections(self.year, self.playoff_round)
             self._selections_overtime = db.get_overtime_selections(self.year, self.playoff_round)
+            self._nicknames = db.get_all_round_nicknames(self.year, self.playoff_round)
 
         num_individuals = len(data.index.unique())
         series_list = [subval for values in self.series.values() for subval in values]
@@ -328,3 +328,19 @@ class Selections(DataFile):
             return ["None"]
         if self.playoff_round in utils.selection_rounds_with_conference(self.year):
             return ['East', 'West']
+
+    def _champions_headers(self):
+        """List the headers for the champions picks in round 1"""
+        if self.year == 2017:
+            return [
+                'Who will win the Stanley Cup?',
+                'Who will be the Stanley Cup runner-up?'
+            ]
+        base_list = [
+            "Who will win the Western Conference?",
+            "Who will win the Eastern Conference?",
+            "Who will win the Stanley Cup?"
+        ]
+        if self.year in [2006, 2007, 2008]:
+            return base_list + ['Length of Stanley Cup Finals']
+        return base_list

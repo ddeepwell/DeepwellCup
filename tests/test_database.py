@@ -19,11 +19,11 @@ def create_individuals_table(open_database):
     sql_command = utils.read_file_to_string('database/Individuals.txt')
     cursor.execute(sql_command)
     sample_individual_data = [
-        ('David', 'D', None),
-        ('Michael', 'D', None)
+        ('David', 'D'),
+        ('Michael', 'D')
     ]
-    cursor.executemany('INSERT INTO Individuals(FirstName, LastName, Nickname) '\
-        'VALUES (?,?,?)', sample_individual_data)
+    cursor.executemany('INSERT INTO Individuals(FirstName, LastName) '\
+        'VALUES (?,?)', sample_individual_data)
     cursor.commit()
     yield cursor
 
@@ -95,9 +95,24 @@ def create_series_results_table(create_series_selections_table):
     yield cursor
 
 @pytest.fixture
-def temp_database(create_series_results_table):
-    '''Return the database class object'''
+def create_nicknames_table(create_series_results_table):
+    '''Create and populate the nicknames table'''
     cursor = create_series_results_table
+    sql_command = utils.read_file_to_string('database/Nicknames.txt')
+    cursor.execute(sql_command)
+    sample_individual_data = [
+        (1, 1, 'Davey'),
+        (1, 2, 'Mikey')
+    ]
+    cursor.executemany('INSERT INTO Nicknames(YearRoundSeriesID, IndividualID, Nickname) '\
+        'VALUES (?,?,?)', sample_individual_data)
+    cursor.commit()
+    yield cursor
+
+@pytest.fixture
+def temp_database(create_nicknames_table):
+    '''Return the database class object'''
+    cursor = create_nicknames_table
     yield DataBaseOperations(database=temp_file)
     cursor.close()
 
