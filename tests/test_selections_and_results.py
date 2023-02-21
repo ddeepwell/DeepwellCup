@@ -1,26 +1,149 @@
 """Tests for Selections class"""
-from pathlib import Path
 from contextlib import nullcontext as does_not_raise
 from pandas import DataFrame, Series
 import pytest
+from scripts.database import DataBaseOperations
 from scripts.selections import Selections
 from scripts.results import Results
 from scripts.directories import project_directory
 
 class Settings:
     """Test settings"""
-    def __init__(self):
+    def __init__(self, empty_database_conn, nonempty_database):
         self.test_data_dir = project_directory()/'tests/data'
-        self.full_database = self.test_data_dir/'test.db'
-        self.empty_database = self.test_data_dir/'empty.db'
+        self.empty_database = empty_database_conn
+        self.full_database = nonempty_database
         self.year = 2017
 
-@pytest.fixture(scope="session")
-def setup():
-    """General setup options"""
-    return Settings()
+@pytest.fixture(scope="module")
+def nonempty_database(nonempty_database_module_conn):
+    """Build a full database of selections"""
+    database = DataBaseOperations(database=nonempty_database_module_conn)
+    year = 2017
+    r1_series_east = [
+        ['Washington Capitals','Toronto Maple Leafs'],
+        ['Pittsburgh Penguins','Columbus Blue Jackets'],
+        ['Montreal Canadiens','New York Rangers'],
+        ['Ottawa Senators','Boston Bruins'],
+    ]
+    r1_series_west = [
+        ['Chicago Blackhawks','Nashville Predators'],
+        ['Minnesota Wild','St Louis Blues'],
+        ['Anaheim Ducks','Calgary Flames'],
+        ['Edmonton Oilers','San Jose Sharks'],
+    ]
+    r2_series_east = [
+        ['Ottawa Senators','New York Rangers'],
+        ['Washington Capitals','Pittsburgh Penguins'],
+    ]
+    r2_series_west = [
+        ['St Louis Blues','Nashville Predators'],
+        ['Anaheim Ducks', 'Edmonton Oilers'],
+    ]
+    r3_series_east = [['Pittsburgh Penguins','Ottawa Senators']]
+    r3_series_west = [['Anaheim Ducks','Nashville Predators']]
+    r4_series = [['Pittsburgh Penguins','Nashville Predators']]
+    r1_selections_east = [
+        ['Alita', 'D',
+            ['Washington Capitals',7],
+            ['Pittsburgh Penguins',6],
+            ['Montreal Canadiens',6],
+            ['Boston Bruins',5],
+        ]
+    ]
+    r1_selections_west = [
+        ['Alita', 'D',
+            ['Chicago Blackhawks',6],
+            ['Minnesota Wild',6],
+            ['Calgary Flames',7],
+            ['Edmonton Oilers',5],
+        ]
+    ]
+    r2_selections_east = [
+        ['Alita', 'D',
+            ['New York Rangers',5],
+            ['Washington Capitals',6],
+        ]
+    ]
+    r2_selections_west = [
+        ['Alita', 'D',
+            ['St Louis Blues',6],
+            ['Edmonton Oilers',7],
+        ]
+    ]
+    r3_selections_east = [
+        ['Alita', 'D',['Ottawa Senators',7],]
+    ]
+    r3_selections_west = [
+        ['Alita', 'D',['Nashville Predators',6],]
+    ]
+    r4_selections = [
+        ['Alita', 'D',['Pittsburgh Penguins',7],]
+    ]
+    stanley_cup_selections = [
+        ['Alita', 'D', 'Montreal Canadiens', 'Edmonton Oilers', 'Edmonton Oilers']
+    ]
+    r1_results_east = [
+        ['Washington Capitals',6],
+        ['Pittsburgh Penguins',5],
+        ['New York Rangers',6],
+        ['Ottawa Senators',6],
+    ]
+    r1_results_west = [
+        ['Nashville Predators',4],
+        ['St Louis Blues',5],
+        ['Anaheim Ducks',4],
+        ['Edmonton Oilers',6],
+    ]
+    r2_results_east = [
+        ['Ottawa Senators',6],
+        ['Pittsburgh Penguins',7],
+    ]
+    r2_results_west = [
+        ['Nashville Predators',6],
+        ['Anaheim Ducks',7],
+    ]
+    r3_results_east = [['Pittsburgh Penguins',7]]
+    r3_results_west = [['Nashville Predators',6]]
+    r4_results = [['Pittsburgh Penguins',6]]
+    stanley_cup_results = [
+        'Pittsburgh Penguins',
+        'Nashville Predators',
+        'Pittsburgh Penguins',
+    ]
+    with database as db:
+        db.add_new_individual('Alita', 'D')
+        db.add_year_round_series_for_conference(year, 1, "East", r1_series_east)
+        db.add_year_round_series_for_conference(year, 1, "West", r1_series_west)
+        db.add_year_round_series_for_conference(year, 2, "East", r2_series_east)
+        db.add_year_round_series_for_conference(year, 2, "West", r2_series_west)
+        db.add_year_round_series_for_conference(year, 3, "East", r3_series_east)
+        db.add_year_round_series_for_conference(year, 3, "West", r3_series_west)
+        db.add_year_round_series_for_conference(year, 4, "None", r4_series)
+        db.add_series_selections_for_conference(year, 1, 'East', r1_selections_east)
+        db.add_series_selections_for_conference(year, 1, 'West', r1_selections_west)
+        db.add_series_selections_for_conference(year, 2, 'East', r2_selections_east)
+        db.add_series_selections_for_conference(year, 2, 'West', r2_selections_west)
+        db.add_series_selections_for_conference(year, 3, 'East', r3_selections_east)
+        db.add_series_selections_for_conference(year, 3, 'West', r3_selections_west)
+        db.add_series_selections_for_conference(year, 4, 'None', r4_selections)
+        db.add_stanley_cup_selection_for_everyone(year, stanley_cup_selections)
+        db.add_series_results_for_conference(year, 1, "East", r1_results_east)
+        db.add_series_results_for_conference(year, 1, "West", r1_results_west)
+        db.add_series_results_for_conference(year, 2, "East", r2_results_east)
+        db.add_series_results_for_conference(year, 2, "West", r2_results_west)
+        db.add_series_results_for_conference(year, 3, "East", r3_results_east)
+        db.add_series_results_for_conference(year, 3, "West", r3_results_west)
+        db.add_series_results_for_conference(year, 4, "None", r4_results)
+        db.add_stanley_cup_results(year, *stanley_cup_results)
+    yield nonempty_database_module_conn
 
-@pytest.fixture(scope="function")
+@pytest.fixture
+def setup(empty_database_conn, nonempty_database):
+    """General setup options"""
+    return Settings(empty_database_conn, nonempty_database)
+
+@pytest.fixture
 def database(request, setup):
     """Database fixture"""
     if request.param == 'full':
@@ -28,34 +151,20 @@ def database(request, setup):
     elif request.param == 'empty':
         return setup.empty_database
 
-def test_database_path(setup):
-    """Test for database"""
-
-    sel = Selections(
-        setup.year,
-        playoff_round=1,
-        selections_directory=setup.test_data_dir,
-        database=str(setup.full_database)
-    )
-    assert Path(sel.database.path) == setup.full_database
-
 def test_individuals(setup):
     """Test for individuals"""
-
     sel = Selections(
-        setup.year,
+        year=setup.year,
         playoff_round=1,
         selections_directory=setup.test_data_dir,
-        database=str(setup.full_database)
+        database=setup.full_database
     )
-    expected_individuals = ['Alita D','Andre D','Michael D']
-
+    expected_individuals = ['Alita D']
     assert sel.individuals == expected_individuals
 
 @pytest.fixture
 def expected_series(playoff_round):
     """Return the expected series"""
-
     all_expected_series = {
         1: {
             'East': ['WSH-TOR', 'PIT-CBJ', 'MTL-NYR', 'OTT-BOS'],
@@ -84,20 +193,18 @@ def expected_series(playoff_round):
 )
 def test_series(playoff_round, expectation, database, expected_series, setup):
     """Test for series"""
-
     with expectation:
         sel = Selections(
             setup.year,
             playoff_round=playoff_round,
             selections_directory=setup.test_data_dir,
-            database=str(database)
+            database=database
         )
         assert expected_series == sel.series
 
 @pytest.fixture
 def expected_selections(playoff_round):
     """Return the expected selections"""
-
     all_expected_selections = {
         1: DataFrame(
             {
@@ -110,22 +217,6 @@ def expected_selections(playoff_round):
                     ('Alita D', 'West', 'MIN-STL'): 'Minnesota Wild',
                     ('Alita D', 'West', 'ANA-CGY'): 'Calgary Flames',
                     ('Alita D', 'West', 'EDM-SJS'): 'Edmonton Oilers',
-                    ('Andre D', 'East', 'WSH-TOR'): 'Washington Capitals',
-                    ('Andre D', 'East', 'PIT-CBJ'): 'Pittsburgh Penguins',
-                    ('Andre D', 'East', 'MTL-NYR'): 'New York Rangers',
-                    ('Andre D', 'East', 'OTT-BOS'): 'Boston Bruins',
-                    ('Andre D', 'West', 'CHI-NSH'): 'Chicago Blackhawks',
-                    ('Andre D', 'West', 'MIN-STL'): 'Minnesota Wild',
-                    ('Andre D', 'West', 'ANA-CGY'): 'Anaheim Ducks',
-                    ('Andre D', 'West', 'EDM-SJS'): 'Edmonton Oilers',
-                    ('Michael D', 'East', 'WSH-TOR'): 'Washington Capitals',
-                    ('Michael D', 'East', 'PIT-CBJ'): 'Pittsburgh Penguins',
-                    ('Michael D', 'East', 'MTL-NYR'): 'Montreal Canadiens',
-                    ('Michael D', 'East', 'OTT-BOS'): 'Boston Bruins',
-                    ('Michael D', 'West', 'CHI-NSH'): 'Chicago Blackhawks',
-                    ('Michael D', 'West', 'MIN-STL'): 'Minnesota Wild',
-                    ('Michael D', 'West', 'ANA-CGY'): 'Anaheim Ducks',
-                    ('Michael D', 'West', 'EDM-SJS'): 'Edmonton Oilers'
                 },
                 'Duration': {
                     ('Alita D', 'East', 'WSH-TOR'): 7,
@@ -136,22 +227,6 @@ def expected_selections(playoff_round):
                     ('Alita D', 'West', 'MIN-STL'): 6,
                     ('Alita D', 'West', 'ANA-CGY'): 7,
                     ('Alita D', 'West', 'EDM-SJS'): 5,
-                    ('Andre D', 'East', 'WSH-TOR'): 5,
-                    ('Andre D', 'East', 'PIT-CBJ'): 7,
-                    ('Andre D', 'East', 'MTL-NYR'): 6,
-                    ('Andre D', 'East', 'OTT-BOS'): 6,
-                    ('Andre D', 'West', 'CHI-NSH'): 5,
-                    ('Andre D', 'West', 'MIN-STL'): 5,
-                    ('Andre D', 'West', 'ANA-CGY'): 6,
-                    ('Andre D', 'West', 'EDM-SJS'): 7,
-                    ('Michael D', 'East', 'WSH-TOR'): 5,
-                    ('Michael D', 'East', 'PIT-CBJ'): 6,
-                    ('Michael D', 'East', 'MTL-NYR'): 6,
-                    ('Michael D', 'East', 'OTT-BOS'): 7,
-                    ('Michael D', 'West', 'CHI-NSH'): 6,
-                    ('Michael D', 'West', 'MIN-STL'): 6,
-                    ('Michael D', 'West', 'ANA-CGY'): 6,
-                    ('Michael D', 'West', 'EDM-SJS'): 6
                 },
             }
         ),
@@ -162,28 +237,12 @@ def expected_selections(playoff_round):
                     ('Alita D', 'East', 'WSH-PIT'): 'Washington Capitals',
                     ('Alita D', 'West', 'STL-NSH'): 'St Louis Blues',
                     ('Alita D', 'West', 'ANA-EDM'): 'Edmonton Oilers',
-                    ('Brian M', 'East', 'OTT-NYR'): 'Ottawa Senators',
-                    ('Brian M', 'East', 'WSH-PIT'): 'Pittsburgh Penguins',
-                    ('Brian M', 'West', 'STL-NSH'): 'Nashville Predators',
-                    ('Brian M', 'West', 'ANA-EDM'): 'Anaheim Ducks',
-                    ('Jackson L', 'East', 'OTT-NYR'): 'Ottawa Senators',
-                    ('Jackson L', 'East', 'WSH-PIT'): 'Pittsburgh Penguins',
-                    ('Jackson L', 'West', 'STL-NSH'): 'Nashville Predators',
-                    ('Jackson L', 'West', 'ANA-EDM'): 'Edmonton Oilers'
                 },
                 'Duration': {
                     ('Alita D', 'East', 'OTT-NYR'): 5,
                     ('Alita D', 'East', 'WSH-PIT'): 6,
                     ('Alita D', 'West', 'STL-NSH'): 6,
                     ('Alita D', 'West', 'ANA-EDM'): 7,
-                    ('Brian M', 'East', 'OTT-NYR'): 7,
-                    ('Brian M', 'East', 'WSH-PIT'): 5,
-                    ('Brian M', 'West', 'STL-NSH'): 6,
-                    ('Brian M', 'West', 'ANA-EDM'): 6,
-                    ('Jackson L', 'East', 'OTT-NYR'): 6,
-                    ('Jackson L', 'East', 'WSH-PIT'): 6,
-                    ('Jackson L', 'West', 'STL-NSH'): 6,
-                    ('Jackson L', 'West', 'ANA-EDM'): 6
                 },
             }
         ),
@@ -192,18 +251,10 @@ def expected_selections(playoff_round):
                 'Team': {
                     ('Alita D', 'East', 'PIT-OTT'): 'Ottawa Senators',
                     ('Alita D', 'West', 'ANA-NSH'): 'Nashville Predators',
-                    ('Kyle L', 'East', 'PIT-OTT'): 'Ottawa Senators',
-                    ('Kyle L', 'West', 'ANA-NSH'): 'Anaheim Ducks',
-                    ('Michael D', 'East', 'PIT-OTT'): 'Ottawa Senators',
-                    ('Michael D', 'West', 'ANA-NSH'): 'Anaheim Ducks'
                 },
                 'Duration': {
                     ('Alita D', 'East', 'PIT-OTT'): 7,
                     ('Alita D', 'West', 'ANA-NSH'): 6,
-                    ('Kyle L', 'East', 'PIT-OTT'): 7,
-                    ('Kyle L', 'West', 'ANA-NSH'): 6,
-                    ('Michael D', 'East', 'PIT-OTT'): 6,
-                    ('Michael D', 'West', 'ANA-NSH'): 6
                 },
             }
         ),
@@ -211,40 +262,18 @@ def expected_selections(playoff_round):
             {
                 'Team': {
                     ('Alita D', 'None', 'PIT-NSH'): 'Pittsburgh Penguins',
-                    ('David D', 'None', 'PIT-NSH'): 'Nashville Predators',
-                    ('Jackson L', 'None', 'PIT-NSH'): 'Nashville Predators',
-                    ('Josh H', 'None', 'PIT-NSH'): 'Nashville Predators'
                 },
                 'Duration': {
                     ('Alita D', 'None', 'PIT-NSH'): 7,
-                    ('David D', 'None', 'PIT-NSH'): 7,
-                    ('Jackson L', 'None', 'PIT-NSH'): 5,
-                    ('Josh H', 'None', 'PIT-NSH'): 6
                 },
             }
         ),
         'Champions': DataFrame(
             {
-                'East': {
-                    'Alita D': 'Montreal Canadiens',
-                    'Andre D': 'Washington Capitals',
-                    'Michael D': 'Pittsburgh Penguins'
-                },
-                'West': {
-                    'Alita D': 'Edmonton Oilers',
-                    'Andre D': 'Chicago Blackhawks',
-                    'Michael D': 'Chicago Blackhawks'
-                },
-                'Stanley Cup': {
-                    'Alita D': 'Edmonton Oilers',
-                    'Andre D': 'Washington Capitals',
-                    'Michael D': 'Pittsburgh Penguins'
-                },
-                'Duration': {
-                    'Alita D': None,
-                    'Andre D': None,
-                    'Michael D': None
-                }
+                'East': {'Alita D': 'Montreal Canadiens',},
+                'West': {'Alita D': 'Edmonton Oilers',},
+                'Stanley Cup': {'Alita D': 'Edmonton Oilers',},
+                'Duration': {'Alita D': None,}
             }
         ),
     }
@@ -257,19 +286,17 @@ def expected_selections(playoff_round):
 @pytest.mark.parametrize("playoff_round", [1,2,3,4,'Champions'])
 def test_selections(playoff_round, database, expected_selections, setup):
     """Test for selections in playoff rounds"""
-
     sel = Selections(
         setup.year,
         playoff_round=playoff_round,
         selections_directory=setup.test_data_dir,
-        database=str(database)
+        database=database
     )
     assert expected_selections.equals(sel.selections)
 
 @pytest.fixture
 def expected_results(playoff_round):
     """Return the expected results"""
-
     all_expected_results = {
         1: DataFrame(
             {
@@ -347,11 +374,10 @@ def expected_results(playoff_round):
 @pytest.mark.parametrize("playoff_round", [1,2,3,4,'Champions'])
 def test_results(playoff_round, database, expected_results, setup):
     """Test for results in playoff rounds"""
-
     res = Results(
         setup.year,
         playoff_round=playoff_round,
         selections_directory=setup.test_data_dir,
-        database=str(database)
+        database=database
     )
     assert expected_results.equals(res.results)

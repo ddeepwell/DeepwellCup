@@ -14,13 +14,17 @@ class DataBaseOperations():
     '''Class for functions to work with the database'''
 
     def __init__(self, database='database/DeepwellCup.db'):
-        if database[0] != '/' and database[:5] != 'file:':
-            database_path = project_directory()/database
-        else:
-            database_path = database
-        self.path = database_path
+        self._in_memory_database = False
         self.conn = None
         self.cursor = None
+        if isinstance(database, sqlite3.Connection):
+            self._in_memory_database = database
+            database_path = 'memory'
+        elif database[0] == '/':
+            database_path = database
+        else:
+            database_path = project_directory()/database
+        self.path = database_path
 
     def __enter__(self):
         self.conn = self._connect()
@@ -28,10 +32,13 @@ class DataBaseOperations():
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        self.conn.close()
+        if not self._in_memory_database:
+            self.conn.close()
 
     def _connect(self):
-        if not os.path.exists(self.path) and self.path != "file:memfile?mode=memory&cache=shared":
+        if self._in_memory_database:
+            return self._in_memory_database
+        if not os.path.exists(self.path):
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), self.path)
         try:
             return sqlite3.connect(self.path, uri=True)

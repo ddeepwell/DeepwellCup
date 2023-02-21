@@ -5,17 +5,17 @@ from scripts.directories import project_directory
 
 class Settings:
     """Test settings"""
-    def __init__(self):
+    def __init__(self, database_conn):
         self.test_data_dir = project_directory()/'tests/data'
         self.tables_dir = project_directory()/'tables'
-        self.full_database = self.test_data_dir/'test.db'
-        # self.empty_database = self.test_data_dir/'empty.db'
+        self.full_database = database_conn
         self.year = 2017
 
-@pytest.fixture(scope="session")
-def setup():
+
+@pytest.fixture
+def setup(empty_database_conn):
     """General setup options"""
-    return Settings()
+    return Settings(empty_database_conn)
 
 def test_year(setup):
     """Test for year"""
@@ -24,7 +24,7 @@ def test_year(setup):
         year=year,
         playoff_round=1,
         selections_directory=setup.test_data_dir,
-        database=str(setup.full_database)
+        database=setup.full_database
     )
     assert tables.year == year
 
@@ -35,7 +35,7 @@ def test_playoff_round(setup):
         year=2017,
         playoff_round=playoff_round,
         selections_directory=setup.test_data_dir,
-        database=str(setup.full_database)
+        database=setup.full_database
     )
     assert tables.playoff_round == playoff_round
 
@@ -47,7 +47,7 @@ def test_playoff_round_latex_file(setup):
         year=year,
         playoff_round=playoff_round,
         selections_directory=setup.test_data_dir,
-        database=str(setup.full_database)
+        database=setup.full_database
     )
     expected_result = setup.tables_dir / f"{year}/round{playoff_round}.tex"
     assert tables.latex_file == expected_result
