@@ -1,0 +1,112 @@
+
+%----------------------------------------------------------------------------------------
+%	Settings and packages
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt]{article}
+
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{ctable}
+\usepackage{float}
+\usepackage[landscape,margin=0.25in,legalpaper]{geometry}
+
+\newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
+\newcommand{\mccn}[2]{\multicolumn{#1}{c}{#2}}
+\newcommand{\mcl}[1]{\multicolumn{2}{l}{#1}}
+\newcommand{\mclg}[1]{\multicolumn{2}{l}{\gr #1}}
+\newcommand{\mcc}[1]{\multicolumn{2}{c}{#1}}
+\newcommand{\mccg}[1]{\multicolumn{2}{c}{\gr #1}}
+\newcommand{\mr}[1]{\multirow{-2}{*}{#1}}
+\definecolor{Gray}{gray}{0.90}
+\newcommand{\gr}{\cellcolor{Gray}}
+
+\newcommand{\thickline}{\specialrule{.1em}{.05em}{.05em}}
+
+\setlength\parindent{0pt}
+
+% column colours
+\newcolumntype{g}{>{\columncolor{Gray}}l}
+\newcolumntype{w}{>{\columncolor{white}}l}
+
+%----------------------------------------------------------------------------------------
+%	Table
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\thispagestyle{empty}
+{\bf 2022 Deepwell Cup}
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w g g w w g g w w g g}
+        \rowcolor{black}\mcn{31}{\color{white}\bf Round 3: Conference Finals} \\
+        \rowcolor{white}\\
+        &  \mccg{Andre D}&  \mcc{Andrew N}&  \mccg{Anthony C}&  \mcc{Brad V}&  \mccg{Brian M}&  \mcc{David D}&  \mccg{Jackson L}&  \mcc{Jeremy B}&  \mccg{Jonathan M}&  \mcc{Josh H}&  \mccg{Kollin H}&  \mcc{Kyle L}&  \mccg{Levi N}&  \mcc{Nathan S}&  \mccg{Tim S} \\
+&  \mccg{}&  \mcc{}&  \mccg{}&  \mcc{}&  \mccg{}&  \mcc{}&  \mccg{}&  \mcc{}&  \mccg{}&  \mcc{}&  \mccg{}&  \mcc{}&  \mccg{}&  \mcc{}&  \mccg{} \\\thickline
+        {\bf East} &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\\hline
+          NYR&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\
+          TBL & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{5} & \mr{TBL} & \mr{6} & \mr{NYR} & \mr{6} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{5} & \mr{TBL} & \mr{6} & \mr{NYR} & \mr{6} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{5} & \mr{NYR} & \mr{6} & \mr{NYR} & \mr{7}\\\hline
+          &&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \\
+        {\bf West} &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\\hline
+          COL&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\
+          EDM & \mr{COL} & \mr{7} & \mr{COL} & \mr{6} & \mr{EDM} & \mr{6} & \mr{COL} & \mr{6} & \mr{COL} & \mr{6} & \mr{COL} & \mr{6} & \mr{COL} & \mr{6} & \mr{COL} & \mr{6} & \mr{EDM} & \mr{7} & \mr{EDM} & \mr{7} & \mr{COL} & \mr{6} & \mr{EDM} & \mr{7} & \mr{COL} & \mr{6} & \mr{EDM} & \mr{6} & \mr{EDM} & \mr{6}\\\hline
+          \rowcolor{white}\\
+        \rowcolor{black} \mcn{31}{\color{white}\bf Conference Champions} \\
+          Eastern & \mclg{CAR} & \mcl{FLA} & \mclg{FLA} & \mcl{FLA} & \mclg{FLA} & \mcl{CAR} & \mclg{TBL} & \mcl{FLA} & \mclg{FLA} & \mcl{FLA} & \mclg{FLA} & \mcl{TOR} & \mclg{TOR} & \mcl{FLA} & \mclg{NYR}\\
+          Western & \mclg{CGY} & \mcl{COL} & \mclg{COL} & \mcl{CGY} & \mclg{CGY} & \mcl{MIN} & \mclg{COL} & \mcl{CGY} & \mclg{CGY} & \mcl{MIN} & \mclg{STL} & \mcl{CGY} & \mclg{CGY} & \mcl{COL} & \mclg{EDM}\\
+          Stanley Cup & \mclg{COL} & \mcl{COL} & \mclg{COL} & \mcl{FLA} & \mclg{FLA} & \mcl{CAR} & \mclg{FLA} & \mcl{FLA} & \mclg{FLA} & \mcl{COL} & \mclg{STL} & \mcl{CGY} & \mclg{CGY} & \mcl{COL} & \mclg{EDM}
+    \end{tabular}
+\end{table}
+
+{\bf Points}\\
+\begin{minipage}{10cm}
+    \begin{tabular}{l l}
+        Let $C$ be the correct number of games\\
+        Let $P$ be the predicted number of games\\
+        If correct team chosen:	   & $15 - 2 \left|{C - P}\right|$\\
+        if incorrect team chosen:  & $C + P - 8$\\
+        Stanley Cup champion:	& 15\\
+        Stanley Cup finalist:	& 15\\
+    \end{tabular}
+
+    \vspace{0.5cm}
+    {\bf Number of picks:}\\
+    \begin{tabular}{lc | lc }
+        NYR & 4 & COL & 9 \\
+        TBL & 11 & EDM & 6 \\
+    \end{tabular}
+\end{minipage}
+\begin{minipage}[t!]{4cm}
+    \vspace{-2cm}
+    \qquad Correct team Points\\
+    \begin{tabular}{c l | c c c c }
+        \mccn{2}{} & \mccn{4}{Predicted}\\
+        & & 4 & 5 & 6 & 7\\\cline{2-6}
+        \parbox[t]{2mm}{\multirow{4}{*}{\rotatebox[origin=c]{90}{Correct}}} & 4 & 15 & 13 & 11 & 9\\
+        & 5 & 13 & 15 & 13 & 11\\
+        & 6 & 11 & 13 & 15 & 13\\
+        & 7 & 9 & 11 & 13 & 15
+    \end{tabular}
+\end{minipage}
+\begin{minipage}[t!]{4cm}
+    \vspace{-2cm}
+    \qquad Incorrect team Points\\
+    \begin{tabular}{c l | c c c c }
+        \mccn{2}{} & \mccn{4}{Predicted}\\
+        & & 4 & 5 & 6 & 7\\\cline{2-6}
+        \parbox[t]{2mm}{\multirow{4}{*}{\rotatebox[origin=c]{90}{Correct}}} & 4 & 0 & 1 & 2 & 3\\
+        & 5 & 1 & 2 & 3 & 4\\
+        & 6 & 2 & 3 & 4 & 5\\
+        & 7 & 3 & 4 & 5 & 6
+    \end{tabular}
+\end{minipage}
+\begin{minipage}[t]{13cm}
+    \begin{figure}[H]
+        \vspace{-3.5cm}
+        \includegraphics[width=12cm]{../../figures/2022/Points-2022-Round2.pdf}
+    \end{figure}
+\end{minipage}
+
+\end{document}
