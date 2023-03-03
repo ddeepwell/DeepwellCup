@@ -201,17 +201,24 @@ class DataBaseOperations():
             stanley_cup_data)
         self.conn.commit()
 
+    def get_all_stanley_cup_selections(self):
+        """Return all Stanley Cup picks in a pandas dataframe"""
+        selections = read_sql_query(
+            'SELECT * FROM StanleyCupSelections', self.conn)
+        individuals = selections.loc[:,'IndividualID'].apply(self._get_individual_from_id)
+        selections.drop(['IndividualID'], axis='columns', inplace=True)
+        selections.insert(0,'Individual', individuals)
+        selections.set_index('Individual', inplace=True)
+        return selections
+
     def get_stanley_cup_selections(self, year):
         '''Return the Stanley Cup picks for the requested year
         in a pandas dataframe'''
         check_if_year_is_valid(year)
-        sc_selections = read_sql_query(
-                f'SELECT * FROM StanleyCupSelections WHERE Year={year}', self.conn)
-        individuals = sc_selections.loc[:,'IndividualID'].apply(self._get_individual_from_id)
-        sc_selections.drop(['Year','IndividualID'], axis='columns', inplace=True)
-        sc_selections.insert(0,'Individual', individuals)
-        sc_selections.set_index('Individual', inplace=True)
-        return sc_selections
+        all_selections = self.get_all_stanley_cup_selections()
+        year_selections = all_selections[all_selections['Year']==year]
+        year_selections.drop(['Year'], axis='columns', inplace=True)
+        return year_selections
 
     def get_stanley_cup_results(self, year):
         '''Return the Stanley Cup results for the requested year
