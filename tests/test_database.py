@@ -144,6 +144,26 @@ class TestDatabase:
             with individuals_database as db:
                 db._get_individual_from_id(3)
 
+    def test_get_all_stanley_cup_selections(self, stanley_cup_database):
+        '''a test'''
+        with stanley_cup_database as db:
+            received = db.get_all_stanley_cup_selections()
+        data = {
+            'EastSelection': ['Boston Bruins', 'Tampa Bay Lightning'],
+            'WestSelection': ['San Jose Sharks', 'Vancouver Canucks'],
+            'StanleyCupSelection': ['Toronto Maple Leafs', 'Vancouver Canucks'],
+            'GameSelection': [None, None]
+        }
+        index = pd.MultiIndex.from_product(
+            [
+                ['David D', 'Michael D'],
+                [2011]
+            ],
+            names=['Individual', 'Year']
+        )
+        expected = pd.DataFrame(data=data, index=index)
+        assert received.equals(expected)
+
     def test_stanley_cup_selection(self, stanley_cup_database):
         '''a test'''
         with stanley_cup_database as db:
@@ -163,6 +183,20 @@ class TestDatabase:
         with empty_database as db:
             with pytest.raises(Exception):
                 db.get_stanley_cup_selections(2013)
+
+    def test_get_all_stanley_cup_results(self, stanley_cup_database):
+        '''a test'''
+        with stanley_cup_database as db:
+            received = db.get_all_stanley_cup_results()
+        data = {
+            'East': ['Boston Bruins'],
+            'West': ['Vancouver Canucks'],
+            'Stanley Cup': ['Boston Bruins'],
+            'Duration': [None]
+        }
+        index = [2011]
+        expected = pd.DataFrame(data=data, index=index)
+        assert received.equals(expected)
 
     def test_stanley_cup_results(self, stanley_cup_database):
         '''a test'''
