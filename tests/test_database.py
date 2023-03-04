@@ -147,10 +147,16 @@ class TestDatabase:
     def test_stanley_cup_selection(self, stanley_cup_database):
         '''a test'''
         with stanley_cup_database as db:
-            sc_selections = db.get_stanley_cup_selections(2011)
-        expected_list = ['Boston Bruins','San Jose Sharks','Toronto Maple Leafs',None]
-        received_list = list(sc_selections.loc['David D'])
-        assert received_list == expected_list
+            received = db.get_stanley_cup_selections(2011)
+        data = {
+            'EastSelection': ['Boston Bruins', 'Tampa Bay Lightning'],
+            'WestSelection': ['San Jose Sharks', 'Vancouver Canucks'],
+            'StanleyCupSelection': ['Toronto Maple Leafs', 'Vancouver Canucks'],
+            'GameSelection': [None, None]
+        }
+        index = ['David D', 'Michael D']
+        expected = pd.DataFrame(data=data, index=index)
+        assert received.equals(expected)
 
     def test_stanley_cup_selections_empty(self, empty_database):
         '''a test'''
