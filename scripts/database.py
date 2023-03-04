@@ -220,16 +220,20 @@ class DataBaseOperations():
         year_selections.drop(['Year'], axis='columns', inplace=True)
         return year_selections
 
+    def get_all_stanley_cup_results(self):
+        '''Return all Stanley Cup results in a pandas dataframe'''
+        return read_sql_query('SELECT * FROM StanleyCupResults', self.conn)
+
     def get_stanley_cup_results(self, year):
         '''Return the Stanley Cup results for the requested year
         in a pandas dataframe'''
         check_if_year_is_valid(year)
-        sc_selections = read_sql_query(
-                f'SELECT * FROM StanleyCupResults WHERE Year={year}', self.conn)
-        if sc_selections.empty:
+        all_results = self.get_all_stanley_cup_results()
+        year_results = all_results[all_results['Year']==year]
+        if year_results.empty:
             raise  Exception(f'The year ({year}) was not in the StanleyCupResults Table')
-        sc_selections.drop('Year', axis='columns', inplace=True)
-        return sc_selections
+        year_results.drop('Year', axis='columns', inplace=True)
+        return year_results
 
     def add_year_round_series(self,
             year, playoff_round, conference, series_number,
