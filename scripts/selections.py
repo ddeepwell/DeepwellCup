@@ -260,19 +260,8 @@ class Selections(DataFile):
 
     def _load_champions_selections_from_database(self):
         """Return the Champions selections from the database"""
-
         with self.database as db:
-            data = db.get_stanley_cup_selections(self.year)
-
-        data.columns.name = 'Selections'
-        new_names = {
-            'EastSelection': 'East',
-            'WestSelection': 'West',
-            'StanleyCupSelection': 'Stanley Cup',
-            'GameSelection': 'Duration',
-        }
-        data.rename(columns=new_names, inplace=True)
-        return data
+            return db.get_stanley_cup_selections(self.year)
 
     def _series_from_file(self):
         """List the series without conference from file"""

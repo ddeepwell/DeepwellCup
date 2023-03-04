@@ -209,10 +209,16 @@ class DataBaseOperations():
         selections = read_sql_query(
             'SELECT * FROM StanleyCupSelections', self.conn)
         individuals = selections.loc[:,'IndividualID'].apply(self._get_individual_from_id)
+        new_names = {
+            'EastSelection': 'East',
+            'WestSelection': 'West',
+            'StanleyCupSelection': 'Stanley Cup',
+            'GameSelection': 'Duration',
+        }
+        selections.rename(columns=new_names, inplace=True)
         selections.drop(['IndividualID'], axis='columns', inplace=True)
         selections.insert(0,'Individual', individuals)
-        selections.set_index(['Individual', 'Year'], inplace=True)
-        return selections
+        return selections.set_index(['Individual', 'Year'])
 
     def get_stanley_cup_selections(self, year):
         '''Return the Stanley Cup picks for the requested year

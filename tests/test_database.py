@@ -149,10 +149,10 @@ class TestDatabase:
         with stanley_cup_database as db:
             received = db.get_all_stanley_cup_selections()
         data = {
-            'EastSelection': ['Boston Bruins', 'Tampa Bay Lightning'],
-            'WestSelection': ['San Jose Sharks', 'Vancouver Canucks'],
-            'StanleyCupSelection': ['Toronto Maple Leafs', 'Vancouver Canucks'],
-            'GameSelection': [None, None]
+            'East': ['Boston Bruins', 'Tampa Bay Lightning'],
+            'West': ['San Jose Sharks', 'Vancouver Canucks'],
+            'Stanley Cup': ['Toronto Maple Leafs', 'Vancouver Canucks'],
+            'Duration': [None, None]
         }
         index = pd.MultiIndex.from_product(
             [
@@ -169,10 +169,10 @@ class TestDatabase:
         with stanley_cup_database as db:
             received = db.get_stanley_cup_selections(2011)
         data = {
-            'EastSelection': ['Boston Bruins', 'Tampa Bay Lightning'],
-            'WestSelection': ['San Jose Sharks', 'Vancouver Canucks'],
-            'StanleyCupSelection': ['Toronto Maple Leafs', 'Vancouver Canucks'],
-            'GameSelection': [None, None]
+            'East': ['Boston Bruins', 'Tampa Bay Lightning'],
+            'West': ['San Jose Sharks', 'Vancouver Canucks'],
+            'Stanley Cup': ['Toronto Maple Leafs', 'Vancouver Canucks'],
+            'Duration': [None, None]
         }
         index = ['David D', 'Michael D']
         expected = pd.DataFrame(data=data, index=index)
