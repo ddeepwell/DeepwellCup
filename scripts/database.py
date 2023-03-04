@@ -5,7 +5,7 @@ import sqlite3
 import os
 import errno
 import warnings
-from pandas import read_sql_query
+from pandas import read_sql_query, IndexSlice as idx
 from scripts import utils
 from scripts.directories import project_directory
 from scripts.nhl_teams import shorten_team_name as stn
@@ -150,7 +150,7 @@ class DataBaseOperations():
         if playoff_round == 'Champions':
             try:
                 results_data = self.get_stanley_cup_results(year)
-            except:
+            except ValueError:
                 results_data = []
         else:
             results_data = self.get_all_round_results(year, playoff_round)
@@ -163,7 +163,10 @@ class DataBaseOperations():
 
     def champions_round_in_database(self, year):
         """Check if the Champions round for the year is in the database"""
-        data = self.get_stanley_cup_selections(year)
+        try:
+            data = self.get_stanley_cup_selections(year)
+        except ValueError:
+            data = []
         return len(data) > 0
 
     def add_stanley_cup_selection(self, year,
@@ -208,7 +211,7 @@ class DataBaseOperations():
         individuals = selections.loc[:,'IndividualID'].apply(self._get_individual_from_id)
         selections.drop(['IndividualID'], axis='columns', inplace=True)
         selections.insert(0,'Individual', individuals)
-        selections.set_index('Individual', inplace=True)
+        selections.set_index(['Individual', 'Year'], inplace=True)
         return selections
 
     def get_stanley_cup_selections(self, year):
@@ -216,24 +219,34 @@ class DataBaseOperations():
         in a pandas dataframe'''
         check_if_year_is_valid(year)
         all_selections = self.get_all_stanley_cup_selections()
-        year_selections = all_selections[all_selections['Year']==year]
-        year_selections.drop(['Year'], axis='columns', inplace=True)
-        return year_selections
+        if year not in all_selections.index.get_level_values('Year'):
+            raise  ValueError(f'The year ({year}) was not in the StanleyCupSelections Table')
+        year_selections = all_selections.loc[idx[:,year],:]
+        return year_selections.reset_index(level='Year', drop=True)
 
     def get_all_stanley_cup_results(self):
         '''Return all Stanley Cup results in a pandas dataframe'''
-        return read_sql_query('SELECT * FROM StanleyCupResults', self.conn)
+        results = read_sql_query(
+            'SELECT * FROM StanleyCupResults',
+            self.conn,
+            index_col='Year',
+        )
+        new_names = {
+            'EastWinner': 'East',
+            'WestWinner': 'West',
+            'StanleyCupWinner': 'Stanley Cup',
+            'Games': 'Duration',
+        }
+        return results.rename(columns=new_names)
 
     def get_stanley_cup_results(self, year):
         '''Return the Stanley Cup results for the requested year
         in a pandas dataframe'''
         check_if_year_is_valid(year)
         all_results = self.get_all_stanley_cup_results()
-        year_results = all_results[all_results['Year']==year]
-        if year_results.empty:
-            raise  Exception(f'The year ({year}) was not in the StanleyCupResults Table')
-        year_results.drop('Year', axis='columns', inplace=True)
-        return year_results
+        if year not in all_results.index:
+            raise  ValueError(f'The year ({year}) was not in the StanleyCupResults Table')
+        return all_results.loc[year]
 
     def add_year_round_series(self,
             year, playoff_round, conference, series_number,

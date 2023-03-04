@@ -1,5 +1,6 @@
 '''Tests for database interactions'''
 import pytest
+import pandas as pd
 from scripts.database import DataBaseOperations
 
 @pytest.fixture(scope="function")
@@ -151,13 +152,20 @@ class TestDatabase:
         received_list = list(sc_selections.loc['David D'])
         assert received_list == expected_list
 
+    def test_stanley_cup_selections_empty(self, empty_database):
+        '''a test'''
+        with empty_database as db:
+            with pytest.raises(Exception):
+                db.get_stanley_cup_selections(2013)
+
     def test_stanley_cup_results(self, stanley_cup_database):
         '''a test'''
         with stanley_cup_database as db:
-            sc_results = db.get_stanley_cup_results(2011)
-        received_list = list(sc_results.loc[0])
-        expected_list = ['Boston Bruins','Vancouver Canucks', 'Boston Bruins', None]
-        assert received_list == expected_list
+            received_data = db.get_stanley_cup_results(2011)
+        data = ['Boston Bruins','Vancouver Canucks', 'Boston Bruins', None]
+        index = ['East', 'West', 'Stanley Cup', 'Duration']
+        expected_data = pd.Series(data=data, index=index, name=2011)
+        assert received_data.equals(expected_data)
 
     def test_stanley_cup_results_empty(self, empty_database):
         '''a test'''

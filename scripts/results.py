@@ -89,18 +89,8 @@ class Results(DataFile):
 
     def _load_champions_results_from_database(self):
         """Return the champions results from the database"""
-
         with self.database as db:
-            data = db.get_stanley_cup_results(self.year)
-
-        new_names = {
-            'EastWinner': 'East',
-            'WestWinner': 'West',
-            'StanleyCupWinner': 'Stanley Cup',
-            'Games': 'Duration',
-        }
-        data.rename(columns=new_names, inplace=True)
-        return data.squeeze()
+            return db.get_stanley_cup_results(self.year)
 
     def _load_overtime_results_from_database(self):
         """Return the result of the overtime category"""
