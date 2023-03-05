@@ -2,8 +2,8 @@ CREATE TABLE StanleyCupResults (
     Year             INT (4)      PRIMARY KEY
                                   UNIQUE
                                   NOT NULL,
-    EastWinner       VARCHAR (40) NOT NULL,
-    WestWinner       VARCHAR (40) NOT NULL,
-    StanleyCupWinner VARCHAR (40),
-    Games            INT (1) 
+    East            VARCHAR (40) NOT NULL,
+    West            VARCHAR (40) NOT NULL,
+    "Stanley Cup"   VARCHAR (40),
+    Duration        INT (1)
 );

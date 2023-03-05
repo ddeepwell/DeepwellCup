@@ -3,7 +3,7 @@ CREATE TABLE SeriesResults (
                                    REFERENCES SeriesSelections (YearRoundSeriesID) 
                                    PRIMARY KEY
                                    NOT NULL,
-    Winner            VARCHAR (40) NOT NULL,
-    Games             INTEGER (1)  NOT NULL,
-    Player            VARCHAR (40) 
+    Team            VARCHAR (40) NOT NULL,
+    Duration        INTEGER (1)  NOT NULL,
+    Player          VARCHAR (40)
 );

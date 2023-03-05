@@ -206,16 +206,8 @@ class DataBaseOperations():
 
     def get_all_stanley_cup_selections(self):
         """Return all Stanley Cup picks in a pandas dataframe"""
-        selections = read_sql_query(
-            'SELECT * FROM StanleyCupSelections', self.conn)
+        selections = read_sql_query('SELECT * FROM StanleyCupSelections', self.conn)
         individuals = selections.loc[:,'IndividualID'].apply(self._get_individual_from_id)
-        new_names = {
-            'EastSelection': 'East',
-            'WestSelection': 'West',
-            'StanleyCupSelection': 'Stanley Cup',
-            'GameSelection': 'Duration',
-        }
-        selections.rename(columns=new_names, inplace=True)
         selections.drop(['IndividualID'], axis='columns', inplace=True)
         selections.insert(0,'Individual', individuals)
         return selections.set_index(['Individual', 'Year'])
@@ -232,18 +224,11 @@ class DataBaseOperations():
 
     def get_all_stanley_cup_results(self):
         '''Return all Stanley Cup results in a pandas dataframe'''
-        results = read_sql_query(
+        return read_sql_query(
             'SELECT * FROM StanleyCupResults',
             self.conn,
             index_col='Year',
         )
-        new_names = {
-            'EastWinner': 'East',
-            'WestWinner': 'West',
-            'StanleyCupWinner': 'Stanley Cup',
-            'Games': 'Duration',
-        }
-        return results.rename(columns=new_names)
 
     def get_stanley_cup_results(self, year):
         '''Return the Stanley Cup results for the requested year
@@ -396,7 +381,7 @@ class DataBaseOperations():
         series_data = read_sql_query(f'''
             SELECT Ser.Conference, Ser.SeriesNumber,
                 Ind.FirstName, Ind.LastName,
-                SS.TeamSelection, SS.GameSelection, SS.PlayerSelection
+                SS.Team, SS.Duration, SS.Player
             FROM Individuals as Ind
             LEFT JOIN (SeriesSelections as SS
                 Inner JOIN Series as Ser
@@ -456,9 +441,9 @@ class DataBaseOperations():
     def get_all_round_results(self, year, playoff_round):
         '''Return all the results for a playoff round in a pandas dataframe'''
         check_if_year_is_valid(year)
-        series_data = read_sql_query(f'''
+        return read_sql_query(f'''
             SELECT Ser.Conference, Ser.SeriesNumber,
-                SR.Winner, SR.Games, Sr.Player
+                SR.Team, SR.Duration, Sr.Player
             FROM SeriesResults as SR
             Inner JOIN Series as Ser
             ON Ser.YearRoundSeriesID = SR.YearRoundSeriesID
@@ -466,7 +451,6 @@ class DataBaseOperations():
             AND Ser.Round = "{playoff_round}"
             ORDER BY Conference, SeriesNumber
             ''', self.conn)
-        return series_data
 
     def add_other_points(self, year, playoff_round,
             first_name, last_name, points):

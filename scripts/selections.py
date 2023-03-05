@@ -246,12 +246,6 @@ class Selections(DataFile):
         data.index.names = ['Individual', 'Conference', 'Series']
         data.columns.name = 'Selections'
 
-        new_names = {
-            'TeamSelection': 'Team',
-            'GameSelection': 'Duration',
-            'PlayerSelection': 'Player',
-        }
-        data.rename(columns=new_names, inplace=True)
         no_player_picks = all(item is None for item in data['Player'])
         if no_player_picks:
             data.drop(columns=['Player'], inplace=True)

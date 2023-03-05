@@ -2,10 +2,10 @@ CREATE TABLE StanleyCupSelections (
     IndividualID        INTEGER      REFERENCES Individuals (IndividualID) 
                                      NOT NULL,
     Year                INTEGER      NOT NULL,
-    EastSelection       VARCHAR (40),
-    WestSelection       VARCHAR (40),
-    StanleyCupSelection VARCHAR (40),
-    GameSelection       INTEGER,
+    East            VARCHAR (40),
+    West            VARCHAR (40),
+    "Stanley Cup"   VARCHAR (40),
+    Duration        INTEGER,
     PRIMARY KEY (
         IndividualID,
         Year
