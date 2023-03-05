@@ -3,6 +3,7 @@
 """
 import sqlite3
 import os
+import math
 import errno
 import warnings
 from pandas import read_sql_query, IndexSlice as idx
@@ -210,7 +211,8 @@ class DataBaseOperations():
         individuals = selections.loc[:,'IndividualID'].apply(self._get_individual_from_id)
         selections.drop(['IndividualID'], axis='columns', inplace=True)
         selections.insert(0,'Individual', individuals)
-        return selections.set_index(['Individual', 'Year'])
+        selections.set_index(['Individual', 'Year'], inplace=True)
+        return selections.replace(to_replace=math.nan, value=None)
 
     def get_stanley_cup_selections(self, year):
         '''Return the Stanley Cup picks for the requested year
@@ -220,7 +222,10 @@ class DataBaseOperations():
         if year not in all_selections.index.get_level_values('Year'):
             raise  ValueError(f'The year ({year}) was not in the StanleyCupSelections Table')
         year_selections = all_selections.loc[idx[:,year],:]
-        return year_selections.reset_index(level='Year', drop=True)
+        year_selections.reset_index(level='Year', drop=True, inplace=True)
+        if any(year_selections['Duration'].notnull()):
+            year_selections.astype('Int64')
+        return year_selections
 
     def get_all_stanley_cup_results(self):
         '''Return all Stanley Cup results in a pandas dataframe'''
