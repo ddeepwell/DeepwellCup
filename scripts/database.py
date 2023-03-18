@@ -4,8 +4,8 @@
 import sqlite3
 import os
 import math
-import errno
 import warnings
+from pathlib import Path
 from pandas import read_sql_query, IndexSlice as idx
 from scripts import utils
 from scripts.directories import project_directory
@@ -15,17 +15,19 @@ class DataBaseOperations():
     '''Class for functions to work with the database'''
 
     def __init__(self, database='database/DeepwellCup.db'):
-        self._in_memory_database = False
+        self._is_in_memory_database = False
         self.conn = None
         self.cursor = None
         if isinstance(database, sqlite3.Connection):
-            self._in_memory_database = database
-            database_path = 'memory'
+            self._is_in_memory_database = True
+            database_path = database
         elif database[0] == '/':
             database_path = database
         else:
             database_path = project_directory()/database
         self.path = database_path
+        if not self.database_exists():
+            self.create_database()
 
     def __enter__(self):
         self.conn = self._connect()
@@ -33,18 +35,41 @@ class DataBaseOperations():
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        if not self._in_memory_database:
+        if not self._is_in_memory_database:
             self.conn.close()
 
     def _connect(self):
-        if self._in_memory_database:
-            return self._in_memory_database
-        if not os.path.exists(self.path):
-            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), self.path)
+        if self._is_in_memory_database:
+            return self.path
         try:
             return sqlite3.connect(self.path, uri=True)
         except sqlite3.Error as err:
             print(err)
+
+    def database_exists(self):
+        """Check if the database exists"""
+        if self._is_in_memory_database:
+            if self._tables_exists():
+                return True
+            return False
+        return os.path.exists(self.path)
+
+    def _tables_exists(self):
+        """Check if a table exists in the in-memory database"""
+        conn = self._connect()
+        cur = conn.cursor()
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        return ('Individuals',) in cur.fetchall()
+
+    def create_database(self):
+        """Create the database"""
+        conn = self._connect()
+        cursor = conn.cursor()
+        files = txt_files_in_dir(project_directory()/'database')
+        for file in files:
+            create_table(cursor, file)
+        if not self._is_in_memory_database:
+            conn.close()
 
     def check_if_individual_exists(self, first_name, last_name):
         """Check if individual exists in the database"""
@@ -592,3 +617,12 @@ def check_if_year_is_valid(year):
     if year < 2006:
         raise Exception(f'The year {year} is invalid.\n'
         'The year must be greater than 2006 and less than or equal to the current year')
+
+def create_table(cursor, table_file):
+    '''Add a table to a database'''
+    sql_command = utils.read_file_to_string(table_file)
+    cursor.execute(sql_command)
+
+def txt_files_in_dir(path):
+    '''Find the text files in a directory'''
+    return list(Path(path).glob('*.txt'))
