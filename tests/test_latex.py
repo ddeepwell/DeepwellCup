@@ -1,14 +1,14 @@
 """Tests for LaTeX class"""
 import pytest
 from scripts.latex import Latex
-from scripts.directories import project_directory
+from scripts import dirs
 from scripts.database import DataBaseOperations
 
 class Settings:
     """Test settings"""
     def __init__(self, database_conn):
-        self.test_data_dir = project_directory()/'tests/data'
-        self.tables_dir = project_directory()/'tables'
+        self.test_data_dir = dirs.tests_data()
+        self.tables_dir = dirs.project()/'tables'
         self.full_database = database_conn
         self.year = 2017
 

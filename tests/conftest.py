@@ -1,7 +1,6 @@
 '''Default test database configuration'''
 import sqlite3
 import pytest
-from scripts.directories import project_directory
 from scripts.database import DataBaseOperations
 
 def pytest_configure():

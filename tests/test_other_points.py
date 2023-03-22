@@ -3,12 +3,12 @@ from pandas import Series
 import pytest
 from scripts.database import DataBaseOperations
 from scripts.other_points import OtherPoints
-from scripts.directories import project_directory
+from scripts import dirs
 
 class Settings:
     """Test settings"""
     def __init__(self, empty_database_conn, nonempty_database_conn):
-        self.test_data_dir = project_directory()/'tests/data'
+        self.test_data_dir = dirs.tests_data()
         self.nonempty_database = nonempty_database_conn
         self.empty_database = empty_database_conn
         self.year = 2009

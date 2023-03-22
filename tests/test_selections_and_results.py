@@ -5,12 +5,12 @@ import pytest
 from scripts.database import DataBaseOperations
 from scripts.selections import Selections
 from scripts.results import Results
-from scripts.directories import project_directory
+from scripts import dirs
 
 class Settings:
     """Test settings"""
     def __init__(self, empty_database_conn, nonempty_database):
-        self.test_data_dir = project_directory()/'tests/data'
+        self.test_data_dir = dirs.tests_data()
         self.empty_database = empty_database_conn
         self.full_database = nonempty_database
         self.year = 2017

@@ -8,13 +8,13 @@ import warnings
 from pathlib import Path
 from pandas import read_sql_query, IndexSlice as idx
 from scripts import utils
-from scripts.directories import project_directory
+from scripts import dirs
 from scripts.nhl_teams import shorten_team_name as stn
 
 class DataBaseOperations():
     '''Class for functions to work with the database'''
 
-    def __init__(self, database='database/DeepwellCup.db'):
+    def __init__(self, database='DeepwellCup.db'):
         self._is_in_memory_database = False
         self.conn = None
         self.cursor = None
@@ -24,7 +24,7 @@ class DataBaseOperations():
         elif database[0] == '/':
             database_path = database
         else:
-            database_path = project_directory()/database
+            database_path = dirs.database()/database
         self.path = database_path
         if not self.database_exists():
             self.create_database()
@@ -44,7 +44,7 @@ class DataBaseOperations():
         try:
             return sqlite3.connect(self.path, uri=True)
         except sqlite3.Error as err:
-            print(err)
+            print('ERROR: ',err)
 
     def database_exists(self):
         """Check if the database exists"""
@@ -65,7 +65,7 @@ class DataBaseOperations():
         """Create the database"""
         conn = self._connect()
         cursor = conn.cursor()
-        files = txt_files_in_dir(project_directory()/'database')
+        files = txt_files_in_dir(dirs.database())
         for file in files:
             create_table(cursor, file)
         if not self._is_in_memory_database:

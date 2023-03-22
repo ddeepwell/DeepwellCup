@@ -5,7 +5,7 @@ from pandas import isna
 from matplotlib import rc, patches
 import matplotlib.pyplot as plt
 from scripts.scores import Points, IndividualScoring
-from scripts.directories import project_directory
+from scripts import dirs
 
 # set font to look like Latex
 font = {'family' : 'serif',
@@ -264,7 +264,7 @@ class Plots():
         """Save figure to disk"""
         # file_name = self.axis.get_title()
         file_name = self.axis.get_title().replace(' ','')
-        figure_dir = project_directory() / 'figures' / f'{self.year}'
+        figure_dir = dirs.year_figures(self.year)
         if not os.path.exists(figure_dir):
             os.mkdir(figure_dir)
         plt.savefig(f'{figure_dir}/{file_name}.pdf', bbox_inches='tight', format='pdf')

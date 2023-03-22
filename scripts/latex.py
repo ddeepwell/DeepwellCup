@@ -7,7 +7,7 @@ from sympy.utilities.lambdify import lambdify
 from jinja2 import Environment, FileSystemLoader
 from scripts import utils
 from scripts.selections import Selections
-from scripts.directories import project_directory
+from scripts import dirs
 from scripts.scores import IndividualScoring
 from scripts.nhl_teams import (
     shorten_team_name as stn,
@@ -64,11 +64,8 @@ class Latex():
         if not os.path.exists(directory):
             os.mkdir(directory)
 
-    def _year_tables_directory(self):
-        return project_directory()/f'tables/{self.year}'
-
     def _import_template(self, template):
-        loader = FileSystemLoader(project_directory()/'scripts/templates/')
+        loader = FileSystemLoader(dirs.templates())
         environment = Environment(loader=loader)
         return environment.get_template(template)
 
@@ -80,7 +77,7 @@ class Latex():
     def _build_pdftex(self, source_file, quiet=True):
         """Build the PDF from the Latex file"""
         cwd = os.getcwd()
-        os.chdir(self._year_tables_directory())
+        os.chdir(dirs.year_tables(self.year))
         build_command = f'/Library/TeX/texbin/pdflatex -halt-on-error {source_file}'
         if quiet:
             build_command += " > /dev/null"
@@ -103,7 +100,7 @@ class Latex():
     @property
     def latex_file(self):
         """Return the name of the LaTex file"""
-        return self._year_tables_directory() / f"round{self.playoff_round}.tex"
+        return dirs.year_tables(self.year)/f"round{self.playoff_round}.tex"
 
     def build_pdf(self, quiet=True):
         """Build the PDF for the selections in a playoff round"""
@@ -111,8 +108,7 @@ class Latex():
 
     def make_table(self):
         """Write contents of the LaTex file for a playoff round to disk"""
-
-        self._make_directory_if_missing(self._year_tables_directory())
+        self._make_directory_if_missing(dirs.year_tables(self.year))
         contents = self._make_table_contents()
         self._write_file(self.latex_file, contents)
 

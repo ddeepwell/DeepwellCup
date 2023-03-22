@@ -1,13 +1,13 @@
 """Tests for data_file"""
 import pytest
 from scripts.data_files import DataFile
-from scripts.directories import project_directory
+from scripts import dirs
 
 class Settings:
     """Test settings"""
     def __init__(self):
-        self.data_dir = project_directory()/'data'
-        self.test_data_dir = project_directory()/'tests/data'
+        self.data_dir = dirs.project()/'data'
+        self.test_data_dir = dirs.tests_data()
 
 @pytest.fixture(scope="session")
 def setup():
