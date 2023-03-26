@@ -4,8 +4,8 @@ from pandas import Series, concat
 from pandas import isna
 from matplotlib import rc, patches
 import matplotlib.pyplot as plt
-from scripts.scores import Points, IndividualScoring
-from scripts import dirs
+from deepwellcup.processing.scores import Points, IndividualScoring
+from deepwellcup.processing import dirs
 
 # set font to look like Latex
 font = {'family' : 'serif',

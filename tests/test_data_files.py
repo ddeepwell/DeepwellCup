@@ -1,7 +1,7 @@
 """Tests for data_file"""
 import pytest
-from scripts.data_files import DataFile
-from scripts import dirs
+from deepwellcup.processing.data_files import DataFile
+from deepwellcup.processing import dirs
 
 class Settings:
     """Test settings"""

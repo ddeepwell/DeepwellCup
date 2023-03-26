@@ -1,7 +1,7 @@
 '''Default test database configuration'''
 import sqlite3
 import pytest
-from scripts.database import DataBaseOperations
+from deepwellcup.processing.database import DataBaseOperations
 
 def pytest_configure():
     '''Pytest defaults'''

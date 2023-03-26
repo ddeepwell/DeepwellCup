@@ -1,9 +1,9 @@
 """Tests for Selections class"""
 from pandas import Series
 import pytest
-from scripts.database import DataBaseOperations
-from scripts.other_points import OtherPoints
-from scripts import dirs
+from deepwellcup.processing.database import DataBaseOperations
+from deepwellcup.processing.other_points import OtherPoints
+from deepwellcup.processing import dirs
 
 class Settings:
     """Test settings"""

@@ -3,10 +3,10 @@ from pandas import Series
 from numpy import NaN, add
 from sympy import symbols
 from sympy.utilities.lambdify import lambdify
-from scripts import utils
-from scripts.results import Results
-from scripts.selections import Selections
-from scripts.other_points import OtherPoints
+from deepwellcup.processing import utils
+from deepwellcup.processing.results import Results
+from deepwellcup.processing.selections import Selections
+from deepwellcup.processing.other_points import OtherPoints
 
 class Points():
     """Class for constructing a points table for a year"""

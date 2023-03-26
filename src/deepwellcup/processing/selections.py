@@ -3,10 +3,10 @@ import re
 import math
 import warnings
 from pandas import read_csv, Index, wide_to_long
-from scripts import utils
-from scripts.data_files import DataFile
-from scripts.database import DataBaseOperations
-from scripts.nhl_teams import (
+from deepwellcup.processing import utils
+from deepwellcup.processing.data_files import DataFile
+from deepwellcup.processing.database import DataBaseOperations
+from deepwellcup.processing.nhl_teams import (
     conference as team_conference,
     shorten_team_name as stn,
     lengthen_team_name as ltn,

@@ -7,7 +7,7 @@ def src():
 
 def project():
     """Return the path of the project root directory"""
-    return src().parent
+    return src().parents[2]
 
 def year_data(year):
     """Return the path for the data in a year"""
@@ -23,7 +23,7 @@ def year_figures(year):
 
 def database():
     """Return the path to the database directory"""
-    return project()/'database'
+    return src().parent/'database'
 
 def templates():
     """Return the path to the templates directory"""

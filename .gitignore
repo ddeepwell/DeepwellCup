@@ -4,4 +4,4 @@
 .vscode
 *.pyc
 __pycache__
-database/*.db
+*.db

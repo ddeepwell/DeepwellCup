@@ -2,10 +2,10 @@
 from contextlib import nullcontext as does_not_raise
 from pandas import DataFrame, Series
 import pytest
-from scripts.database import DataBaseOperations
-from scripts.selections import Selections
-from scripts.results import Results
-from scripts import dirs
+from deepwellcup.processing.database import DataBaseOperations
+from deepwellcup.processing.selections import Selections
+from deepwellcup.processing.results import Results
+from deepwellcup.processing import dirs
 
 class Settings:
     """Test settings"""

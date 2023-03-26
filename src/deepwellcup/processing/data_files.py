@@ -1,5 +1,5 @@
 """Specifying the file containing selections and results"""
-from scripts import dirs
+from deepwellcup.processing import dirs
 
 class DataFile():
     """Class for specifying the file containing selections and results"""

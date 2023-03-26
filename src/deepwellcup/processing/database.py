@@ -7,9 +7,9 @@ import math
 import warnings
 from pathlib import Path
 from pandas import read_sql_query, IndexSlice as idx
-from scripts import utils
-from scripts import dirs
-from scripts.nhl_teams import shorten_team_name as stn
+from deepwellcup.processing import utils
+from deepwellcup.processing import dirs
+from deepwellcup.processing.nhl_teams import shorten_team_name as stn
 
 class DataBaseOperations():
     '''Class for functions to work with the database'''

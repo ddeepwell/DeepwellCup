@@ -1,9 +1,9 @@
 """Read the results in a playoff round"""
 from pandas import Index, Int64Dtype
-from scripts import utils
-from scripts.selections import Selections
-from scripts.data_files import DataFile
-from scripts.database import DataBaseOperations
+from deepwellcup.processing import utils
+from deepwellcup.processing.selections import Selections
+from deepwellcup.processing.data_files import DataFile
+from deepwellcup.processing.database import DataBaseOperations
 
 class Results(DataFile):
     """Class for gathering the results for a playoff round"""

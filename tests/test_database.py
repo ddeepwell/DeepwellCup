@@ -1,7 +1,7 @@
 '''Tests for database interactions'''
 import pytest
 import pandas as pd
-from scripts.database import DataBaseOperations
+from deepwellcup.processing.database import DataBaseOperations
 
 @pytest.fixture(scope="function")
 def individuals_database(nonempty_database_function_conn):

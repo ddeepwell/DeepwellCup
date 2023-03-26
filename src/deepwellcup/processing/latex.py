@@ -5,11 +5,11 @@ from pandas import isna
 from sympy import latex, symbols
 from sympy.utilities.lambdify import lambdify
 from jinja2 import Environment, FileSystemLoader
-from scripts import utils
-from scripts.selections import Selections
-from scripts import dirs
-from scripts.scores import IndividualScoring
-from scripts.nhl_teams import (
+from deepwellcup.processing import utils
+from deepwellcup.processing.selections import Selections
+from deepwellcup.processing import dirs
+from deepwellcup.processing.scores import IndividualScoring
+from deepwellcup.processing.nhl_teams import (
     shorten_team_name as stn,
     lengthen_team_name as ltn,
 )

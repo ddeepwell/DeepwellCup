@@ -1,8 +1,8 @@
 """Tests for LaTeX class"""
 import pytest
-from scripts.latex import Latex
-from scripts import dirs
-from scripts.database import DataBaseOperations
+from deepwellcup.processing.latex import Latex
+from deepwellcup.processing import dirs
+from deepwellcup.processing.database import DataBaseOperations
 
 class Settings:
     """Test settings"""

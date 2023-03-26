@@ -1,8 +1,8 @@
 """Hold all data for a playoff round in a year"""
-from scripts.scores import Points
-from scripts.insert import Insert
-from scripts.latex import Latex
-from scripts.plots import Plots
+from deepwellcup.processing.scores import Points
+from deepwellcup.processing.insert import Insert
+from deepwellcup.processing.latex import Latex
+from deepwellcup.processing.plots import Plots
 
 class PlayoffRound():
     """Class for all information about a playoff round"""

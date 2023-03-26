@@ -1,19 +1,19 @@
-"""Populate the database and make the selections table for a specific playoff round"""
+"""Populate the database with the results and make the standings plot
+for a specific playoff round"""
 import argparse
-from scripts import utils
-from scripts.playoff_round import PlayoffRound
+from deepwellcup.processing import utils
+from deepwellcup.processing.playoff_round import PlayoffRound
 
-def update_selections(year, playoff_round, **kwargs):
-    """Update the database and selections table"""
+def update_results(year, playoff_round, **kwargs):
+    """Add results to database and make new stanings plot"""
 
     current_round = PlayoffRound(
         year=year,
         playoff_round=playoff_round,
         **kwargs
     )
-    current_round.add_selections_to_database()
-    current_round.add_other_points_to_database()
-    current_round.make_latex_table()
+    current_round.add_results_to_database()
+    current_round.make_standings_chart()
 
 def main():
     """Main argument processing"""
@@ -43,7 +43,7 @@ def main():
     # parse the database
     database = {} if args.database is None else {'database': args.database}
 
-    update_selections(args.year, args.playoff_round, **database)
+    update_results(args.year, args.playoff_round, **database)
 
 if __name__ == "__main__":
     main()

@@ -1,8 +1,8 @@
 """Participant other points in round"""
 import os
 from pandas import read_csv
-from scripts.data_files import DataFile
-from scripts.database import DataBaseOperations
+from deepwellcup.processing.data_files import DataFile
+from deepwellcup.processing.database import DataBaseOperations
 
 class OtherPoints(DataFile):
     """Class for gathering and processing information regarding other

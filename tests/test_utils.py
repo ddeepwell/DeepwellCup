@@ -1,5 +1,5 @@
 """Tests for utils"""
-from scripts import utils
+from deepwellcup.processing import utils
 
 def test_split_name_with_last_name():
     """Test for split_name"""

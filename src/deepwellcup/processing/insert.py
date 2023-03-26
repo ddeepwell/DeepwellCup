@@ -1,12 +1,12 @@
 """Import round selections for a single round into the database"""
 from pandas import isna
 from numpy import int64
-from scripts.other_points import OtherPoints
-from scripts.results import Results
-from scripts.selections import Selections
-from scripts import utils
-from scripts.database import DataBaseOperations
-from scripts.nhl_teams import lengthen_team_name as ltn
+from deepwellcup.processing.other_points import OtherPoints
+from deepwellcup.processing.results import Results
+from deepwellcup.processing.selections import Selections
+from deepwellcup.processing import utils
+from deepwellcup.processing.database import DataBaseOperations
+from deepwellcup.processing.nhl_teams import lengthen_team_name as ltn
 
 class Insert():
     "User-friendly class for inserting round selections and results into the database"
