@@ -1,4 +1,3 @@
 # DeepwellCup
 
-Make sure to add the project root directory to the python path in the `.bashrc`:
-export PYTHONPATH="$PYTHONPATH:$PWD"
+Package for preparing figures, tables, and analyses for the annual Deepwell Cup.
