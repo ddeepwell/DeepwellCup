@@ -55,6 +55,8 @@ def shorten_team_name(team):
         return_val = 'PIT'
     elif team == 'San Jose Sharks':
         return_val = 'SJS'
+    elif team == 'Seattle Kraken':
+        return_val = 'SEA'
     elif team == 'St Louis Blues':
         return_val = 'STL'
     elif team == 'Tampa Bay Lightning':
@@ -128,6 +130,8 @@ def lengthen_team_name( team ):
         return_val = 'Philadelphia Flyers'
     elif team == 'PIT':
         return_val = 'Pittsburgh Penguins'
+    elif team == 'SEA':
+        return_val = 'Seattle Kraken'
     elif team == 'SJS':
         return_val = 'San Jose Sharks'
     elif team == 'STL':
