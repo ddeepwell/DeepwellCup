@@ -123,7 +123,7 @@ class Selections(DataFile):
     def _load_playoff_round_selections_from_file(self, keep_results=False):
         """Return the playoff round selections from the raw file"""
 
-        data = read_csv(self.selections_file, sep=',')
+        data = read_csv(self.selections_file, sep=',', converters={'Name:': str.strip})
         series = self._series_from_file()
         data.rename(columns={'Name:': 'Individual'}, inplace=True)
         data.rename(columns=dict(list(zip(series, [f'{ser}Team' for ser in series]))), inplace=True)
@@ -209,7 +209,7 @@ class Selections(DataFile):
             else:
                 return row['Who will win the Stanley Cup?']
 
-        data = read_csv(self.selections_file, sep=',')
+        data = read_csv(self.selections_file, sep=',', converters={'Name:': str.strip})
         data.rename(columns={'Name:': 'Individual'}, inplace=True)
         data.index = data['Individual']
         if not keep_results:

@@ -52,7 +52,7 @@ class OtherPoints(DataFile):
     def _load_playoff_round_other_points_from_file(self):
         """Return the playoff round selections from the raw source file"""
 
-        data = read_csv(self.other_points_file, sep=',')
+        data = read_csv(self.other_points_file, sep=',', converters={'Name:': str.strip})
         data.rename(columns={'Name:': 'Individual', 'Points': 'Other Points'}, inplace=True)
         data.set_index('Individual', inplace=True)
         data.sort_index(inplace=True)
