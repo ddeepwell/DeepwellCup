@@ -1,6 +1,4 @@
-"""
-@author: David Deepwell
-"""
+"""Class for interacting with the databae"""
 import sqlite3
 import os
 import math
