@@ -123,9 +123,14 @@ class Selections(DataFile):
             elif self.playoff_round == 'Champions':
                 self._selections = self._load_champions_selections_from_file(**kwargs)
 
-    def _load_nicknames_from_file(self):
+    def _read_data_file(self):
+        """Read selections from selections file"""
         data = read_csv(self.selections_file, sep=',', converters={'Name:': str.strip})
-        data.rename(columns={'Name:': 'Individual'}, inplace=True)
+        return data.rename(columns={'Name:': 'Individual'})
+
+    def _load_nicknames_from_file(self):
+        """Extract nicknames from file"""
+        data = self._read_data_file()
         if 'Nickname' in data.columns:
             data = data[data.Individual != 'Results']
             nicknames = data[['Individual','Nickname']]
@@ -133,8 +138,8 @@ class Selections(DataFile):
             self._nicknames = nicknames.replace(to_replace=math.nan, value=None).to_dict()
 
     def _load_overtime_selections_from_file(self):
-        data = read_csv(self.selections_file, sep=',', converters={'Name:': str.strip})
-        data.rename(columns={'Name:': 'Individual'}, inplace=True)
+        """Extract overtime selections from file"""
+        data = self._read_data_file()
         if 'How many overtime games will occur this round?' in data.columns:
             data.rename(
                 columns={'How many overtime games will occur this round?': 'Overtime'},
@@ -147,9 +152,8 @@ class Selections(DataFile):
     def _load_playoff_round_selections_from_file(self, keep_results=False):
         """Return the playoff round selections from the raw file"""
 
-        data = read_csv(self.selections_file, sep=',', converters={'Name:': str.strip})
+        data = self._read_data_file()
         series = self._series_from_file()
-        data.rename(columns={'Name:': 'Individual'}, inplace=True)
         data.rename(columns=dict(list(zip(series, [f'{ser}Team' for ser in series]))), inplace=True)
         if not keep_results:
             data = data[data.Individual != 'Results']
@@ -218,8 +222,7 @@ class Selections(DataFile):
             else:
                 return row['Who will win the Stanley Cup?']
 
-        data = read_csv(self.selections_file, sep=',', converters={'Name:': str.strip})
-        data.rename(columns={'Name:': 'Individual'}, inplace=True)
+        data = self._read_data_file()
         data.index = data['Individual']
         if not keep_results:
             data.drop(index='Results', inplace=True)
@@ -268,7 +271,7 @@ class Selections(DataFile):
 
     def _series_from_file(self):
         """List the series without conference from file"""
-        data = read_csv(self.selections_file, sep=',')
+        data = self._read_data_file()
         # abbreviated series name
         return [col for col in data.columns
                 if bool(re.match(r"^[A-Z]{3}-[A-Z]{3}$", col)) \
