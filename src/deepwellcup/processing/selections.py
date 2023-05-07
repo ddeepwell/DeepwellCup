@@ -116,9 +116,34 @@ class Selections(DataFile):
             print(f'Round data for {self.playoff_round} in {self.year} is not '\
                     f'in the database with path\n {self.database.path}')
             if self.playoff_round in utils.selection_rounds(self.year):
+                self._load_nicknames_from_file()
+                self._load_overtime_selections_from_file()
                 self._selections = self._load_playoff_round_selections_from_file(**kwargs)
             elif self.playoff_round == 'Champions':
                 self._selections = self._load_champions_selections_from_file(**kwargs)
+
+    def _load_nicknames_from_file(self):
+        data = read_csv(self.selections_file, sep=',', converters={'Name:': str.strip})
+        data.rename(columns={'Name:': 'Individual'}, inplace=True)
+        if 'Nickname' in data.columns:
+            data = data[data.Individual != 'Results']
+            nicknames = data[['Individual','Nickname']]
+            nicknames = nicknames.set_index('Individual').squeeze().sort_index()
+            self._nicknames = nicknames.replace(to_replace=math.nan, value=None).to_dict()
+        else:
+            self._nicknames = None
+
+    def _load_overtime_selections_from_file(self):
+        data = read_csv(self.selections_file, sep=',', converters={'Name:': str.strip})
+        data.rename(columns={'Name:': 'Individual'}, inplace=True)
+        if 'How many overtime games will occur this round?' in data.columns:
+            data.rename(
+                columns={'How many overtime games will occur this round?': 'Overtime'},
+                inplace=True
+            )
+            overtime_data = data[['Individual','Overtime']]
+            overtime_data.set_index('Individual', inplace=True)
+            self._selections_overtime = overtime_data.squeeze().sort_index().astype('str')
 
     def _load_playoff_round_selections_from_file(self, keep_results=False):
         """Return the playoff round selections from the raw file"""
@@ -129,37 +154,22 @@ class Selections(DataFile):
         data.rename(columns=dict(list(zip(series, [f'{ser}Team' for ser in series]))), inplace=True)
         if not keep_results:
             data = data[data.Individual != 'Results']
-        data.drop(columns=['Timestamp'], inplace=True)
-        if self.playoff_round == 1:
-            data.drop(columns=self._champions_headers(), inplace=True)
-        if 'Nickname' in data.columns:
-            nicknames = data[['Individual','Nickname']]
-            nicknames = nicknames.set_index('Individual').squeeze().sort_index()
-            self._nicknames = nicknames.replace(to_replace=math.nan, value=None).to_dict()
-            data.drop(columns=['Nickname'], inplace=True)
-        else:
-            self._nicknames = None
 
-        def get_conference(series: str):
-            """The conference for the teams in the series"""
-            return "None" if self.playoff_round == 4 or self.year == 2021 \
-                else team_conference(series[:3], self.year)
-
-        if 'How many overtime games will occur this round?' in data.columns:
-            data.rename(
-                columns={'How many overtime games will occur this round?': 'Overtime'},
-                inplace=True
-            )
-            overtime_data = data[['Individual','Overtime']]
-            overtime_data.set_index('Individual', inplace=True)
-            self._selections_overtime = overtime_data.squeeze().sort_index().astype('str')
-            data.drop(columns=['Overtime'], inplace=True)
+        non_series_columns = [col for col in data.columns
+                if not bool(re.match(r"^[A-Z]{3}-[A-Z]{3}", col))
+                and col != 'Individual']
+        data.drop(columns=non_series_columns, inplace=True)
 
         selections = wide_to_long(data,
             stubnames=series,
             i='Individual',
             j='Selections',
             suffix='\\D+').stack().unstack(-2)
+
+        def get_conference(series: str):
+            """The conference for the teams in the series"""
+            return "None" if self.playoff_round == 4 or self.year == 2021 \
+                else team_conference(series[:3], self.year)
 
         # add conference to index
         conf_index = [get_conference(a_series) for a_series in selections.index.get_level_values(1)]
