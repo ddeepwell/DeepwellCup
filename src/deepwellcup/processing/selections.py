@@ -106,10 +106,12 @@ class Selections(DataFile):
 
     def _load_selections(self, **kwargs):
         """Load the selections from database or raw file"""
-
         if self.in_database \
             and (kwargs["keep_results"] is False or self._results_in_database):
             if self.playoff_round in utils.selection_rounds(self.year):
+                with self.database as db:
+                    self._selections_overtime = db.get_overtime_selections(self.year, self.playoff_round)
+                    self._nicknames = db.get_all_round_nicknames(self.year, self.playoff_round)
                 self._selections = self._load_playoff_round_selections_from_database()
             elif self.playoff_round == 'Champions':
                 self._selections = self._load_champions_selections_from_database()
@@ -247,8 +249,6 @@ class Selections(DataFile):
 
         with self.database as db:
             data = db.get_all_round_selections(self.year, self.playoff_round)
-            self._selections_overtime = db.get_overtime_selections(self.year, self.playoff_round)
-            self._nicknames = db.get_all_round_nicknames(self.year, self.playoff_round)
 
         num_individuals = len(data.index.unique())
         series_list = [subval for values in self.series.values() for subval in values]
