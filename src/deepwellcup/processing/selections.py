@@ -33,6 +33,7 @@ class Selections(DataFile):
                 self.in_database = db.champions_round_in_database(year)
             self._results_in_database = db.year_round_results_in_database(year, playoff_round)
         self._selections_overtime = None
+        self._nicknames = None
         self._load_selections(keep_results=keep_results)
 
     @property
@@ -130,8 +131,6 @@ class Selections(DataFile):
             nicknames = data[['Individual','Nickname']]
             nicknames = nicknames.set_index('Individual').squeeze().sort_index()
             self._nicknames = nicknames.replace(to_replace=math.nan, value=None).to_dict()
-        else:
-            self._nicknames = None
 
     def _load_overtime_selections_from_file(self):
         data = read_csv(self.selections_file, sep=',', converters={'Name:': str.strip})
