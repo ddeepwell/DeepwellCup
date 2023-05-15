@@ -326,17 +326,22 @@ class IndividualScoring():
         f_correct = lambdify((C, P), system[correct_handle], "numpy")
         f_incorrect = lambdify((C, P), system[incorrect_handle], "numpy")
 
-        comparison = selections.compare(self.results, keep_shape=True, keep_equal=True)
-        correct = comparison.query("@comparison.Team.self == @comparison.Team.other")
-        incorrect = comparison.query("@comparison.Team.self != @comparison.Team.other")
+        comparison = selections.compare(
+            self.results,
+            keep_shape=True,
+            keep_equal=True,
+            result_names=("selections", "results")
+        )
+        correct = comparison.query("@comparison.Team.selections == @comparison.Team.results")
+        incorrect = comparison.query("@comparison.Team.selections != @comparison.Team.results")
 
         correct_points = f_correct(
-            correct[('Duration','self')].to_numpy(),
-            correct[('Duration','other')].to_numpy()
+            correct[('Duration','selections')].to_numpy(),
+            correct[('Duration','results')].to_numpy()
         ).sum()
         incorrect_points = f_incorrect(
-            incorrect[('Duration','self')].to_numpy(),
-            incorrect[('Duration','other')].to_numpy()
+            incorrect[('Duration','selections')].to_numpy(),
+            incorrect[('Duration','results')].to_numpy()
         ).sum()
 
         if 'Player' in self.selections.columns:
