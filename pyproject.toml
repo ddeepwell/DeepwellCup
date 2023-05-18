@@ -36,4 +36,4 @@ remake = "deepwellcup.processing.remake:main"
 update_selections = "deepwellcup.processing.update_selections:main"
 update_results = "deepwellcup.processing.update_results:main"
 update_standings_plot = "deepwellcup.processing.update_results:main_without_database"
-
+series_results = "deepwellcup.processing.series_results:main"

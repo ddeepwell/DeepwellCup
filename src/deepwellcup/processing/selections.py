@@ -22,10 +22,12 @@ class Selections(DataFile):
             playoff_round,
             selections_directory=None,
             keep_results=False,
+            use_database_first=True,
             **kwargs
         ):
         super().__init__(year=year, playoff_round=playoff_round, directory=selections_directory)
         self._database = DataBaseOperations(**kwargs)
+        self._use_database_first = use_database_first
         with self.database as db:
             if playoff_round in utils.selection_rounds(self.year):
                 self.in_database = db.year_round_in_database(year, playoff_round)
@@ -56,6 +58,11 @@ class Selections(DataFile):
         """The database"""
         return self._database
 
+    @property
+    def use_database_first(self):
+        """Try to use the database first before the CSV"""
+        return self._use_database_first
+
     def _raise_error_if_champions_round(self):
         if self.playoff_round == 'Champions':
             raise ValueError('The playoff round must not be the Champions round')
@@ -64,7 +71,7 @@ class Selections(DataFile):
     def series(self):
         """Return the teams in each series in each conference"""
         self._raise_error_if_champions_round()
-        if self.in_database:
+        if self.in_database and self.use_database_first:
             return self._conference_series_from_database()
         else:
             return self._conference_series_from_file()
@@ -106,7 +113,7 @@ class Selections(DataFile):
 
     def _load_selections(self, **kwargs):
         """Load the selections from database or raw file"""
-        if self.in_database \
+        if self.in_database and self.use_database_first \
             and (kwargs["keep_results"] is False or self._results_in_database):
             if self.playoff_round in utils.selection_rounds(self.year):
                 with self.database as db:
