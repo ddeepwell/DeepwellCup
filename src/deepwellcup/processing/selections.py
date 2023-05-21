@@ -35,6 +35,7 @@ class Selections(DataFile):
                 self.in_database = db.champions_round_in_database(year)
             self._results_in_database = db.year_round_results_in_database(year, playoff_round)
         self._selections_overtime = None
+        self._preferences = None
         self._nicknames = None
         self._load_selections(keep_results=keep_results)
 
@@ -102,6 +103,17 @@ class Selections(DataFile):
         self._raise_error_if_champions_round()
         return self._selections_overtime
 
+    @property
+    def preferences_selected(self):
+        """Return a boolean indicating if preferences were selected"""
+        return self._preferences is not None
+
+    @property
+    def preferences(self):
+        """Return the selected preferences"""
+        self._raise_error_if_champions_round()
+        return self._preferences
+
     def _players_in_series(self, series):
         """Return the players in the series"""
         players = list(set(self.selections['Player']))
@@ -118,6 +130,7 @@ class Selections(DataFile):
             if self.playoff_round in utils.selection_rounds(self.year):
                 with self.database as db:
                     self._selections_overtime = db.get_overtime_selections(self.year, self.playoff_round)
+                    self._preferences = db.get_all_round_preferences(self.year, self.playoff_round)
                     self._nicknames = db.get_all_round_nicknames(self.year, self.playoff_round)
                 self._selections = self._load_playoff_round_selections_from_database()
             elif self.playoff_round == 'Champions':
@@ -128,6 +141,7 @@ class Selections(DataFile):
             if self.playoff_round in utils.selection_rounds(self.year):
                 self._load_nicknames_from_file()
                 self._load_overtime_selections_from_file()
+                self._load_preferences_from_file()
                 self._selections = self._load_playoff_round_selections_from_file(**kwargs)
             elif self.playoff_round == 'Champions':
                 self._selections = self._load_champions_selections_from_file(**kwargs)
@@ -157,6 +171,24 @@ class Selections(DataFile):
             overtime_data = data[['Individual','Overtime']]
             overtime_data.set_index('Individual', inplace=True)
             self._selections_overtime = overtime_data.squeeze().sort_index().astype('str')
+
+    def _load_preferences_from_file(self):
+        """Extract team preferences from file"""
+        data = self._read_data_file()
+        if 'Favourite team:' in data.columns and 'Current team cheering for:' in data.columns:
+            self._preferences = (
+                data.rename(
+                    columns={
+                        'Favourite team:': 'Favourite team',
+                        'Current team cheering for:': 'Cheering team',
+                    })
+                    [['Individual','Favourite team', 'Cheering team']]
+                    .set_index('Individual')
+                    .drop(index='Results')
+                    .squeeze()
+                    .sort_index()
+                    .astype('str')
+            )
 
     def _load_playoff_round_selections_from_file(self, keep_results=False):
         """Return the playoff round selections from the raw file"""

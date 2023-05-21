@@ -608,6 +608,70 @@ class DataBaseOperations():
         nicknames = series_data.squeeze().sort_index().to_dict()
         return nicknames if nicknames else None
 
+    def add_preferences(self,
+            year, playoff_round,
+            first_name, last_name, favourite_team, cheering_team):
+        '''Add an individuals preferences to the database'''
+        # checks on inputs
+        check_if_year_is_valid(year)
+        self.check_playoff_round(year, playoff_round)
+
+        individual_id = self._get_individual_id(first_name, last_name)
+
+        series_data = [(
+            year,
+            playoff_round,
+            individual_id,
+            favourite_team,
+            cheering_team,
+        )]
+        self.cursor.executemany(\
+            'INSERT INTO Preferences '\
+            'VALUES (?,?,?,?,?)',\
+            series_data)
+        self.conn.commit()
+
+    def get_preferences(self, year, playoff_round,
+            first_name, last_name):
+        '''Return the preferences for an individual'''
+        check_if_year_is_valid(year)
+        self.check_playoff_round(year, playoff_round)
+        individual_id = self._get_individual_id(first_name, last_name)
+        series_data = read_sql_query(
+                'SELECT * FROM Preferences '\
+                f'WHERE Year={year} '\
+                f'AND Round={playoff_round} '\
+                f'AND IndividualID={individual_id}', self.conn)
+        return series_data.loc[0][['FavouriteTeam','CheeringTeam']].values.tolist()
+
+    def get_all_round_preferences(self, year, playoff_round):
+        '''Return all the preferences for a playoff round in a pandas dataframe'''
+        check_if_year_is_valid(year)
+        series_data = read_sql_query(f'''
+            SELECT Ind.FirstName, Ind.LastName,
+                Pref.FavouriteTeam, Pref.CheeringTeam
+            FROM Individuals as Ind
+            LEFT JOIN Preferences as Pref
+            ON Ind.IndividualID = Pref.IndividualID
+            WHERE Pref.Year = {year}
+            AND Pref.Round = "{playoff_round}"
+            ORDER BY FirstName, LastName
+            ''', self.conn)
+        series_data['Individual'] = \
+            (series_data['FirstName'] + ' ' + series_data['LastName']).apply(lambda x: x.strip())
+        preferences = (series_data
+            .set_index('Individual')
+            .drop(['FirstName', 'LastName'], axis='columns')
+            .rename(columns={
+                "FavouriteTeam": "Favourite Team",
+                "CheeringTeam": "Cheering Team"
+                }
+            )
+            .squeeze()
+            .sort_index()
+        )
+        return preferences if not preferences.empty else None
+
 def check_if_year_is_valid(year):
     '''Check if the year is valid'''
     if not isinstance(year, int):

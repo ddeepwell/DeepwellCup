@@ -209,7 +209,11 @@ class Latex():
                     column_header += f"&  \\mcc{{{nickname}}}"
             column_header += r" \\\thickline"
 
-        round_table = ''
+        if self._round_selections.preferences_selected:
+            round_table = self._preferences_rows()
+        else:
+            round_table = ''
+
         for conference in self._series:
             round_table += self._selections_table_conference(conference)
 
@@ -225,6 +229,23 @@ class Latex():
             round_table=round_table,
             champions_table=self._champions_table()
         )
+
+    def _preferences_rows(self):
+        """Create rows of preferences"""
+        favourite_line = 'Favourite Team'
+        cheering_line = 'Cheering Team'
+        for index, individual in enumerate(self.individuals):
+            preferences = self._round_selections.preferences.loc[individual]
+            if index % 2 == 0:
+                favourite_line += f" & \\mclg{{{stn(preferences['Favourite Team'])}}}"
+                cheering_line += f" & \\mclg{{{stn(preferences['Cheering Team'])}}}"
+            else:
+                favourite_line += f" & \\mcl{{{stn(preferences['Favourite Team'])}}}"
+                cheering_line += f" & \\mcl{{{stn(preferences['Cheering Team'])}}}"
+        return "        "+self.blank + \
+            f"        {favourite_line} \\\\\n " + \
+            f"        {cheering_line} \\\\\\hline\n" + \
+            "        "+self.blanker
 
     def _create_row(self, series):
         """Create a single row of the main column"""
@@ -280,10 +301,6 @@ class Latex():
         num_columns = self._number_of_columns
         num_series = self._number_of_series_in_round_per_conference
 
-        # define empty line types
-        blank   = (num_columns-1)*"&"+" \\\\\\hline\n"
-        blanker = (num_columns-1)*"&"+" \\\\\n"
-
         # subtitles
         conference_table = ""
         if conference != 'None':
@@ -295,18 +312,17 @@ class Latex():
             conference_table += self._create_row(series)
 
             if index == num_series-1 and conference == 'East':
-                conference_table += "          "+blanker
+                conference_table += "          "+self.blanker
             elif index == num_series-1 and conference in ['West', "None"]:
                 conference_table = conference_table[:-1]
             else:
-                conference_table += "          "+blank
+                conference_table += "          "+self.blank
 
         return conference_table
 
     def _overtime_rows(self):
         """Row for the overtime selections"""
-        blanker = (self._number_of_columns-1)*"&"+" \\\\\n"
-        row = f"{blanker}          Overtime"
+        row = f"{self.blanker}          Overtime"
         for index, individual in enumerate(self.individuals):
             if index % 2 == 0:
                 row += f' & \\mclg{{{self._round_selections.selections_overtime[individual]}}}'
@@ -556,6 +572,16 @@ f'''        Let $C$ be the correct number of games\\\\
         return " & ".join(
             func(correct_games, array(utils.series_duration_options(self.playoff_round))
         ).astype(str).tolist())
+
+    @property
+    def blank(self):
+        """Return an empty line which matches the column colouring"""
+        return (self._number_of_columns-1)*"&"+" \\\\\\hline\n"
+
+    @property
+    def blanker(self):
+        """Return an empty line which matches the column colouring"""
+        return (self._number_of_columns-1)*"&"+" \\\\\n"
 
 def shorten_player_name(name):
     """Shorten a player name"""

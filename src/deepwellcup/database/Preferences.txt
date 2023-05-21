@@ -1,0 +1,9 @@
+CREATE TABLE Preferences (
+    Year            INTEGER (4) NOT NULL,
+    Round           INTEGER (1) NOT NULL,
+    IndividualID    INTEGER    REFERENCES Individuals (IndividualID)
+                        NOT NULL,
+    FavouriteTeam   VARCHAR (40),
+    CheeringTeam    VARCHAR (40),
+    PRIMARY KEY ( Year, Round, IndividualID )
+);
