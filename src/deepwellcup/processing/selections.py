@@ -195,20 +195,27 @@ class Selections(DataFile):
 
         data = self._read_data_file()
         series = self._series_from_file()
-        data.rename(columns=dict(list(zip(series, [f'{ser}Team' for ser in series]))), inplace=True)
         if not keep_results:
             data = data[data.Individual != 'Results']
-
         non_series_columns = [col for col in data.columns
                 if not bool(re.match(r"^[A-Z]{3}-[A-Z]{3}", col))
                 and col != 'Individual']
-        data.drop(columns=non_series_columns, inplace=True)
 
-        selections = wide_to_long(data,
-            stubnames=series,
-            i='Individual',
-            j='Selections',
-            suffix='\\D+').stack().unstack(-2)
+        pre_pivot = (data
+            .rename(columns=dict(list(zip(series, [f'{ser}Team' for ser in series]))))
+            .drop(columns=non_series_columns)
+        )
+
+        post_pivot = (wide_to_long(
+                pre_pivot,
+                stubnames=series,
+                i='Individual',
+                j='Selections',
+                suffix='\\D+'
+            )
+            .stack()
+            .unstack(-2)
+        )
 
         def get_conference(series: str):
             """The conference for the teams in the series"""
@@ -216,23 +223,31 @@ class Selections(DataFile):
                 else team_conference(series[:3], self.year)
 
         # add conference to index
-        conf_index = [get_conference(a_series) for a_series in selections.index.get_level_values(1)]
-        selections.set_index(Index(conf_index), append=True, inplace=True)
-        selections.index.names = ['Individual', 'Series', 'Conference']
-        df = selections.reorder_levels(['Individual', 'Conference', 'Series'])
+        post_pivot.index.names = ['Individual', 'Series']
+        conf_index = [
+            get_conference(a_series)
+            for a_series in post_pivot.index.get_level_values('Series')
+        ]
+        post_pivot = (post_pivot
+            .set_index(Index(conf_index, name='Conference'), append=True)
+            .reorder_levels(['Individual', 'Conference', 'Series'])
+            .rename(columns={' series length:': 'Duration'})
+            .replace(to_replace=math.nan, value=None)
+        )
 
         selection_columns = ['Team', 'Duration']
-        df.rename(columns={' series length:': 'Duration'}, inplace=True)
-        if ' Who will score more points?' in df.columns:
-            df.rename(columns={' Who will score more points?': 'Player'}, inplace=True)
+        if ' Who will score more points?' in post_pivot.columns:
+            post_pivot.rename(columns={' Who will score more points?': 'Player'}, inplace=True)
             selection_columns += ['Player']
-        # modify team column
-        df.replace(to_replace=math.nan, value=None, inplace=True)
         # modify duration column
-        mask = df.loc[:,'Duration'].str[0].isin(
-            map(str, utils.series_duration_options(self.playoff_round))
+        mask = (post_pivot
+            .loc[:,'Duration']
+            .str[0]
+            .isin(
+                map(str, utils.series_duration_options(self.playoff_round))
+            )
         )
-        df.loc[~mask,'Duration'] = [None]*len(df.loc[~mask,'Duration'])
+        post_pivot.loc[~mask,'Duration'] = [None]*len(post_pivot.loc[~mask,'Duration'])
         with warnings.catch_warnings():
             warnings.filterwarnings(
                 "ignore",
@@ -242,11 +257,12 @@ class Selections(DataFile):
                     "To retain the old behavior, use either.*"
                 ),
             )
-            df.loc[mask,'Duration'] = df.loc[mask,'Duration'].str[0].astype("Int64")
-        selections = df[selection_columns]
-        selections.sort_index(level=[0,1], sort_remaining=False, inplace=True)
-
-        return selections
+            post_pivot.loc[mask,'Duration'] = post_pivot.loc[mask,'Duration'].str[0].astype("Int64")
+        selections = post_pivot[selection_columns]
+        return selections.sort_index(
+            level=["Individual", "Conference"],
+            sort_remaining=False
+        )
 
     def _load_champions_selections_from_file(self, keep_results=False):
         """Return the champions selections from the raw file"""
