@@ -327,10 +327,11 @@ class Selections(DataFile):
     def _series_from_file(self):
         """List the series without conference from file"""
         data = self._read_data_file()
-        # abbreviated series name
-        return [col for col in data.columns
-                if bool(re.match(r"^[A-Z]{3}-[A-Z]{3}$", col)) \
-                or bool(re.match(r"^[A-Z]{3}-[A-Z]{3}-[A-Z]{3}$", col))]
+        return [
+            col for col in data.columns
+            if bool(re.match(r"^[A-Z]{3}-[A-Z]{3}$", col))
+            or bool(re.match(r"^[A-Z]{3}-[A-Z]{3}-[A-Z]{3}$", col))
+        ]
 
     def _conference_series_from_file(self):
         """Turn a list of series into a dictionary of series in each conference"""
