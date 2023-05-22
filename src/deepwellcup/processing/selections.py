@@ -36,7 +36,7 @@ class Selections(DataFile):
             self._results_in_database = db.year_round_results_in_database(year, playoff_round)
         self._selections_overtime = None
         self._preferences = None
-        self._nicknames = None
+        self._monikers = None
         self._load_selections(keep_results=keep_results)
 
     @property
@@ -50,9 +50,9 @@ class Selections(DataFile):
         return sorted(set(self.selections.index.get_level_values('Individual')))
 
     @property
-    def nicknames(self):
-        """The nicknames for individuals in the playoff round"""
-        return self._nicknames
+    def monikers(self):
+        """The monikers for individuals in the playoff round"""
+        return self._monikers
 
     @property
     def database(self):
@@ -131,7 +131,7 @@ class Selections(DataFile):
                 with self.database as db:
                     self._selections_overtime = db.get_overtime_selections(self.year, self.playoff_round)
                     self._preferences = db.get_all_round_preferences(self.year, self.playoff_round)
-                    self._nicknames = db.get_all_round_nicknames(self.year, self.playoff_round)
+                    self._monikers = db.get_all_round_monikers(self.year, self.playoff_round)
                 self._selections = self._load_playoff_round_selections_from_database()
             elif self.playoff_round == 'Champions':
                 self._selections = self._load_champions_selections_from_database()
@@ -139,7 +139,7 @@ class Selections(DataFile):
             print(f'Round data for {self.playoff_round} in {self.year} is not '\
                     f'in the database with path\n {self.database.path}')
             if self.playoff_round in utils.selection_rounds(self.year):
-                self._load_nicknames_from_file()
+                self._load_monikers_from_file()
                 self._load_overtime_selections_from_file()
                 self._load_preferences_from_file()
                 self._selections = self._load_playoff_round_selections_from_file(**kwargs)
@@ -148,17 +148,28 @@ class Selections(DataFile):
 
     def _read_data_file(self):
         """Read selections from selections file"""
-        data = read_csv(self.selections_file, sep=',', converters={'Name:': str.strip})
+        data = read_csv(
+            self.selections_file,
+            sep=',',
+            converters={
+                'Name:': str.strip,
+                'Moniker': str.strip,
+                }
+        )
         return data.rename(columns={'Name:': 'Individual'})
 
-    def _load_nicknames_from_file(self):
-        """Extract nicknames from file"""
+    def _load_monikers_from_file(self):
+        """Extract monikers from file"""
         data = self._read_data_file()
-        if 'Nickname' in data.columns:
-            data = data[data.Individual != 'Results']
-            nicknames = data[['Individual','Nickname']]
-            nicknames = nicknames.set_index('Individual').squeeze().sort_index()
-            self._nicknames = nicknames.replace(to_replace=math.nan, value=None).to_dict()
+        if 'Moniker' in data.columns:
+            self._monikers = (data[['Individual','Moniker']]
+                    .set_index('Individual')
+                    .drop(labels='Results',axis='index')
+                    .squeeze()
+                    .sort_index()
+                    # .replace(to_replace="", value=None)
+                    .to_dict()
+                )
 
     def _load_overtime_selections_from_file(self):
         """Extract overtime selections from file"""

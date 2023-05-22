@@ -558,55 +558,55 @@ class DataBaseOperations():
                 self.conn)
         return None if overtime_data.empty else str(overtime_data['Overtime'][0])
 
-    def add_nickname_in_series(self,
+    def add_moniker_in_series(self,
             year, playoff_round,
-            first_name, last_name, nickname):
-        '''Add an individuals nickname in a series to the database'''
+            first_name, last_name, moniker):
+        '''Add an individual's moniker in a series to the database'''
         # checks on inputs
         check_if_year_is_valid(year)
         self.check_playoff_round(year, playoff_round)
 
         individual_id = self._get_individual_id(first_name, last_name)
 
-        series_data = [(year, playoff_round, individual_id, nickname)]
+        series_data = [(year, playoff_round, individual_id, moniker)]
         self.cursor.executemany(\
-            'INSERT INTO Nicknames '\
+            'INSERT INTO Monikers '\
             'VALUES (?,?,?,?)',\
             series_data)
         self.conn.commit()
 
-    def get_nickname_in_series(self, year, playoff_round,
+    def get_moniker_in_series(self, year, playoff_round,
             first_name, last_name):
-        '''Return the nickname for an individual for a series'''
+        '''Return the moniker for an individual for a series'''
         check_if_year_is_valid(year)
         self.check_playoff_round(year, playoff_round)
         individual_id = self._get_individual_id(first_name, last_name)
         series_data = read_sql_query(
-                'SELECT * FROM Nicknames '\
+                'SELECT * FROM Monikers '\
                 f'WHERE Year={year} '\
                 f'AND Round={playoff_round} '\
                 f'AND IndividualID={individual_id}', self.conn)
-        return series_data['Nickname'][0]
+        return series_data['Moniker'][0]
 
-    def get_all_round_nicknames(self, year, playoff_round):
-        '''Return all the nicknames for a playoff round in a pandas dataframe'''
+    def get_all_round_monikers(self, year, playoff_round):
+        '''Return all the monikers for a playoff round in a pandas dataframe'''
         check_if_year_is_valid(year)
         series_data = read_sql_query(f'''
             SELECT Ind.FirstName, Ind.LastName,
-                NN.Nickname
+                Mnkr.Moniker
             FROM Individuals as Ind
-            LEFT JOIN Nicknames as NN
-            ON Ind.IndividualID = NN.IndividualID
-            WHERE NN.Year = {year}
-            AND NN.Round = "{playoff_round}"
+            LEFT JOIN Monikers as Mnkr
+            ON Ind.IndividualID = Mnkr.IndividualID
+            WHERE Mnkr.Year = {year}
+            AND Mnkr.Round = "{playoff_round}"
             ORDER BY FirstName, LastName
             ''', self.conn)
         series_data['Individual'] = \
             (series_data['FirstName'] + ' ' + series_data['LastName']).apply(lambda x: x.strip())
         series_data.set_index('Individual', inplace=True)
         series_data.drop(['FirstName', 'LastName'], axis='columns', inplace=True)
-        nicknames = series_data.squeeze().sort_index().to_dict()
-        return nicknames if nicknames else None
+        monikers = series_data.squeeze().sort_index().to_dict()
+        return monikers if monikers else None
 
     def add_preferences(self,
             year, playoff_round,

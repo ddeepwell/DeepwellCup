@@ -198,15 +198,15 @@ class Latex():
             else:
                 column_header += f"&  \\mcc{{{individual}}}"
         column_header += r" \\\thickline"
-        if self._round_selections.nicknames:
+        if self._round_selections.monikers:
             column_header = column_header[:-10]+'\n'
             for index, individual in enumerate(self.individuals):
-                value = self._round_selections.nicknames[individual]
-                nickname = value if value is not None else ""
+                value = self._round_selections.monikers[individual]
+                moniker = value if value is not None else ""
                 if index % 2 == 0:
-                    column_header += f"&  \\mccg{{{nickname}}}"
+                    column_header += f"&  \\mccg{{{moniker}}}"
                 else:
-                    column_header += f"&  \\mcc{{{nickname}}}"
+                    column_header += f"&  \\mcc{{{moniker}}}"
             column_header += r" \\\thickline"
 
         if self._round_selections.preferences_selected:
