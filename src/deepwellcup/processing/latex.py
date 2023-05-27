@@ -190,25 +190,6 @@ class Latex():
         elif self.playoff_round == 4:
             table_title = "Round 4: Stanley Cup Finals"
 
-        # column headers
-        column_header = ''
-        for index, individual in enumerate(self.individuals):
-            if index % 2 == 0:
-                column_header += f"&  \\mccg{{{individual}}}"
-            else:
-                column_header += f"&  \\mcc{{{individual}}}"
-        column_header += r" \\\thickline"
-        if self._round_selections.monikers:
-            column_header = column_header[:-10]+'\n'
-            for index, individual in enumerate(self.individuals):
-                value = self._round_selections.monikers[individual]
-                moniker = value if value is not None else ""
-                if index % 2 == 0:
-                    column_header += f"&  \\mccg{{{moniker}}}"
-                else:
-                    column_header += f"&  \\mcc{{{moniker}}}"
-            column_header += r" \\\thickline"
-
         if self._round_selections.preferences_selected:
             round_table = self._preferences_rows()
         else:
@@ -225,10 +206,25 @@ class Latex():
             column_format=column_format,
             num_columns=self._number_of_columns,
             table_title=table_title,
-            column_header=column_header,
+            column_header=self._names_row(),
             round_table=round_table,
             champions_table=self._champions_table()
         )
+
+    def _names_row(self):
+        """Create the row with individuals names or monikers"""
+        column_header = ''
+        for index, individual in enumerate(self.individuals):
+            name = self._round_selections.monikers[individual] \
+                if self._round_selections.monikers \
+                    and self._round_selections.monikers[individual] != '' \
+                else individual
+            if index % 2 == 0:
+                column_header += f"& \\mccg{{{name}}} "
+            else:
+                column_header += f"& \\mcc{{{name}}} "
+        column_header += r" \\\thickline"
+        return column_header
 
     def _preferences_rows(self):
         """Create rows of preferences"""
