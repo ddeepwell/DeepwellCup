@@ -10,6 +10,7 @@
 \usepackage[table]{xcolor}
 \usepackage{ctable}
 \usepackage{float}
+\usepackage{adjustbox}
 \usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
@@ -39,11 +40,12 @@
 \thispagestyle{empty}
 {\bf 2006 Deepwell Cup}
 \begin{table}[h!]
-    \centering
+  \centering
+  \adjustbox{max width=\textwidth}{
     \begin{tabular}{l g g w w g g w w}
         \rowcolor{black}\mcn{9}{\color{white}\bf Round 4: Stanley Cup Finals} \\
         \rowcolor{white}\\
-        &  \mccg{Daniel S}&  \mcc{David D}&  \mccg{Kollin H}&  \mcc{Michael D} \\\thickline
+        & \mccg{Daniel S} & \mcc{David D} & \mccg{Kollin H} & \mcc{Michael D}  \\\thickline
         \\\hline
           Carolina Hurricanes&&&&&&&&\\
           Edmonton Oilers & \mr{EDM} & \mr{7} & \mr{EDM} & \mr{5} & \mr{CAR} & \mr{5} & \mr{EDM} & \mr{7}\\\hline
@@ -53,10 +55,12 @@
           Western & \mclg{DAL} & \mcl{DET} & \mclg{SJS} & \mcl{DET}\\
           Stanley Cup & CAR & 6 & DET & 6 & SJS & 6 & DET & 6
     \end{tabular}
+  }
 \end{table}
 
 {\bf Points}\\
-\begin{minipage}{12cm}
+\begin{minipage}[t]{12cm}
+    \vspace{0pt}
     \begin{tabular}{l l}
         Correct team:	& $10$\\
         Correct series length (regardless of series winner):	& $7$\\
@@ -72,10 +76,12 @@
         EDM & 3 \\
     \end{tabular}
 \end{minipage}
+%
 \begin{minipage}[t]{13cm}
+    \vspace{0pt}
     \begin{figure}[H]
-        \vspace{-3.5cm}
-        \includegraphics[width=12cm]{../../figures/2006/Points-2006-Round3.pdf}
+        \vspace{-1cm}
+        \includegraphics[width=12cm,height=8cm,keepaspectratio]{../../figures/2006/Points-2006-Round3.pdf}
     \end{figure}
 \end{minipage}
 

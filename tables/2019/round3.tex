@@ -10,6 +10,7 @@
 \usepackage[table]{xcolor}
 \usepackage{ctable}
 \usepackage{float}
+\usepackage{adjustbox}
 \usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
@@ -39,11 +40,12 @@
 \thispagestyle{empty}
 {\bf 2019 Deepwell Cup}
 \begin{table}[h!]
-    \centering
+  \centering
+  \adjustbox{max width=\textwidth}{
     \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w g g w w g g w w g g}
         \rowcolor{black}\mcn{31}{\color{white}\bf Round 3: Conference Finals} \\
         \rowcolor{white}\\
-        &  \mccg{Alita D}&  \mcc{Andre D}&  \mccg{Andres M}&  \mcc{Anthony C}&  \mccg{Brian M}&  \mcc{David D}&  \mccg{Jackson L}&  \mcc{Jeremy B}&  \mccg{Jonathan M}&  \mcc{Josh H}&  \mccg{Kollin H}&  \mcc{Kyle L}&  \mccg{Mark D}&  \mcc{Michael D}&  \mccg{Nathan S} \\\thickline
+        & \mccg{Alita D} & \mcc{Andre D} & \mccg{Andres M} & \mcc{Anthony C} & \mccg{Brian M} & \mcc{David D} & \mccg{Jackson L} & \mcc{Jeremy B} & \mccg{Jonathan M} & \mcc{Josh H} & \mccg{Kollin H} & \mcc{Kyle L} & \mccg{Mark D} & \mcc{Michael D} & \mccg{Nathan S}  \\\thickline
         {\bf East} &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\\hline
           BOS&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\
           CAR & \mr{BOS} & \mr{5} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{6} & \mr{CAR} & \mr{6} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{5} & \mr{CAR} & \mr{6} & \mr{BOS} & \mr{7} & \mr{BOS} & \mr{6} & \mr{CAR} & \mr{6} & \mr{CAR} & \mr{6} & \mr{CAR} & \mr{5} & \mr{CAR} & \mr{7} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{6}\\
@@ -61,10 +63,12 @@
           Western & \mclg{COL} & \mcl{VGK} & \mclg{SJS} & \mcl{CGY} & \mclg{NSH} & \mcl{VGK} & \mclg{SJS} & \mcl{CGY} & \mclg{CGY} & \mcl{WPG} & \mclg{SJS} & \mcl{CGY} & \mclg{CGY} & \mcl{DAL} & \mclg{CGY}\\
           Stanley Cup & \mclg{BOS} & \mcl{TBL} & \mclg{TBL} & \mcl{TBL} & \mclg{TBL} & \mcl{TBL} & \mclg{SJS} & \mcl{TBL} & \mclg{TBL} & \mcl{TBL} & \mclg{SJS} & \mcl{TBL} & \mclg{NYI} & \mcl{CBJ} & \mclg{CGY}
     \end{tabular}
+  }
 \end{table}
 
 {\bf Points}\\
-\begin{minipage}{10cm}
+\begin{minipage}[t]{10cm}
+    \vspace{0pt}
     \begin{tabular}{l l}
         Let $C$ be the correct number of games\\
         Let $P$ be the predicted number of games\\
@@ -91,8 +95,9 @@
         More than 3 & 4
     \end{tabular}
 \end{minipage}
-\begin{minipage}[t!]{4cm}
-    \vspace{-2cm}
+%
+\begin{minipage}[t]{4cm}
+    \vspace{0pt}
     \qquad Correct team Points\\
     \begin{tabular}{c l | c c c c }
         \mccn{2}{} & \mccn{4}{Predicted}\\
@@ -103,8 +108,9 @@
         & 7 & 9 & 11 & 13 & 15
     \end{tabular}
 \end{minipage}
-\begin{minipage}[t!]{4cm}
-    \vspace{-2cm}
+%
+\begin{minipage}[t]{4cm}
+    \vspace{0pt}
     \qquad Incorrect team Points\\
     \begin{tabular}{c l | c c c c }
         \mccn{2}{} & \mccn{4}{Predicted}\\
@@ -115,10 +121,12 @@
         & 7 & 3 & 4 & 5 & 6
     \end{tabular}
 \end{minipage}
+%
 \begin{minipage}[t]{13cm}
+    \vspace{0pt}
     \begin{figure}[H]
-        \vspace{-3.5cm}
-        \includegraphics[width=12cm]{../../figures/2019/Points-2019-Round2.pdf}
+        \vspace{-1cm}
+        \includegraphics[width=12cm,height=8cm,keepaspectratio]{../../figures/2019/Points-2019-Round2.pdf}
     \end{figure}
 \end{minipage}
 

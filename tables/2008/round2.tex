@@ -10,6 +10,7 @@
 \usepackage[table]{xcolor}
 \usepackage{ctable}
 \usepackage{float}
+\usepackage{adjustbox}
 \usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
@@ -39,11 +40,12 @@
 \thispagestyle{empty}
 {\bf 2008 Deepwell Cup}
 \begin{table}[h!]
-    \centering
+  \centering
+  \adjustbox{max width=\textwidth}{
     \begin{tabular}{l g g w w g g w w g g w w}
         \rowcolor{black}\mcn{13}{\color{white}\bf Round 2: Division Finals} \\
         \rowcolor{white}\\
-        &  \mccg{Andrew D}&  \mcc{Daniel S}&  \mccg{David D}&  \mcc{Kollin H}&  \mccg{Michael D}&  \mcc{Thomas L} \\\thickline
+        & \mccg{Andrew D} & \mcc{Daniel S} & \mccg{David D} & \mcc{Kollin H} & \mccg{Michael D} & \mcc{Thomas L}  \\\thickline
         {\bf East} &&&&&&&&&&&&\\\hline
           Montreal Canadiens&&&&&&&&&&&&\\
           Philadelphia Flyers & \mr{MTL} & \mr{6} & \mr{MTL} & \mr{6} & \mr{MTL} & \mr{6} & \mr{MTL} & \mr{6} & \mr{MTL} & \mr{6} & \mr{MTL} & \mr{5}\\\hline
@@ -63,10 +65,12 @@
           Western & \mclg{DET} & \mcl{SJS} & \mclg{ANA} & \mcl{SJS} & \mclg{SJS} & \mcl{ANA}\\
           Stanley Cup & DET & 6 & MTL & 7 & MTL & 6 & SJS & 7 & SJS & 6 & MTL & 6
     \end{tabular}
+  }
 \end{table}
 
 {\bf Points}\\
-\begin{minipage}{12cm}
+\begin{minipage}[t]{12cm}
+    \vspace{0pt}
     \begin{tabular}{l l}
         Correct team:	& $7$\\
         Correct series length (regardless of series winner):	& $10$\\
@@ -81,10 +85,12 @@
         PHI & 0 & NYR & 3 & COL & 4 & DAL & 1 \\
     \end{tabular}
 \end{minipage}
+%
 \begin{minipage}[t]{13cm}
+    \vspace{0pt}
     \begin{figure}[H]
-        \vspace{-3.5cm}
-        \includegraphics[width=12cm]{../../figures/2008/Points-2008-Round1.pdf}
+        \vspace{-1cm}
+        \includegraphics[width=12cm,height=8cm,keepaspectratio]{../../figures/2008/Points-2008-Round1.pdf}
     \end{figure}
 \end{minipage}
 

@@ -10,6 +10,7 @@
 \usepackage[table]{xcolor}
 \usepackage{ctable}
 \usepackage{float}
+\usepackage{adjustbox}
 \usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
@@ -39,11 +40,12 @@
 \thispagestyle{empty}
 {\bf 2009 Deepwell Cup}
 \begin{table}[h!]
-    \centering
+  \centering
+  \adjustbox{max width=\textwidth}{
     \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w g g w w g g w w}
         \rowcolor{black}\mcn{29}{\color{white}\bf Round 2: Division Finals} \\
         \rowcolor{white}\\
-        &  \mccg{Andre D}&  \mcc{Andrew D}&  \mccg{Andy H}&  \mcc{Daniel S}&  \mccg{David D}&  \mcc{Harry L}&  \mccg{Isamu M}&  \mcc{Joseph O}&  \mccg{Kollin H}&  \mcc{Kyle L}&  \mccg{Mark D}&  \mcc{Michael D}&  \mccg{Sheldon L}&  \mcc{Thomas L} \\\thickline
+        & \mccg{Andre D} & \mcc{Andrew D} & \mccg{Andy H} & \mcc{Daniel S} & \mccg{David D} & \mcc{Harry L} & \mccg{Isamu M} & \mcc{Joseph O} & \mccg{Kollin H} & \mcc{Kyle L} & \mccg{Mark D} & \mcc{Michael D} & \mccg{Sheldon L} & \mcc{Thomas L}  \\\thickline
         {\bf East} &&&&&&&&&&&&&&&&&&&&&&&&&&&&\\\hline
           Boston Bruins&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\
           Carolina Hurricanes & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{5} & \mr{BOS} & \mr{6} & \mr{CAR} & \mr{5} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{7} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{4} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{4}\\\hline
@@ -63,10 +65,12 @@
           Western & \mclg{CHI} & \mcl{SJS} & \mclg{SJS} & \mcl{DET} & \mclg{SJS} & \mcl{DET} & \mclg{STL} & \mcl{VAN} & \mclg{SJS} & \mcl{} & \mclg{VAN} & \mcl{DET} & \mclg{} & \mcl{SJS}\\
           Stanley Cup & \mclg{PIT} & \mcl{SJS} & \mclg{SJS} & \mcl{DET} & \mclg{BOS} & \mcl{NJD} & \mclg{BOS} & \mcl{VAN} & \mclg{SJS} & \mcl{} & \mclg{PIT} & \mcl{BOS} & \mclg{} & \mcl{SJS}
     \end{tabular}
+  }
 \end{table}
 
 {\bf Points}\\
-\begin{minipage}{12cm}
+\begin{minipage}[t]{12cm}
+    \vspace{0pt}
     \begin{tabular}{l l}
         Correct team:	& $7$\\
         Correct series length (regardless of series winner):	& $10$\\
@@ -81,10 +85,12 @@
         CAR & 1 & PIT & 7 & ANA & 3 & CHI & 3 \\
     \end{tabular}
 \end{minipage}
+%
 \begin{minipage}[t]{13cm}
+    \vspace{0pt}
     \begin{figure}[H]
-        \vspace{-3.5cm}
-        \includegraphics[width=12cm]{../../figures/2009/Points-2009-Round1.pdf}
+        \vspace{-1cm}
+        \includegraphics[width=12cm,height=8cm,keepaspectratio]{../../figures/2009/Points-2009-Round1.pdf}
     \end{figure}
 \end{minipage}
 

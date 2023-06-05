@@ -10,7 +10,8 @@
 \usepackage[table]{xcolor}
 \usepackage{ctable}
 \usepackage{float}
-\usepackage[landscape,margin=0.25in,legalpaper,paperheight=16in]{geometry}
+\usepackage{adjustbox}
+\usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
 \newcommand{\mccn}[2]{\multicolumn{#1}{c}{#2}}
@@ -39,12 +40,12 @@
 \thispagestyle{empty}
 {\bf 2022 Deepwell Cup}
 \begin{table}[h!]
-    \centering
+  \centering
+  \adjustbox{max width=\textwidth}{
     \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w g g w w g g w w g g w w g g w w}
         \rowcolor{black}\mcn{37}{\color{white}\bf Round 1: Division Semi-Finals} \\
         \rowcolor{white}\\
-        &  \mccg{Andre D}&  \mcc{Andrew N}&  \mccg{Anthony C}&  \mcc{Brad V}&  \mccg{Brian M}&  \mcc{David D}&  \mccg{Jackson L}&  \mcc{Jeremy B}&  \mccg{Jonathan M}&  \mcc{Josh H}&  \mccg{Kollin H}&  \mcc{Kyle L}&  \mccg{Levi N}&  \mcc{Michael D}&  \mccg{Nathan S}&  \mcc{Ron K}&  \mccg{Tim S}&  \mcc{Tre K} \\
-&  \mccg{}&  \mcc{}&  \mccg{}&  \mcc{}&  \mccg{the smoothest BM}&  \mcc{}&  \mccg{}&  \mcc{}&  \mccg{}&  \mcc{}&  \mccg{}&  \mcc{}&  \mccg{winzzzz}&  \mcc{}&  \mccg{}&  \mcc{}&  \mccg{}&  \mcc{} \\\thickline
+        & \mccg{Andre D} & \mcc{Andrew N} & \mccg{Anthony C} & \mcc{Brad V} & \mccg{the smoothest BM} & \mcc{David D} & \mccg{Jackson L} & \mcc{Jeremy B} & \mccg{Jonathan M} & \mcc{Josh H} & \mccg{Kollin H} & \mcc{Kyle L} & \mccg{winzzzz} & \mcc{Michael D} & \mccg{Nathan S} & \mcc{Ron K} & \mccg{Tim S} & \mcc{Tre K}  \\\thickline
         {\bf East} &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\\hline
           FLA&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\
           WSH & \mr{FLA} & \mr{6} & \mr{FLA} & \mr{5} & \mr{FLA} & \mr{6} & \mr{FLA} & \mr{5} & \mr{FLA} & \mr{4} & \mr{FLA} & \mr{7} & \mr{FLA} & \mr{6} & \mr{FLA} & \mr{5} & \mr{FLA} & \mr{6} & \mr{FLA} & \mr{6} & \mr{FLA} & \mr{6} & \mr{FLA} & \mr{6} & \mr{FLA} & \mr{6} & \mr{FLA} & \mr{5} & \mr{FLA} & \mr{7} & \mr{FLA} & \mr{6} & \mr{FLA} & \mr{5} & \mr{WSH} & \mr{6}\\\hline
@@ -76,10 +77,12 @@
           Western & \mclg{CGY} & \mcl{COL} & \mclg{COL} & \mcl{CGY} & \mclg{CGY} & \mcl{MIN} & \mclg{COL} & \mcl{CGY} & \mclg{CGY} & \mcl{MIN} & \mclg{STL} & \mcl{CGY} & \mclg{CGY} & \mcl{MIN} & \mclg{COL} & \mcl{CGY} & \mclg{EDM} & \mcl{DAL}\\
           Stanley Cup & \mclg{COL} & \mcl{COL} & \mclg{COL} & \mcl{FLA} & \mclg{FLA} & \mcl{CAR} & \mclg{FLA} & \mcl{FLA} & \mclg{FLA} & \mcl{COL} & \mclg{STL} & \mcl{CGY} & \mclg{CGY} & \mcl{WSH} & \mclg{COL} & \mcl{TOR} & \mclg{EDM} & \mcl{TOR}
     \end{tabular}
+  }
 \end{table}
 
 {\bf Points}\\
-\begin{minipage}{10cm}
+\begin{minipage}[t]{10cm}
+    \vspace{0pt}
     \begin{tabular}{l l}
         Let $C$ be the correct number of games\\
         Let $P$ be the predicted number of games\\
@@ -96,8 +99,9 @@
         WSH & 1 & TBL & 8 & BOS & 5 & PIT & 6 & NSH & 1 & STL & 8 & DAL & 2 & LAK & 3 \\
     \end{tabular}
 \end{minipage}
-\begin{minipage}[t!]{4cm}
-    \vspace{-2cm}
+%
+\begin{minipage}[t]{4cm}
+    \vspace{0pt}
     \qquad Correct team Points\\
     \begin{tabular}{c l | c c c c }
         \mccn{2}{} & \mccn{4}{Predicted}\\
@@ -108,8 +112,9 @@
         & 7 & 9 & 11 & 13 & 15
     \end{tabular}
 \end{minipage}
-\begin{minipage}[t!]{4cm}
-    \vspace{-2cm}
+%
+\begin{minipage}[t]{4cm}
+    \vspace{0pt}
     \qquad Incorrect team Points\\
     \begin{tabular}{c l | c c c c }
         \mccn{2}{} & \mccn{4}{Predicted}\\
@@ -120,5 +125,6 @@
         & 7 & 3 & 4 & 5 & 6
     \end{tabular}
 \end{minipage}
+%
 
 \end{document}

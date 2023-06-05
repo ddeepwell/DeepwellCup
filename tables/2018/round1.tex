@@ -10,6 +10,7 @@
 \usepackage[table]{xcolor}
 \usepackage{ctable}
 \usepackage{float}
+\usepackage{adjustbox}
 \usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
@@ -39,11 +40,12 @@
 \thispagestyle{empty}
 {\bf 2018 Deepwell Cup}
 \begin{table}[h!]
-    \centering
+  \centering
+  \adjustbox{max width=\textwidth}{
     \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w g g w w g g}
         \rowcolor{black}\mcn{27}{\color{white}\bf Round 1: Division Semi-Finals} \\
         \rowcolor{white}\\
-        &  \mccg{Andre D}&  \mcc{Andres M}&  \mccg{Andrew N}&  \mcc{Anthony C}&  \mccg{Brian M}&  \mcc{David D}&  \mccg{Jackson L}&  \mcc{Josh H}&  \mccg{Kollin H}&  \mcc{Kyle L}&  \mccg{Michael D}&  \mcc{Romulus}&  \mccg{Ron K} \\\thickline
+        & \mccg{Andre D} & \mcc{Andres M} & \mccg{Andrew N} & \mcc{Anthony C} & \mccg{Brian M} & \mcc{David D} & \mccg{Jackson L} & \mcc{Josh H} & \mccg{Kollin H} & \mcc{Kyle L} & \mccg{Michael D} & \mcc{Romulus} & \mccg{Ron K}  \\\thickline
         {\bf East} &&&&&&&&&&&&&&&&&&&&&&&&&&\\\hline
           Tampa Bay Lightning&&&&&&&&&&&&&&&&&&&&&&&&&&\\
           New Jersey Devils & \mr{NJD} & \mr{5} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{5} & \mr{TBL} & \mr{5} & \mr{TBL} & \mr{5} & \mr{TBL} & \mr{6} & \mr{NJD} & \mr{5} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{5} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{4} & \mr{NJD} & \mr{6} & \mr{TBL} & \mr{5}\\\hline
@@ -75,10 +77,12 @@
           Western & \mclg{VGK} & \mcl{NSH} & \mclg{MIN} & \mcl{NSH} & \mclg{WPG} & \mcl{WPG} & \mclg{SJS} & \mcl{WPG} & \mclg{NSH} & \mcl{WPG} & \mclg{NSH} & \mcl{WPG} & \mclg{WPG}\\
           Stanley Cup & \mclg{VGK} & \mcl{PIT} & \mclg{MIN} & \mcl{NSH} & \mclg{TBL} & \mcl{WPG} & \mclg{SJS} & \mcl{TBL} & \mclg{NSH} & \mcl{WPG} & \mclg{TBL} & \mcl{NJD} & \mclg{NSH}
     \end{tabular}
+  }
 \end{table}
 
 {\bf Points}\\
-\begin{minipage}{10cm}
+\begin{minipage}[t]{10cm}
+    \vspace{0pt}
     \begin{tabular}{l l}
         Let $C$ be the correct number of games\\
         Let $P$ be the predicted number of games\\
@@ -95,8 +99,9 @@
         NJD & 3 & TOR & 9 & CBJ & 2 & PHI & 2 & COL & 0 & MIN & 1 & LAK & 3 & SJS & 7 \\
     \end{tabular}
 \end{minipage}
-\begin{minipage}[t!]{4cm}
-    \vspace{-2cm}
+%
+\begin{minipage}[t]{4cm}
+    \vspace{0pt}
     \qquad Correct team Points\\
     \begin{tabular}{c l | c c c c }
         \mccn{2}{} & \mccn{4}{Predicted}\\
@@ -107,8 +112,9 @@
         & 7 & 6 & 7 & 8 & 9
     \end{tabular}
 \end{minipage}
-\begin{minipage}[t!]{4cm}
-    \vspace{-2cm}
+%
+\begin{minipage}[t]{4cm}
+    \vspace{0pt}
     \qquad Incorrect team Points\\
     \begin{tabular}{c l | c c c c }
         \mccn{2}{} & \mccn{4}{Predicted}\\
@@ -119,5 +125,6 @@
         & 7 & 3 & 4 & 5 & 6
     \end{tabular}
 \end{minipage}
+%
 
 \end{document}

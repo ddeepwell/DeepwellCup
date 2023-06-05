@@ -124,7 +124,6 @@ class Latex():
 
         template = self._import_template("round_selections.j2")
         return template.render(
-            paperheight=self._paperheight(),
             year=self.year,
             playoff_round=self.playoff_round,
             main_table=self._make_main_table(),
@@ -164,12 +163,6 @@ class Latex():
     def _number_of_series_in_round_per_conference(self):
         '''Return the number of series in a conference in the playoff round'''
         return self._number_of_series_in_round // len(self._round_selections.series)
-
-    def _paperheight(self):
-        """Define the paper height for the latex file"""
-        if len(self.individuals) < 17:
-            return ""
-        return f",paperheight={len(self.individuals)-2}in"
 
     def _make_main_table(self):
         """Create the main table"""

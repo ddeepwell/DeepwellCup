@@ -10,6 +10,7 @@
 \usepackage[table]{xcolor}
 \usepackage{ctable}
 \usepackage{float}
+\usepackage{adjustbox}
 \usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
@@ -39,11 +40,12 @@
 \thispagestyle{empty}
 {\bf 2014 Deepwell Cup}
 \begin{table}[h!]
-    \centering
+  \centering
+  \adjustbox{max width=\textwidth}{
     \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w}
         \rowcolor{black}\mcn{21}{\color{white}\bf Round 1: Division Semi-Finals} \\
         \rowcolor{white}\\
-        &  \mccg{Alita D}&  \mcc{Andre D}&  \mccg{Charmaine L}&  \mcc{David D}&  \mccg{Kollin H}&  \mcc{Kyle L}&  \mccg{Mark D}&  \mcc{Michael D}&  \mccg{Nathaniel T}&  \mcc{Thomas L} \\\thickline
+        & \mccg{Alita D} & \mcc{Andre D} & \mccg{Charmaine L} & \mcc{David D} & \mccg{Kollin H} & \mcc{Kyle L} & \mccg{Mark D} & \mcc{Michael D} & \mccg{Nathaniel T} & \mcc{Thomas L}  \\\thickline
         {\bf East} &&&&&&&&&&&&&&&&&&&&\\\hline
           Boston Bruins&&&&&&&&&&&&&&&&&&&&\\
           Detroit Red Wings & \mr{BOS} & \mr{5} & \mr{DET} & \mr{7} & \mr{BOS} & \mr{5} & \mr{BOS} & \mr{5} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{5} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{6} & \mr{DET} & \mr{7} & \mr{BOS} & \mr{6}\\\hline
@@ -75,10 +77,12 @@
           Western & \mclg{CHI} & \mcl{ANA} & \mclg{ANA} & \mcl{COL} & \mclg{CHI} & \mcl{CHI} & \mclg{SJS} & \mcl{CHI} & \mclg{ANA} & \mcl{ANA}\\
           Stanley Cup & \mclg{CHI} & \mcl{PIT} & \mclg{BOS} & \mcl{COL} & \mclg{BOS} & \mcl{BOS} & \mclg{BOS} & \mcl{BOS} & \mclg{MTL} & \mcl{BOS}
     \end{tabular}
+  }
 \end{table}
 
 {\bf Points}\\
-\begin{minipage}{12cm}
+\begin{minipage}[t]{12cm}
+    \vspace{0pt}
     \begin{tabular}{l l}
         Correct team:	& $7$\\
         Correct series length (regardless of series winner):	& $10$\\
@@ -93,5 +97,6 @@
         DET & 2 & MTL & 9 & CBJ & 1 & PHI & 4 & MIN & 1 & CHI & 9 & DAL & 1 & LAK & 5 \\
     \end{tabular}
 \end{minipage}
+%
 
 \end{document}

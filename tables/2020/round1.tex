@@ -10,7 +10,8 @@
 \usepackage[table]{xcolor}
 \usepackage{ctable}
 \usepackage{float}
-\usepackage[landscape,margin=0.25in,legalpaper,paperheight=16in]{geometry}
+\usepackage{adjustbox}
+\usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
 \newcommand{\mccn}[2]{\multicolumn{#1}{c}{#2}}
@@ -39,11 +40,12 @@
 \thispagestyle{empty}
 {\bf 2020 Deepwell Cup}
 \begin{table}[h!]
-    \centering
+  \centering
+  \adjustbox{max width=\textwidth}{
     \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w g g w w g g w w g g w w g g w w}
         \rowcolor{black}\mcn{37}{\color{white}\bf Round 1: Division Semi-Finals} \\
         \rowcolor{white}\\
-        &  \mccg{Alisha K}&  \mcc{Alita D}&  \mccg{Andre D}&  \mcc{Andrew N}&  \mccg{Anthony C}&  \mcc{Brandon P}&  \mccg{Brian M}&  \mcc{David D}&  \mccg{Jackson L}&  \mcc{Jonathan M}&  \mccg{Josh H}&  \mcc{Kollin H}&  \mccg{Kyle L}&  \mcc{Mark D}&  \mccg{Michael D}&  \mcc{Nathan S}&  \mccg{Ron K}&  \mcc{Tom K} \\\thickline
+        & \mccg{Alisha K} & \mcc{Alita D} & \mccg{Andre D} & \mcc{Andrew N} & \mccg{Anthony C} & \mcc{Brandon P} & \mccg{Brian M} & \mcc{David D} & \mccg{Jackson L} & \mcc{Jonathan M} & \mccg{Josh H} & \mcc{Kollin H} & \mccg{Kyle L} & \mcc{Mark D} & \mccg{Michael D} & \mcc{Nathan S} & \mccg{Ron K} & \mcc{Tom K}  \\\thickline
         {\bf East} &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\\hline
           PHI&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\
           MTL & \mr{MTL} & \mr{4} & \mr{MTL} & \mr{5} & \mr{MTL} & \mr{5} & \mr{MTL} & \mr{5} & \mr{MTL} & \mr{6} & \mr{MTL} & \mr{6} & \mr{PHI} & \mr{5} & \mr{PHI} & \mr{7} & \mr{PHI} & \mr{6} & \mr{PHI} & \mr{5} & \mr{PHI} & \mr{5} & \mr{MTL} & \mr{6} & \mr{MTL} & \mr{7} & \mr{PHI} & \mr{5} & \mr{PHI} & \mr{6} & \mr{PHI} & \mr{5} & \mr{PHI} & \mr{6} & \mr{MTL} & \mr{6}\\\hline
@@ -75,10 +77,12 @@
           Western & \mclg{STL} & \mcl{VGK} & \mclg{VGK} & \mcl{STL} & \mclg{STL} & \mcl{STL} & \mclg{COL} & \mcl{DAL} & \mclg{COL} & \mcl{VGK} & \mclg{COL} & \mcl{CHI} & \mclg{VAN} & \mcl{VGK} & \mclg{VGK} & \mcl{COL} & \mclg{VAN} & \mcl{VGK}\\
           Stanley Cup & \mclg{MTL} & \mcl{STL} & \mclg{TBL} & \mcl{CAR} & \mclg{VGK} & \mcl{WSH} & \mclg{COL} & \mcl{BOS} & \mclg{WSH} & \mcl{TBL} & \mclg{COL} & \mcl{CHI} & \mclg{VAN} & \mcl{VGK} & \mclg{WSH} & \mcl{COL} & \mclg{TBL} & \mcl{VGK}
     \end{tabular}
+  }
 \end{table}
 
 {\bf Points}\\
-\begin{minipage}{10cm}
+\begin{minipage}[t]{10cm}
+    \vspace{0pt}
     \begin{tabular}{l l}
         Let $C$ be the correct number of games\\
         Let $P$ be the predicted number of games\\
@@ -95,8 +99,9 @@
         MTL & 9 & CBJ & 5 & NYI & 7 & CAR & 11 & CHI & 5 & ARI & 3 & CGY & 10 & VAN & 8 \\
     \end{tabular}
 \end{minipage}
-\begin{minipage}[t!]{4cm}
-    \vspace{-2cm}
+%
+\begin{minipage}[t]{4cm}
+    \vspace{0pt}
     \qquad Correct team Points\\
     \begin{tabular}{c l | c c c c }
         \mccn{2}{} & \mccn{4}{Predicted}\\
@@ -107,8 +112,9 @@
         & 7 & 6 & 7 & 8 & 9
     \end{tabular}
 \end{minipage}
-\begin{minipage}[t!]{4cm}
-    \vspace{-2cm}
+%
+\begin{minipage}[t]{4cm}
+    \vspace{0pt}
     \qquad Incorrect team Points\\
     \begin{tabular}{c l | c c c c }
         \mccn{2}{} & \mccn{4}{Predicted}\\
@@ -119,5 +125,6 @@
         & 7 & 3 & 4 & 5 & 6
     \end{tabular}
 \end{minipage}
+%
 
 \end{document}

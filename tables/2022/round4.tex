@@ -10,6 +10,7 @@
 \usepackage[table]{xcolor}
 \usepackage{ctable}
 \usepackage{float}
+\usepackage{adjustbox}
 \usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
@@ -39,12 +40,12 @@
 \thispagestyle{empty}
 {\bf 2022 Deepwell Cup}
 \begin{table}[h!]
-    \centering
+  \centering
+  \adjustbox{max width=\textwidth}{
     \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w g g w w g g w w}
         \rowcolor{black}\mcn{29}{\color{white}\bf Round 4: Stanley Cup Finals} \\
         \rowcolor{white}\\
-        &  \mccg{Andre D}&  \mcc{Andrew N}&  \mccg{Anthony C}&  \mcc{Brad V}&  \mccg{Brian M}&  \mcc{David D}&  \mccg{Jackson L}&  \mcc{Jeremy B}&  \mccg{Jonathan M}&  \mcc{Kollin H}&  \mccg{Kyle L}&  \mcc{Levi N}&  \mccg{Nathan S}&  \mcc{Tim S} \\
-&  \mccg{}&  \mcc{}&  \mccg{}&  \mcc{}&  \mccg{The OG Leapfrog}&  \mcc{}&  \mccg{The 2022 Champ}&  \mcc{}&  \mccg{}&  \mcc{}&  \mccg{}&  \mcc{}&  \mccg{}&  \mcc{Tim S} \\\thickline
+        & \mccg{Andre D} & \mcc{Andrew N} & \mccg{Anthony C} & \mcc{Brad V} & \mccg{The OG Leapfrog} & \mcc{David D} & \mccg{The 2022 Champ} & \mcc{Jeremy B} & \mccg{Jonathan M} & \mcc{Kollin H} & \mccg{Kyle L} & \mcc{Levi N} & \mccg{Nathan S} & \mcc{Tim S}  \\\thickline
         \\\hline
           COL&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\
           TBL & \mr{COL} & \mr{6} & \mr{COL} & \mr{5} & \mr{COL} & \mr{4} & \mr{TBL} & \mr{6} & \mr{COL} & \mr{6} & \mr{TBL} & \mr{5} & \mr{COL} & \mr{6} & \mr{TBL} & \mr{6} & \mr{COL} & \mr{7} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{6} & \mr{COL} & \mr{7} & \mr{TBL} & \mr{6} & \mr{COL} & \mr{6}\\\hline
@@ -54,10 +55,12 @@
           Western & \mclg{CGY} & \mcl{COL} & \mclg{COL} & \mcl{CGY} & \mclg{CGY} & \mcl{MIN} & \mclg{COL} & \mcl{CGY} & \mclg{CGY} & \mcl{STL} & \mclg{CGY} & \mcl{CGY} & \mclg{COL} & \mcl{EDM}\\
           Stanley Cup & \mclg{COL} & \mcl{COL} & \mclg{COL} & \mcl{FLA} & \mclg{FLA} & \mcl{CAR} & \mclg{FLA} & \mcl{FLA} & \mclg{FLA} & \mcl{STL} & \mclg{CGY} & \mcl{CGY} & \mclg{COL} & \mcl{EDM}
     \end{tabular}
+  }
 \end{table}
 
 {\bf Points}\\
-\begin{minipage}{10cm}
+\begin{minipage}[t]{10cm}
+    \vspace{0pt}
     \begin{tabular}{l l}
         Let $C$ be the correct number of games\\
         Let $P$ be the predicted number of games\\
@@ -74,8 +77,9 @@
         TBL & 6 \\
     \end{tabular}
 \end{minipage}
-\begin{minipage}[t!]{4cm}
-    \vspace{-2cm}
+%
+\begin{minipage}[t]{4cm}
+    \vspace{0pt}
     \qquad Correct team Points\\
     \begin{tabular}{c l | c c c c }
         \mccn{2}{} & \mccn{4}{Predicted}\\
@@ -86,8 +90,9 @@
         & 7 & 9 & 11 & 13 & 15
     \end{tabular}
 \end{minipage}
-\begin{minipage}[t!]{4cm}
-    \vspace{-2cm}
+%
+\begin{minipage}[t]{4cm}
+    \vspace{0pt}
     \qquad Incorrect team Points\\
     \begin{tabular}{c l | c c c c }
         \mccn{2}{} & \mccn{4}{Predicted}\\
@@ -98,10 +103,12 @@
         & 7 & 3 & 4 & 5 & 6
     \end{tabular}
 \end{minipage}
+%
 \begin{minipage}[t]{13cm}
+    \vspace{0pt}
     \begin{figure}[H]
-        \vspace{-3.5cm}
-        \includegraphics[width=12cm]{../../figures/2022/Points-2022-Round3.pdf}
+        \vspace{-1cm}
+        \includegraphics[width=12cm,height=8cm,keepaspectratio]{../../figures/2022/Points-2022-Round3.pdf}
     \end{figure}
 \end{minipage}
 

@@ -10,6 +10,7 @@
 \usepackage[table]{xcolor}
 \usepackage{ctable}
 \usepackage{float}
+\usepackage{adjustbox}
 \usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
@@ -39,11 +40,12 @@
 \thispagestyle{empty}
 {\bf 2020 Deepwell Cup}
 \begin{table}[h!]
-    \centering
+  \centering
+  \adjustbox{max width=\textwidth}{
     \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w g g w w}
         \rowcolor{black}\mcn{25}{\color{white}\bf Round 3: Conference Finals} \\
         \rowcolor{white}\\
-        &  \mccg{Alisha K}&  \mcc{Andre D}&  \mccg{Andrew N}&  \mcc{Anthony C}&  \mccg{Brian M}&  \mcc{David D}&  \mccg{Jackson L}&  \mcc{Jonathan M}&  \mccg{Josh H}&  \mcc{Kyle L}&  \mccg{Mark D}&  \mcc{Nathan S} \\\thickline
+        & \mccg{Alisha K} & \mcc{Andre D} & \mccg{Andrew N} & \mcc{Anthony C} & \mccg{Brian M} & \mcc{David D} & \mccg{Jackson L} & \mcc{Jonathan M} & \mccg{Josh H} & \mcc{Kyle L} & \mccg{Mark D} & \mcc{Nathan S}  \\\thickline
         {\bf East} &&&&&&&&&&&&&&&&&&&&&&&&\\\hline
           TBL&&&&&&&&&&&&&&&&&&&&&&&&\\
           NYI & \mr{TBL} & \mr{4} & \mr{TBL} & \mr{7} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{7} & \mr{TBL} & \mr{5} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{5} & \mr{TBL} & \mr{6}\\\hline
@@ -57,10 +59,12 @@
           Western & \mclg{STL} & \mcl{VGK} & \mclg{STL} & \mcl{STL} & \mclg{COL} & \mcl{DAL} & \mclg{COL} & \mcl{VGK} & \mclg{COL} & \mcl{VAN} & \mclg{VGK} & \mcl{COL}\\
           Stanley Cup & \mclg{MTL} & \mcl{TBL} & \mclg{CAR} & \mcl{VGK} & \mclg{COL} & \mcl{BOS} & \mclg{WSH} & \mcl{TBL} & \mclg{COL} & \mcl{VAN} & \mclg{VGK} & \mcl{COL}
     \end{tabular}
+  }
 \end{table}
 
 {\bf Points}\\
-\begin{minipage}{10cm}
+\begin{minipage}[t]{10cm}
+    \vspace{0pt}
     \begin{tabular}{l l}
         Let $C$ be the correct number of games\\
         Let $P$ be the predicted number of games\\
@@ -77,8 +81,9 @@
         NYI & 0 & DAL & 5 \\
     \end{tabular}
 \end{minipage}
-\begin{minipage}[t!]{4cm}
-    \vspace{-2cm}
+%
+\begin{minipage}[t]{4cm}
+    \vspace{0pt}
     \qquad Correct team Points\\
     \begin{tabular}{c l | c c c c }
         \mccn{2}{} & \mccn{4}{Predicted}\\
@@ -89,8 +94,9 @@
         & 7 & 6 & 7 & 8 & 9
     \end{tabular}
 \end{minipage}
-\begin{minipage}[t!]{4cm}
-    \vspace{-2cm}
+%
+\begin{minipage}[t]{4cm}
+    \vspace{0pt}
     \qquad Incorrect team Points\\
     \begin{tabular}{c l | c c c c }
         \mccn{2}{} & \mccn{4}{Predicted}\\
@@ -101,10 +107,12 @@
         & 7 & 3 & 4 & 5 & 6
     \end{tabular}
 \end{minipage}
+%
 \begin{minipage}[t]{13cm}
+    \vspace{0pt}
     \begin{figure}[H]
-        \vspace{-3.5cm}
-        \includegraphics[width=12cm]{../../figures/2020/Points-2020-Round2.pdf}
+        \vspace{-1cm}
+        \includegraphics[width=12cm,height=8cm,keepaspectratio]{../../figures/2020/Points-2020-Round2.pdf}
     \end{figure}
 \end{minipage}
 

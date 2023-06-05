@@ -10,6 +10,7 @@
 \usepackage[table]{xcolor}
 \usepackage{ctable}
 \usepackage{float}
+\usepackage{adjustbox}
 \usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
@@ -39,11 +40,12 @@
 \thispagestyle{empty}
 {\bf 2013 Deepwell Cup}
 \begin{table}[h!]
-    \centering
+  \centering
+  \adjustbox{max width=\textwidth}{
     \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w g g w w g g w w}
         \rowcolor{black}\mcn{29}{\color{white}\bf Round 3: Conference Finals} \\
         \rowcolor{white}\\
-        &  \mccg{Alita D}&  \mcc{Andre D}&  \mccg{Andrew D}&  \mcc{Andy H}&  \mccg{Anna D}&  \mcc{Charmaine L}&  \mccg{David D}&  \mcc{Harry L}&  \mccg{Kollin H}&  \mcc{Kyle L}&  \mccg{Mark D}&  \mcc{Michael D}&  \mccg{Nathaniel T}&  \mcc{Thomas L} \\\thickline
+        & \mccg{Alita D} & \mcc{Andre D} & \mccg{Andrew D} & \mcc{Andy H} & \mccg{Anna D} & \mcc{Charmaine L} & \mccg{David D} & \mcc{Harry L} & \mccg{Kollin H} & \mcc{Kyle L} & \mccg{Mark D} & \mcc{Michael D} & \mccg{Nathaniel T} & \mcc{Thomas L}  \\\thickline
         {\bf East} &&&&&&&&&&&&&&&&&&&&&&&&&&&&\\\hline
           Pittsburgh Penguins&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\
           Boston Bruins & \mr{PIT} & \mr{6} & \mr{PIT} & \mr{7} & \mr{PIT} & \mr{6} & \mr{PIT} & \mr{7} & \mr{BOS} & \mr{6} & \mr{PIT} & \mr{7} & \mr{PIT} & \mr{6} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{6} & \mr{PIT} & \mr{7} & \mr{PIT} & \mr{7} & \mr{BOS} & \mr{6} & \mr{PIT} & \mr{6} & \mr{PIT} & \mr{5}\\\hline
@@ -57,10 +59,12 @@
           Western & \mclg{DET} & \mcl{VAN} & \mclg{CHI} & \mcl{ANA} & \mclg{ANA} & \mcl{CHI} & \mclg{CHI} & \mcl{STL} & \mclg{CHI} & \mcl{VAN} & \mclg{CHI} & \mcl{CHI} & \mclg{VAN} & \mcl{CHI}\\
           Stanley Cup & \mclg{WSH} & \mcl{PIT} & \mclg{PIT} & \mcl{ANA} & \mclg{PIT} & \mcl{CHI} & \mclg{CHI} & \mcl{STL} & \mclg{CHI} & \mcl{VAN} & \mclg{NYR} & \mcl{CHI} & \mclg{VAN} & \mcl{PIT}
     \end{tabular}
+  }
 \end{table}
 
 {\bf Points}\\
-\begin{minipage}{12cm}
+\begin{minipage}[t]{12cm}
+    \vspace{0pt}
     \begin{tabular}{l l}
         Correct team:	& $7$\\
         Correct series length (regardless of series winner):	& $10$\\
@@ -75,10 +79,12 @@
         BOS & 4 & LAK & 0 \\
     \end{tabular}
 \end{minipage}
+%
 \begin{minipage}[t]{13cm}
+    \vspace{0pt}
     \begin{figure}[H]
-        \vspace{-3.5cm}
-        \includegraphics[width=12cm]{../../figures/2013/Points-2013-Round2.pdf}
+        \vspace{-1cm}
+        \includegraphics[width=12cm,height=8cm,keepaspectratio]{../../figures/2013/Points-2013-Round2.pdf}
     \end{figure}
 \end{minipage}
 

@@ -10,6 +10,7 @@
 \usepackage[table]{xcolor}
 \usepackage{ctable}
 \usepackage{float}
+\usepackage{adjustbox}
 \usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
@@ -39,11 +40,12 @@
 \thispagestyle{empty}
 {\bf 2011 Deepwell Cup}
 \begin{table}[h!]
-    \centering
+  \centering
+  \adjustbox{max width=\textwidth}{
     \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w g g}
         \rowcolor{black}\mcn{23}{\color{white}\bf Round 3: Conference Finals} \\
         \rowcolor{white}\\
-        &  \mccg{Alita D}&  \mcc{Andre D}&  \mccg{Andrew D}&  \mcc{Andy H}&  \mccg{Charmaine L}&  \mcc{David D}&  \mccg{Kollin H}&  \mcc{Kyle L}&  \mccg{Mark D}&  \mcc{Michael D}&  \mccg{Thomas L} \\\thickline
+        & \mccg{Alita D} & \mcc{Andre D} & \mccg{Andrew D} & \mcc{Andy H} & \mccg{Charmaine L} & \mcc{David D} & \mccg{Kollin H} & \mcc{Kyle L} & \mccg{Mark D} & \mcc{Michael D} & \mccg{Thomas L}  \\\thickline
         {\bf East} &&&&&&&&&&&&&&&&&&&&&&\\\hline
           Boston Bruins&&&&&&&&&&&&&&&&&&&&&&\\
           Tampa Bay Lightning & \mr{BOS} & \mr{6} & \mr{TBL} & \mr{7} & \mr{BOS} & \mr{6} & \mr{TBL} & \mr{} & \mr{BOS} & \mr{7} & \mr{BOS} & \mr{7} & \mr{TBL} & \mr{7} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{7} & \mr{BOS} & \mr{6} & \mr{BOS} & \mr{6}\\\hline
@@ -57,10 +59,12 @@
           Western & \mclg{DET} & \mcl{VAN} & \mclg{VAN} & \mcl{VAN} & \mclg{VAN} & \mcl{SJS} & \mclg{VAN} & \mcl{VAN} & \mclg{SJS} & \mcl{VAN} & \mclg{VAN}\\
           Stanley Cup & \mclg{PHI} & \mcl{VAN} & \mclg{VAN} & \mcl{WSH} & \mclg{VAN} & \mcl{BOS} & \mclg{PHI} & \mcl{VAN} & \mclg{SJS} & \mcl{VAN} & \mclg{VAN}
     \end{tabular}
+  }
 \end{table}
 
 {\bf Points}\\
-\begin{minipage}{12cm}
+\begin{minipage}[t]{12cm}
+    \vspace{0pt}
     \begin{tabular}{l l}
         Correct team:	& $7$\\
         Correct series length (regardless of series winner):	& $10$\\
@@ -75,10 +79,12 @@
         TBL & 5 & SJS & 2 \\
     \end{tabular}
 \end{minipage}
+%
 \begin{minipage}[t]{13cm}
+    \vspace{0pt}
     \begin{figure}[H]
-        \vspace{-3.5cm}
-        \includegraphics[width=12cm]{../../figures/2011/Points-2011-Round2.pdf}
+        \vspace{-1cm}
+        \includegraphics[width=12cm,height=8cm,keepaspectratio]{../../figures/2011/Points-2011-Round2.pdf}
     \end{figure}
 \end{minipage}
 

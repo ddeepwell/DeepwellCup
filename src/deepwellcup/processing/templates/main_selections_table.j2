@@ -1,5 +1,6 @@
 \begin{table}[h!]
-    \centering
+  \centering
+  \adjustbox{max width=\textwidth}{
     \begin{tabular}{ {{- column_format -}} }
         \rowcolor{black}\mcn{ {{- num_columns -}} }{\color{white}\bf {{ table_title -}} } \\
         \rowcolor{white}\\
@@ -9,4 +10,5 @@
         \rowcolor{black} \mcn{ {{- num_columns -}} }{\color{white}\bf Conference Champions} \\
 {{ champions_table }}
     \end{tabular}
+  }
 \end{table}

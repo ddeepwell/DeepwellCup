@@ -10,6 +10,7 @@
 \usepackage[table]{xcolor}
 \usepackage{ctable}
 \usepackage{float}
+\usepackage{adjustbox}
 \usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
@@ -39,11 +40,12 @@
 \thispagestyle{empty}
 {\bf 2010 Deepwell Cup}
 \begin{table}[h!]
-    \centering
+  \centering
+  \adjustbox{max width=\textwidth}{
     \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w}
         \rowcolor{black}\mcn{21}{\color{white}\bf Round 1: Division Semi-Finals} \\
         \rowcolor{white}\\
-        &  \mccg{Andre D}&  \mcc{Andy H}&  \mccg{David D}&  \mcc{Isamu M}&  \mccg{Joseph O}&  \mcc{Kollin H}&  \mccg{Kyle L}&  \mcc{Mark D}&  \mccg{Michael D}&  \mcc{Thomas L} \\\thickline
+        & \mccg{Andre D} & \mcc{Andy H} & \mccg{David D} & \mcc{Isamu M} & \mccg{Joseph O} & \mcc{Kollin H} & \mccg{Kyle L} & \mcc{Mark D} & \mccg{Michael D} & \mcc{Thomas L}  \\\thickline
         {\bf East} &&&&&&&&&&&&&&&&&&&&\\\hline
           Washington Capitals&&&&&&&&&&&&&&&&&&&&\\
           Montreal Canadiens & \mr{WSH} & \mr{5} & \mr{WSH} & \mr{6} & \mr{WSH} & \mr{5} & \mr{WSH} & \mr{6} & \mr{WSH} & \mr{4} & \mr{WSH} & \mr{5} & \mr{WSH} & \mr{5} & \mr{WSH} & \mr{5} & \mr{WSH} & \mr{5} & \mr{WSH} & \mr{6}\\\hline
@@ -75,10 +77,12 @@
           Western & \mclg{SJS} & \mcl{DET} & \mclg{CHI} & \mcl{DET} & \mclg{VAN} & \mcl{SJS} & \mclg{VAN} & \mcl{CHI} & \mclg{DET} & \mcl{CHI}\\
           Stanley Cup & \mclg{PIT} & \mcl{DET} & \mclg{CHI} & \mcl{PIT} & \mclg{VAN} & \mcl{SJS} & \mclg{VAN} & \mcl{PIT} & \mclg{DET} & \mcl{WSH}
     \end{tabular}
+  }
 \end{table}
 
 {\bf Points}\\
-\begin{minipage}{12cm}
+\begin{minipage}[t]{12cm}
+    \vspace{0pt}
     \begin{tabular}{l l}
         Correct team:	& $7$\\
         Correct series length (regardless of series winner):	& $10$\\
@@ -93,5 +97,6 @@
         MTL & 0 & PHI & 4 & BOS & 2 & OTT & 1 & COL & 0 & NSH & 0 & LAK & 1 & DET & 9 \\
     \end{tabular}
 \end{minipage}
+%
 
 \end{document}

@@ -10,7 +10,8 @@
 \usepackage[table]{xcolor}
 \usepackage{ctable}
 \usepackage{float}
-\usepackage[landscape,margin=0.25in,legalpaper,paperheight=15in]{geometry}
+\usepackage{adjustbox}
+\usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
 \newcommand{\mccn}[2]{\multicolumn{#1}{c}{#2}}
@@ -39,11 +40,12 @@
 \thispagestyle{empty}
 {\bf 2019 Deepwell Cup}
 \begin{table}[h!]
-    \centering
+  \centering
+  \adjustbox{max width=\textwidth}{
     \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w g g w w g g w w g g w w g g}
         \rowcolor{black}\mcn{35}{\color{white}\bf Round 1: Division Semi-Finals} \\
         \rowcolor{white}\\
-        &  \mccg{Alita D}&  \mcc{Andre D}&  \mccg{Andres M}&  \mcc{Andrew N}&  \mccg{Anthony C}&  \mcc{Brian M}&  \mccg{David D}&  \mcc{Jackson L}&  \mccg{Jeremy B}&  \mcc{Jonathan M}&  \mccg{Josh H}&  \mcc{Kollin H}&  \mccg{Kyle L}&  \mcc{Mark D}&  \mccg{Michael D}&  \mcc{Nathan S}&  \mccg{Ron K} \\\thickline
+        & \mccg{Alita D} & \mcc{Andre D} & \mccg{Andres M} & \mcc{Andrew N} & \mccg{Anthony C} & \mcc{Brian M} & \mccg{David D} & \mcc{Jackson L} & \mccg{Jeremy B} & \mcc{Jonathan M} & \mccg{Josh H} & \mcc{Kollin H} & \mccg{Kyle L} & \mcc{Mark D} & \mccg{Michael D} & \mcc{Nathan S} & \mccg{Ron K}  \\\thickline
         {\bf East} &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\\hline
           TBL&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\\
           CBJ & \mr{CBJ} & \mr{5} & \mr{TBL} & \mr{5} & \mr{TBL} & \mr{4} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{5} & \mr{TBL} & \mr{5} & \mr{TBL} & \mr{5} & \mr{TBL} & \mr{5} & \mr{TBL} & \mr{4} & \mr{TBL} & \mr{4} & \mr{TBL} & \mr{4} & \mr{TBL} & \mr{5} & \mr{TBL} & \mr{5} & \mr{TBL} & \mr{4} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{6} & \mr{TBL} & \mr{7}\\\hline
@@ -75,10 +77,12 @@
           Western & \mclg{COL} & \mcl{VGK} & \mclg{SJS} & \mcl{DAL} & \mclg{CGY} & \mcl{NSH} & \mclg{VGK} & \mcl{SJS} & \mclg{CGY} & \mcl{CGY} & \mclg{WPG} & \mcl{SJS} & \mclg{CGY} & \mcl{CGY} & \mclg{DAL} & \mcl{CGY} & \mclg{CGY}\\
           Stanley Cup & \mclg{BOS} & \mcl{TBL} & \mclg{TBL} & \mcl{BOS} & \mclg{TBL} & \mcl{TBL} & \mclg{TBL} & \mcl{SJS} & \mclg{TBL} & \mcl{TBL} & \mclg{TBL} & \mcl{SJS} & \mclg{TBL} & \mcl{NYI} & \mclg{CBJ} & \mcl{CGY} & \mclg{WPG}
     \end{tabular}
+  }
 \end{table}
 
 {\bf Points}\\
-\begin{minipage}{10cm}
+\begin{minipage}[t]{10cm}
+    \vspace{0pt}
     \begin{tabular}{l l}
         Let $C$ be the correct number of games\\
         Let $P$ be the predicted number of games\\
@@ -90,8 +94,9 @@
         Overtime:               & 10\\
         Overtime (1 game off):  & 5\\
     \end{tabular}\end{minipage}
-\begin{minipage}[t!]{4cm}
-    \vspace{-2cm}
+%
+\begin{minipage}[t]{4cm}
+    \vspace{0pt}
     \qquad Correct team Points\\
     \begin{tabular}{c l | c c c c }
         \mccn{2}{} & \mccn{4}{Predicted}\\
@@ -102,8 +107,9 @@
         & 7 & 9 & 11 & 13 & 15
     \end{tabular}
 \end{minipage}
-\begin{minipage}[t!]{4cm}
-    \vspace{-2cm}
+%
+\begin{minipage}[t]{4cm}
+    \vspace{0pt}
     \qquad Incorrect team Points\\
     \begin{tabular}{c l | c c c c }
         \mccn{2}{} & \mccn{4}{Predicted}\\
@@ -114,8 +120,9 @@
         & 7 & 3 & 4 & 5 & 6
     \end{tabular}
 \end{minipage}
-\begin{minipage}[t!]{15cm}
-    \vspace{-4cm}
+%
+\begin{minipage}[t]{15cm}
+    \vspace{0pt}
     {\bf Number of picks per team:}\\
     \begin{tabular}{lc | lc | lc | lc | lc | lc | lc | lc }
         TBL & 16 & BOS & 12 & WSH & 15 & NYI & 3 & NSH & 14 & WPG & 14 & CGY & 16 & SJS & 12 \\

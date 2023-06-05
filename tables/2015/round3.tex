@@ -10,6 +10,7 @@
 \usepackage[table]{xcolor}
 \usepackage{ctable}
 \usepackage{float}
+\usepackage{adjustbox}
 \usepackage[landscape,margin=0.25in,legalpaper]{geometry}
 
 \newcommand{\mcn}[2]{\multicolumn{#1}{l}{#2}}	
@@ -39,11 +40,12 @@
 \thispagestyle{empty}
 {\bf 2015 Deepwell Cup}
 \begin{table}[h!]
-    \centering
+  \centering
+  \adjustbox{max width=\textwidth}{
     \begin{tabular}{l g g w w g g w w g g w w g g w w g g w w g g}
         \rowcolor{black}\mcn{23}{\color{white}\bf Round 3: Conference Finals} \\
         \rowcolor{white}\\
-        &  \mccg{Alita D}&  \mcc{Andre D}&  \mccg{Anthony C}&  \mcc{Charmaine L}&  \mccg{David D}&  \mcc{Harry L}&  \mccg{Kollin H}&  \mcc{Kyle L}&  \mccg{Mark D}&  \mcc{Michael D}&  \mccg{Thomas L} \\\thickline
+        & \mccg{Alita D} & \mcc{Andre D} & \mccg{Anthony C} & \mcc{Charmaine L} & \mccg{David D} & \mcc{Harry L} & \mccg{Kollin H} & \mcc{Kyle L} & \mccg{Mark D} & \mcc{Michael D} & \mccg{Thomas L}  \\\thickline
         {\bf East} &&&&&&&&&&&&&&&&&&&&&&\\\hline
           New York Rangers&&&&&&&&&&&&&&&&&&&&&&\\
           Tampa Bay Lightning & \mr{NYR} & \mr{7} & \mr{NYR} & \mr{7} & \mr{TBL} & \mr{7} & \mr{NYR} & \mr{6} & \mr{NYR} & \mr{6} & \mr{NYR} & \mr{7} & \mr{NYR} & \mr{6} & \mr{NYR} & \mr{6} & \mr{NYR} & \mr{6} & \mr{NYR} & \mr{6} & \mr{NYR} & \mr{6}\\\hline
@@ -57,10 +59,12 @@
           Western & \mclg{STL} & \mcl{CHI} & \mclg{CHI} & \mcl{VAN} & \mclg{CHI} & \mcl{} & \mclg{ANA} & \mcl{VAN} & \mclg{ANA} & \mcl{CHI} & \mclg{CHI}\\
           Stanley Cup & \mclg{WSH} & \mcl{NYR} & \mclg{NYR} & \mcl{VAN} & \mclg{NYR} & \mcl{} & \mclg{NYR} & \mcl{VAN} & \mclg{MTL} & \mcl{CHI} & \mclg{NYR}
     \end{tabular}
+  }
 \end{table}
 
 {\bf Points}\\
-\begin{minipage}{12cm}
+\begin{minipage}[t]{12cm}
+    \vspace{0pt}
     \begin{tabular}{l l}
         Correct team (rounds 1,2,3):	& $10$\\
         Correct series length (rounds 1,2,3 - regardless of series winner):	& $5$\\
@@ -77,10 +81,12 @@
         TBL & 1 & CHI & 5 \\
     \end{tabular}
 \end{minipage}
+%
 \begin{minipage}[t]{13cm}
+    \vspace{0pt}
     \begin{figure}[H]
-        \vspace{-3.5cm}
-        \includegraphics[width=12cm]{../../figures/2015/Points-2015-Round2.pdf}
+        \vspace{-1cm}
+        \includegraphics[width=12cm,height=8cm,keepaspectratio]{../../figures/2015/Points-2015-Round2.pdf}
     \end{figure}
 \end{minipage}
 
