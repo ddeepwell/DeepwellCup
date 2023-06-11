@@ -186,7 +186,7 @@ class Latex():
         if self._round_selections.preferences_selected:
             round_table = self._preferences_rows()
         else:
-            round_table = ''
+            round_table = self.blank if 'None' in self._series.keys() else ""
 
         for conference in self._series:
             round_table += self._selections_table_conference(conference)
@@ -231,10 +231,12 @@ class Latex():
             else:
                 favourite_line += f" & \\mcl{{{stn(preferences['Favourite Team'])}}}"
                 cheering_line += f" & \\mcl{{{stn(preferences['Cheering Team'])}}}"
-        return "        "+self.blank + \
-            f"        {favourite_line} \\\\\n " + \
-            f"        {cheering_line} \\\\\\hline\n" + \
-            "        "+self.blanker
+        final_line = "        "+self.blanker if self.playoff_round != 4 \
+            else "        "+self.blank
+        return "        "+self.blank \
+            + f"        {favourite_line} \\\\\n " \
+            + f"        {cheering_line} \\\\\\hline\n" \
+            + final_line
 
     def _create_row(self, series):
         """Create a single row of the main column"""
@@ -295,8 +297,6 @@ class Latex():
         if conference != 'None':
             conference_table += f"        {{\\bf {conference}}} " \
                 +(num_columns-1)*"&"+"\\\\\\hline\n"
-        else:
-            conference_table += r"        \\\hline"+'\n'
         for index, series in enumerate(self._series[conference]):
             conference_table += self._create_row(series)
 
@@ -564,7 +564,8 @@ f'''        Let $C$ be the correct number of games\\\\
 
     @property
     def blank(self):
-        """Return an empty line which matches the column colouring"""
+        """Return an empty line which matches the column colouring
+        and has a thin horizontal black line below the line"""
         return (self._number_of_columns-1)*"&"+" \\\\\\hline\n"
 
     @property
