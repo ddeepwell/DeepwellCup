@@ -232,10 +232,13 @@ class DataBaseOperations():
         """Return all Stanley Cup picks in a pandas dataframe"""
         selections = read_sql_query('SELECT * FROM StanleyCupSelections', self.conn)
         individuals = selections.loc[:,'IndividualID'].apply(self._get_individual_from_id)
-        selections.drop(['IndividualID'], axis='columns', inplace=True)
-        selections.insert(0,'Individual', individuals)
-        selections.set_index(['Individual', 'Year'], inplace=True)
-        return selections.replace(to_replace=math.nan, value=None)
+        selections.insert(0, 'Individual', individuals)
+        return (selections
+            .drop(['IndividualID'], axis='columns')
+            .set_index(['Individual', 'Year'])
+            .replace(to_replace=math.nan, value=None)
+        )
+
 
     def get_stanley_cup_selections(self, year):
         '''Return the Stanley Cup picks for the requested year
@@ -297,8 +300,8 @@ class DataBaseOperations():
         series_id = self._get_series_id(year, playoff_round, conference, series_number)
         series_data = read_sql_query(
                 f'SELECT * FROM Series WHERE YearRoundSeriesID={series_id}', self.conn)
-        series_data.drop('YearRoundSeriesID', axis='columns', inplace=True)
-        return series_data
+        return series_data.drop('YearRoundSeriesID', axis='columns')
+
 
     def add_year_round_series_for_conference(self,
             year, playoff_round, conference, series_list):
@@ -399,9 +402,10 @@ class DataBaseOperations():
                 'SELECT * FROM SeriesSelections '\
                 f'WHERE YearRoundSeriesID={series_id} '\
                 f'AND IndividualID={individual_id}', self.conn)
-        series_data.drop('YearRoundSeriesID', axis='columns', inplace=True)
-        series_data.drop('IndividualID', axis='columns', inplace=True)
-        return series_data
+        return (series_data
+            .drop(['YearRoundSeriesID', 'IndividualID'], axis='columns')
+        )
+
 
     def get_all_round_selections(self, year, playoff_round):
         '''Return all the selections for a playoff round in a pandas dataframe'''
@@ -419,10 +423,16 @@ class DataBaseOperations():
             AND Ser.Round = "{playoff_round}"
             ORDER BY FirstName, LastName, Conference, SeriesNumber
             ''', self.conn)
-        series_data['Individual'] = (series_data['FirstName'] + ' ' + series_data['LastName']).apply(lambda x: x.strip())
-        series_data.set_index('Individual', inplace=True)
-        series_data.drop(['FirstName', 'LastName'], axis='columns', inplace=True)
-        return series_data
+        series_data['Individual'] = (
+            series_data['FirstName']
+            + ' '
+            + series_data['LastName']).apply(lambda x: x.strip()
+        )
+        return (series_data
+            .set_index('Individual')
+            .drop(['FirstName', 'LastName'], axis='columns')
+        )
+
 
     def add_series_results(self,
             year, playoff_round, conference, series_number,
@@ -463,8 +473,8 @@ class DataBaseOperations():
                 'SELECT * FROM SeriesResults '\
                 f'WHERE YearRoundSeriesID={series_id}',\
                 self.conn)
-        series_data.drop('YearRoundSeriesID', axis='columns', inplace=True)
-        return series_data
+        return series_data.drop('YearRoundSeriesID', axis='columns')
+
 
     def get_all_round_results(self, year, playoff_round):
         '''Return all the results for a playoff round in a pandas dataframe'''
@@ -504,10 +514,11 @@ class DataBaseOperations():
                 AND Round="{playoff_round}"''',
                 self.conn)
         individuals = points_data.loc[:,'IndividualID'].apply(self._get_individual_from_id)
-        points_data.drop(['IndividualID'], axis='columns', inplace=True)
         points_data.insert(0,'Individual', individuals)
-        points_data.set_index('Individual', inplace=True)
-        return points_data
+        return (points_data
+            .drop(['IndividualID'], axis='columns')
+            .set_index('Individual')
+        )
 
     def add_overtime_selections(self, year, playoff_round,
             first_name, last_name, overtime):
@@ -543,10 +554,14 @@ class DataBaseOperations():
         if overtime_data.empty:
             return None
         individuals = overtime_data.loc[:,'IndividualID'].apply(self._get_individual_from_id)
-        overtime_data.drop(['IndividualID','Year','Round'], axis='columns', inplace=True)
         overtime_data.insert(0,'Individual', individuals)
-        overtime_data.set_index('Individual', inplace=True)
-        return overtime_data.squeeze().sort_index().astype('str')
+        return (overtime_data
+            .drop(['IndividualID','Year','Round'], axis='columns')
+            .set_index('Individual')
+            .squeeze()
+            .sort_index()
+            .astype('str')
+        )
 
     def get_overtime_results(self, year, playoff_round):
         '''Return the overtime result'''
@@ -603,9 +618,13 @@ class DataBaseOperations():
             ''', self.conn)
         series_data['Individual'] = \
             (series_data['FirstName'] + ' ' + series_data['LastName']).apply(lambda x: x.strip())
-        series_data.set_index('Individual', inplace=True)
-        series_data.drop(['FirstName', 'LastName'], axis='columns', inplace=True)
-        monikers = series_data.squeeze().sort_index().to_dict()
+        monikers = (series_data
+            .set_index('Individual')
+            .drop(['FirstName', 'LastName'], axis='columns')
+            .squeeze()
+            .sort_index()
+            .to_dict()
+        )
         return monikers if monikers else None
 
     def add_preferences(self,

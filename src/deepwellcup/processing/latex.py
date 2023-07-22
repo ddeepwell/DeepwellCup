@@ -49,7 +49,11 @@ class Latex():
     def individuals(self):
         """The individuals in the playoff round"""
         return sorted(
-            self._selections.index.get_level_values('Individual').unique()
+            self
+            ._selections
+            .index
+            .get_level_values('Individual')
+            .unique()
         )
 
     @property

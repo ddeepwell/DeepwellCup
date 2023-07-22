@@ -164,7 +164,7 @@ class Selections(DataFile):
         if 'Moniker' in data.columns:
             self._monikers = (data[['Individual','Moniker']]
                     .set_index('Individual')
-                    .drop(labels='Results',axis='index')
+                    .drop(labels='Results', axis='index')
                     .squeeze()
                     .sort_index()
                     # .replace(to_replace="", value=None)
@@ -175,13 +175,16 @@ class Selections(DataFile):
         """Extract overtime selections from file"""
         data = self._read_data_file()
         if 'How many overtime games will occur this round?' in data.columns:
-            data.rename(
-                columns={'How many overtime games will occur this round?': 'Overtime'},
-                inplace=True
+            self._selections_overtime = (data
+                .rename(
+                    columns={'How many overtime games will occur this round?': 'Overtime'}
+                )
+                [['Individual','Overtime']]
+                .set_index('Individual')
+                .squeeze()
+                .sort_index()
+                .astype('str')
             )
-            overtime_data = data[['Individual','Overtime']]
-            overtime_data.set_index('Individual', inplace=True)
-            self._selections_overtime = overtime_data.squeeze().sort_index().astype('str')
 
     def _load_preferences_from_file(self):
         """Extract team preferences from file"""
@@ -204,19 +207,20 @@ class Selections(DataFile):
     def _load_playoff_round_selections_from_file(self, keep_results=False):
         """Return the playoff round selections from the raw file"""
 
+        def get_conference(series: str):
+            """The conference for the teams in the series"""
+            return "None" if self.playoff_round == 4 or self.year == 2021 \
+                else team_conference(series[:3], self.year)
+
         data = self._read_data_file()
         series = self._series_from_file()
-        if not keep_results:
-            data = data[data.Individual != 'Results']
         non_series_columns = [col for col in data.columns
                 if not bool(re.match(r"^[A-Z]{3}-[A-Z]{3}", col))
                 and col != 'Individual']
-
         pre_pivot = (data
             .rename(columns=dict(list(zip(series, [f'{ser}Team' for ser in series]))))
             .drop(columns=non_series_columns)
         )
-
         post_pivot = (wide_to_long(
                 pre_pivot,
                 stubnames=series,
@@ -226,15 +230,14 @@ class Selections(DataFile):
             )
             .stack()
             .unstack(-2)
+            .rename_axis(index=['Individual', 'Series'])
+            .pipe(
+                lambda df: df.drop(index='Results')
+                if not keep_results
+                else df
+            )
         )
-
-        def get_conference(series: str):
-            """The conference for the teams in the series"""
-            return "None" if self.playoff_round == 4 or self.year == 2021 \
-                else team_conference(series[:3], self.year)
-
         # add conference to index
-        post_pivot.index.names = ['Individual', 'Series']
         conf_index = [
             get_conference(a_series)
             for a_series in post_pivot.index.get_level_values('Series')
@@ -245,7 +248,6 @@ class Selections(DataFile):
             .rename(columns={' series length:': 'Duration'})
             .replace(to_replace=math.nan, value=None)
         )
-
         selection_columns = ['Team', 'Duration']
         if ' Who will score more points?' in post_pivot.columns:
             post_pivot.rename(columns={' Who will score more points?': 'Player'}, inplace=True)
@@ -268,11 +270,16 @@ class Selections(DataFile):
                     "To retain the old behavior, use either.*"
                 ),
             )
-            post_pivot.loc[mask,'Duration'] = post_pivot.loc[mask,'Duration'].str[0].astype("Int64")
-        selections = post_pivot[selection_columns]
-        return selections.sort_index(
-            level=["Individual", "Conference"],
-            sort_remaining=False
+            post_pivot.loc[mask,'Duration'] = (post_pivot
+                .loc[mask,'Duration']
+                .str[0]
+                .astype("Int64")
+            )
+        return (post_pivot[selection_columns]
+            .sort_index(
+                level=["Individual", "Conference"],
+                sort_remaining=False
+            )
         )
 
     def _load_champions_selections_from_file(self, keep_results=False):
@@ -280,26 +287,32 @@ class Selections(DataFile):
 
         def select_conference_team(row, conference):
             """Return the team in the dataframe row for a particular conference"""
-
             champions_headers = self._champions_headers()
             if conference != 'Stanley Cup':
                 teams = row[champions_headers].values.tolist()
                 return teams[0] \
                     if team_conference(teams[0], self.year) == conference \
                     else teams[1]
-            else:
-                return row['Who will win the Stanley Cup?']
+            return row['Who will win the Stanley Cup?']
 
-        data = self._read_data_file()
-        data.index = data['Individual']
-        if not keep_results:
-            data.drop(index='Results', inplace=True)
-        data.columns.name = 'Selections'
+        data = (self._read_data_file()
+            .set_index(['Individual'])
+            .rename_axis(columns=['Selections'])
+            .pipe(
+                lambda df: df.drop(index='Results')
+                if not keep_results
+                else df
+            )
+        )
 
         champions_headers = ['East', 'West', 'Stanley Cup']
         for conference in champions_headers:
             data[conference] = data.apply(
-                            lambda row, conf=conference: select_conference_team(row, conf), axis=1)
+                lambda row,
+                conf=conference: select_conference_team(row, conf),
+                axis=1
+            )
+        champions_headers += ['Duration']
 
         duration_header = 'Length of Stanley Cup Finals'
         if duration_header not in data.columns:
@@ -307,28 +320,28 @@ class Selections(DataFile):
         else:
             data.rename(columns={duration_header: 'Duration'}, inplace=True)
             data['Duration'] = data['Duration'].str[0].astype("Int64")
-
-        return data[champions_headers+['Duration']]
+        return data[champions_headers]
 
     def _load_playoff_round_selections_from_database(self):
         """Return the playoff round selections from the database"""
-
         with self.database as db:
             data = db.get_all_round_selections(self.year, self.playoff_round)
-
         num_individuals = len(data.index.unique())
         series_list = [subval for values in self.series.values() for subval in values]
-        data.drop(columns=['SeriesNumber'], inplace=True)
-        data.set_index('Conference', append=True, inplace=True)
-        data.set_index(Index(series_list*num_individuals), append=True, inplace=True)
-        data.index.names = ['Individual', 'Conference', 'Series']
-        data.columns.name = 'Selections'
-
+        new_data = (data
+            .drop(columns=['SeriesNumber'])
+            .set_index('Conference', append=True)
+            .set_index(Index(series_list*num_individuals), append=True)
+            .rename_axis(
+                index=['Individual', 'Conference', 'Series'],
+                columns=['Selections'],
+            )
+            .astype({'Duration': 'Int64'})
+        )
         no_player_picks = all(item is None for item in data['Player'])
         if no_player_picks:
-            data.drop(columns=['Player'], inplace=True)
-        data['Duration'] = data['Duration'].astype("Int64")
-        return data
+            return new_data.drop(columns=['Player'])
+        return new_data
 
     def _load_champions_selections_from_database(self):
         """Return the Champions selections from the database"""

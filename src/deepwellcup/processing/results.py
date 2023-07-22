@@ -64,28 +64,28 @@ class Results(DataFile):
 
     def _load_playoff_round_results_from_database(self):
         """Return the playoff round results from the database"""
-
         with self.database as db:
             data = db.get_all_round_results(self.year, self.playoff_round)
-
         series_list = [subval for values in self.series.values() for subval in values]
-        data.drop(columns=['SeriesNumber'], inplace=True)
-        data.set_index('Conference', inplace=True)
-        data.set_index(Index(series_list), append=True, inplace=True)
-        data.index.names = ['Conference', 'Series']
-        data.columns.name = 'Selections'
-
-        new_names = {
-            'Winner': 'Team',
-            'Games': 'Duration',
-        }
-        data.rename(columns=new_names, inplace=True)
         no_player_picks = data['Player'].tolist().count(None) == len(data['Player'])
-        if no_player_picks:
-            data.drop(columns=['Player'], inplace=True)
-        if self.playoff_round != 'Champions':
-            data['Duration'] = data['Duration'].astype(Int64Dtype())
-        return data
+        return (data
+            .drop(columns=['SeriesNumber'])
+            .set_index(['Conference', Index(series_list)])
+            .rename_axis(
+                index=['Conference', 'Series'],
+                columns='Selections'
+            )
+            .pipe(
+                lambda df: df.drop(columns=['Player'])
+                if no_player_picks
+                else df
+            )
+            .pipe(
+                lambda df: df.astype({'Duration': Int64Dtype()})
+                if self.playoff_round != 'Champions'
+                else df
+            )
+        )
 
     def _load_champions_results_from_database(self):
         """Return the champions results from the database"""

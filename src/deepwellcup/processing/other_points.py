@@ -51,20 +51,22 @@ class OtherPoints(DataFile):
 
     def _load_playoff_round_other_points_from_file(self):
         """Return the playoff round selections from the raw source file"""
-
         data = read_csv(self.other_points_file, sep=',', converters={'Name:': str.strip})
-        data.rename(columns={'Name:': 'Individual', 'Points': 'Other Points'}, inplace=True)
-        data.set_index('Individual', inplace=True)
-        data.sort_index(inplace=True)
-        return data.squeeze('columns')
+        return (data
+            .rename(columns={'Name:': 'Individual', 'Points': 'Other Points'})
+            .set_index('Individual')
+            .sort_index()
+            .squeeze('columns')
+        )
+
 
     def _load_playoff_round_other_points_from_database(self):
         """Return the playoff round selections from the database"""
-
         with self.database as db:
             data = db.get_other_points(self.year, self.playoff_round)
-
-        data.drop(columns=['Year', 'Round'], inplace=True)
-        data.rename(columns={'Points': 'Other Points'}, inplace=True)
-        data.sort_index(inplace=True)
-        return data.squeeze('columns')
+        return (data
+            .drop(columns=['Year', 'Round'])
+            .rename(columns={'Points': 'Other Points'})
+            .sort_index()
+            .squeeze('columns')
+        )

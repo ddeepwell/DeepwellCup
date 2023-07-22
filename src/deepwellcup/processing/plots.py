@@ -123,16 +123,23 @@ class Plots():
         all_round_series = [self._add_column_to_table(rnd, category)
                             for rnd in self.rounds_to_plot.keys()]
         df = concat(all_round_series, axis=1).transpose()
-        total = df.sum()
-        total.name = 'Total'
-        df_with_total = concat([df, total.to_frame().transpose()])
-        df_with_total.columns.name = 'Individuals'
-        # df_with_total.sort_index(axis='columns', inplace=True)
-        return df_with_total.astype('Int64').sort_values(
-            by=['Total','Individuals'],
-            axis='columns',
-            ascending=[True,False]
+        total = (df
+            .sum()
+            .rename('Total')
+            .to_frame()
+            .transpose()
         )
+        df_with_total = concat([df, total])
+        return (df_with_total
+            .rename_axis(columns='Individuals')
+            .astype('Int64')
+            .sort_values(
+                by=['Total','Individuals'],
+                axis='columns',
+                ascending=[True,False]
+            )
+        )
+
 
     def standings(self):
         """Create a bar chart of the points standings in a year"""

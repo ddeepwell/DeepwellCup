@@ -72,7 +72,11 @@ class Points():
     @property
     def _selection_individuals(self):
         """The individuals who made selections for the playoff round"""
-        return self.selections.selections.index.get_level_values('Individual').unique()
+        return (self.selections.selections
+                .index
+                .get_level_values('Individual')
+                .unique()
+        )
 
     @property
     def individuals(self):
@@ -97,9 +101,9 @@ class Points():
         round_points = {}
         for individual in self._selection_individuals:
             round_points[individual] = self._scoring.individual_points(individual)
-            name = f"Round {self.playoff_round}" \
-                if self.playoff_round in utils.selection_rounds(self.year) \
-                else "Champions"
+        name = f"Round {self.playoff_round}" \
+            if self.playoff_round in utils.selection_rounds(self.year) \
+            else "Champions"
         return Series(
             round_points,
             index=round_points.keys(),
@@ -110,9 +114,11 @@ class Points():
     def total_points(self):
         """Combined points from selections and other"""
         if self.other_points is not None:
-            combined = self.selection_points.combine(self.other_points, add, fill_value=0)
-            combined.name = self.selection_points.name
-            return combined.sort_values(ascending=False)
+            return (self.selection_points
+                        .combine(self.other_points, add, fill_value=0)
+                        .rename(self.selection_points.name)
+                        .sort_values(ascending=False)
+            )
         return self.selection_points
 
     # @property
