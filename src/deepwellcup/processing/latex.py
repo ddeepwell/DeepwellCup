@@ -14,6 +14,7 @@ from deepwellcup.processing.nhl_teams import (
     lengthen_team_name as ltn,
 )
 
+
 class Latex():
     """Class making LaTex table files"""
 
@@ -88,10 +89,6 @@ class Latex():
         os.system(build_command)
         os.chdir(cwd)
 
-
-
-
-
     # class PlayoffRoundTable():
     #     """Subclass for making the table of selections in a playoff round"""
 
@@ -104,7 +101,7 @@ class Latex():
     @property
     def latex_file(self):
         """Return the name of the LaTex file"""
-        return dirs.year_tables(self.year)/f"round{self.playoff_round}.tex"
+        return dirs.year_tables(self.year) / f"round{self.playoff_round}.tex"
 
     def build_pdf(self, quiet=True):
         """Build the PDF for the selections in a playoff round"""
@@ -122,7 +119,7 @@ class Latex():
         if self.playoff_round == 'Q':
             previous_round = ''
         else:
-            previous_round = self.playoff_round-1
+            previous_round = self.playoff_round - 1
         ranking_image_path = "../../figures/"\
             f"{self.year}/Points-{self.year}-Round{previous_round}.pdf"
 
@@ -141,7 +138,7 @@ class Latex():
     @property
     def _number_of_columns(self):
         '''Return the number of columns in the main table'''
-        return 2*len(self.individuals) + 1
+        return 2 * len(self.individuals) + 1
 
     @property
     def _selections(self):
@@ -172,8 +169,8 @@ class Latex():
         """Create the main table"""
 
         num_individuals = len(self.individuals)
-        column_format = 'l' + " g g w w"*(num_individuals//2) \
-                        + (" g g" if num_individuals%2 else "")
+        column_format = 'l' + " g g w w" * (num_individuals // 2) \
+                        + (" g g" if num_individuals % 2 else "")
 
         # table title and column names
         if self.playoff_round == 'Q':
@@ -212,10 +209,14 @@ class Latex():
         """Create the row with individuals names or monikers"""
         column_header = ''
         for index, individual in enumerate(self.individuals):
-            name = self._round_selections.monikers[individual] \
-                if self._round_selections.monikers \
-                    and self._round_selections.monikers[individual] != '' \
+            name = (
+                self._round_selections.monikers[individual]
+                if (
+                    self._round_selections.monikers
+                    and self._round_selections.monikers[individual] != ''
+                )
                 else individual
+            )
             if index % 2 == 0:
                 column_header += f"& \\mccg{{{name}}} "
             else:
@@ -235,9 +236,9 @@ class Latex():
             else:
                 favourite_line += f" & \\mcl{{{stn(preferences['Favourite Team'])}}}"
                 cheering_line += f" & \\mcl{{{stn(preferences['Cheering Team'])}}}"
-        final_line = "        "+self.blanker if self.playoff_round != 4 \
-            else "        "+self.blank
-        return "        "+self.blank \
+        final_line = "        " + self.blanker if self.playoff_round != 4 \
+            else "        " + self.blank
+        return "        " + self.blank \
             + f"        {favourite_line} \\\\\n " \
             + f"        {cheering_line} \\\\\\hline\n" \
             + final_line
@@ -250,7 +251,7 @@ class Latex():
     def _row_team_selection(self, series):
         """Create the team selection component for a row"""
         def a_selection(individual):
-            series_selections = self._selections.loc[:,:,series]
+            series_selections = self._selections.loc[:, :, series]
             team = stn(series_selections['Team'][individual][0])
             duration = series_selections['Duration'][individual][0]
             duration = duration if not isna(duration) else ""
@@ -259,17 +260,19 @@ class Latex():
         if self._long_form:
             modify_team = ltn
         else:
-            modify_team = lambda arg: arg
+            def modify_team(arg):
+                return arg
+            # modify_team = lambda arg: arg
 
         higher_seed = modify_team(series.split('-')[0])
-        lower_seed  = modify_team(series.split('-')[1])
+        lower_seed = modify_team(series.split('-')[1])
         first_row = f"          {higher_seed}{'&'*(self._number_of_columns-1)}\\\\\n"
         second_row = f"          {lower_seed} " \
             + ' '.join([a_selection(individual) for individual in self.individuals])
         if self._round_selections.players_selected:
-            second_row += r"\\"+"\n"
+            second_row += r"\\" + "\n"
         else:
-            second_row += r"\\\hline"+"\n"
+            second_row += r"\\\hline" + "\n"
         return first_row + second_row
 
     def _row_player_selection(self, series_name):
@@ -279,15 +282,19 @@ class Latex():
 
         def a_selection(index, individual):
             selections = self._selections
-            player = shorten_player_name(selections['Player'][individual,:,series_name][0])
+            player = shorten_player_name(selections['Player'][individual, :, series_name][0])
             if index % 2:
                 return f"& \\mcl{{{player}}} "
             return f"& \\mclg{{{player}}} "
 
         return "          Player" \
-            + ' '.join([a_selection(index, individual)
-            for index, individual in enumerate(self.individuals)]) \
-            + r"\\\hline"+"\n"
+            + ' '.join(
+                [
+                    a_selection(index, individual)
+                    for index, individual in enumerate(self.individuals)
+                ]
+            ) \
+            + r"\\\hline" + "\n"
 
     def _selections_table_conference(self, conference):
         '''Create the interior of the table of individuals selections
@@ -300,16 +307,16 @@ class Latex():
         conference_table = ""
         if conference != 'None':
             conference_table += f"        {{\\bf {conference}}} " \
-                +(num_columns-1)*"&"+"\\\\\\hline\n"
+                + (num_columns - 1) * "&" + "\\\\\\hline\n"
         for index, series in enumerate(self._series[conference]):
             conference_table += self._create_row(series)
 
-            if index == num_series-1 and conference == 'East':
-                conference_table += "          "+self.blanker
-            elif index == num_series-1 and conference in ['West', "None"]:
+            if index == num_series - 1 and conference == 'East':
+                conference_table += "          " + self.blanker
+            elif index == num_series - 1 and conference in ['West', "None"]:
                 conference_table = conference_table[:-1]
             else:
-                conference_table += "          "+self.blank
+                conference_table += "          " + self.blank
 
         return conference_table
 
@@ -381,14 +388,18 @@ class Latex():
 
         # Series winner and series length points descriptor
         if "correct_team_rounds_123" in system:
-            descriptor = \
-f'''        Correct team (rounds 1,2,3):	& ${system['correct_team_rounds_123']}$\\\\
-        Correct series length (rounds 1,2,3 - regardless of series winner):	& ${system['correct_length_rounds_123']}$\\\\
-        Correct team (round 4):	& ${system['correct_team_rounds_4']}$\\\\
-        Correct series length (round 4 - regardless of series winner):	& ${system['correct_length_rounds_4']}$\\\\'''
+            descriptor = (
+                "        Correct team (rounds 1,2,3):	"
+                f"& ${system['correct_team_rounds_123']}$\\\\\n"
+                "        Correct series length (rounds 1,2,3 - regardless of series winner):	"
+                f"& ${system['correct_length_rounds_123']}$\\\\\n"
+                f"        Correct team (round 4):	& ${system['correct_team_rounds_4']}$\\\\\n"
+                "        Correct series length (round 4 - regardless of series winner):	"
+                f"& ${system['correct_length_rounds_4']}$\\\\"
+            )
         elif "correct_team" in system:
             descriptor = \
-f'''        Correct team:	& ${system['correct_team']}$\\\\
+                f'''        Correct team:	& ${system['correct_team']}$\\\\
         Correct series length (regardless of series winner):	& ${system['correct_length']}$\\\\'''
         elif "f_correct" in system:
             if self.playoff_round == 'Q':
@@ -401,7 +412,7 @@ f'''        Correct team:	& ${system['correct_team']}$\\\\
             correct = latex(eval(system[correct_handle]))
             incorrect = latex(eval(system[incorrect_handle]))
             descriptor = \
-f'''        Let $C$ be the correct number of games\\\\
+                f'''        Let $C$ be the correct number of games\\\\
         Let $P$ be the predicted number of games\\\\
         If correct team chosen:	   & ${correct}$\\\\
         if incorrect team chosen:  & ${incorrect}$\\\\'''
@@ -439,7 +450,7 @@ f'''        Let $C$ be the correct number of games\\\\
 
         template = self._import_template("plain_table.j2")
         return template.render(
-            column_format="lc "+(num_series-1)*"| lc ",
+            column_format="lc " + (num_series - 1) * "| lc ",
             scoring_table=self._counts_table_contents()
         )
 
@@ -453,28 +464,33 @@ f'''        Let $C$ be the correct number of games\\\\
         """Create the team counts for the counts table"""
 
         picks_per_team = self._selections['Team'].value_counts()
-        series = [tuple(series.split('-'))
-                    for conference_series in self._series.values()
-                    for series in conference_series]
+        series = [
+            tuple(series.split('-'))
+            for conference_series in self._series.values()
+            for series in conference_series
+        ]
 
         def team_counts_string(team):
-            counts = picks_per_team[ltn(team)] \
-                    if ltn(team) in picks_per_team else 0
+            counts = (
+                picks_per_team[ltn(team)]
+                if ltn(team) in picks_per_team
+                else 0
+            )
             return f'{team} & {counts} & '
 
         def team_counts_line(teams):
             line = "        "
             for team in teams:
                 line += team_counts_string(team)
-            return line[:-2]+r"\\"
+            return line[:-2] + r"\\"
 
         count_strings = [team_counts_line(teams) for teams in list(zip(*series))]
-        count_strings[0] = count_strings[0]+'\n'
+        count_strings[0] = count_strings[0] + '\n'
         if self.year == 2021 and self.playoff_round == 2:
-            count_strings[1] = count_strings[1]+'\n'
+            count_strings[1] = count_strings[1] + '\n'
             third_team = series[1][2]
             count = picks_per_team[ltn(third_team)]
-            count_strings += [f"        & & {third_team} & {count} & & & &"+r'\\']
+            count_strings += [f"        & & {third_team} & {count} & & & &" + r'\\']
 
         return ''.join(count_strings)
 
@@ -484,22 +500,24 @@ f'''        Let $C$ be the correct number of games\\\\
             return ""
 
         picks_per_player = self._selections['Player'].value_counts()
-        players = [tuple(series_players)
-                    for conference_players in self._players.values()
-                    for series_players in conference_players]
+        players = [
+            tuple(series_players)
+            for conference_players in self._players.values()
+            for series_players in conference_players
+        ]
 
         higher_seed_line = "        "
-        lower_seed_line  = "        "
+        lower_seed_line = "        "
         for higher_seed, lower_seed in players:
             higher_counts = picks_per_player[higher_seed] \
                 if higher_seed in picks_per_player else 0
             lower_counts = picks_per_player[lower_seed] \
                 if lower_seed in picks_per_player else 0
             higher_seed_line += f'{higher_seed.split(" ")[1]} & {higher_counts} & '
-            lower_seed_line  += f'{lower_seed.split(" ")[1]} & {lower_counts } & '
+            lower_seed_line += f'{lower_seed.split(" ")[1]} & {lower_counts } & '
 
-        higher_seed_line = higher_seed_line[:-2]+"\\\\\n"
-        lower_seed_line  =  lower_seed_line[:-2]+"\\\\"
+        higher_seed_line = higher_seed_line[:-2] + "\\\\\n"
+        lower_seed_line = lower_seed_line[:-2] + "\\\\"
 
         return "\n" + higher_seed_line + lower_seed_line
 
@@ -514,7 +532,7 @@ f'''        Let $C$ be the correct number of games\\\\
         for length in lengths:
             value = picks_per_length[length] if length in picks_per_length.index else 0
             vspace = r"\rule{0pt}{3.5ex}" if length == '0' else ""
-            length_line += f"        {vspace}{length} & {value}"+"\\\\\n"
+            length_line += f"        {vspace}{length} & {value}" + "\\\\\n"
         return length_line[:-3]
 
     def _correct_points_table(self):
@@ -546,39 +564,46 @@ f'''        Let $C$ be the correct number of games\\\\
     def _points_table(self, func):
         """Return the table of points per predicted and correct series duration"""
         if self.playoff_round == 'Q':
-            return r"""        \mccn{2}{} & \mccn{3}{Predicted}\\
-        & & 3 & 4 & 5\\\cline{2-4}""" + '\n' \
-            + r"        \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Correct}}}" \
-            + f" & 3 & {self._make_points_string(func, 3)}" + r"\\" + '\n' \
-            + f"        & 4 & {self._make_points_string(func, 4)}" + r"\\" + '\n' \
-            + f"        & 5 & {self._make_points_string(func, 5)}"
-        return r"""        \mccn{2}{} & \mccn{4}{Predicted}\\
-        & & 4 & 5 & 6 & 7\\\cline{2-6}""" + '\n' \
-            + r"        \parbox[t]{2mm}{\multirow{4}{*}{\rotatebox[origin=c]{90}{Correct}}}" \
-            + f" & 4 & {self._make_points_string(func, 4)}" + r"\\" + '\n' \
-            + f"        & 5 & {self._make_points_string(func, 5)}" + r"\\" + '\n' \
-            + f"        & 6 & {self._make_points_string(func, 6)}" + r"\\" + '\n' \
+            return (
+                r"""        \mccn{2}{} & \mccn{3}{Predicted}\\
+        & & 3 & 4 & 5\\\cline{2-4}""" + '\n'
+                + r"        \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Correct}}}"
+                + f" & 3 & {self._make_points_string(func, 3)}" + r"\\" + '\n'
+                + f"        & 4 & {self._make_points_string(func, 4)}" + r"\\" + '\n'
+                + f"        & 5 & {self._make_points_string(func, 5)}"
+            )
+        return (
+            r"""        \mccn{2}{} & \mccn{4}{Predicted}\\
+        & & 4 & 5 & 6 & 7\\\cline{2-6}""" + '\n'
+            + r"        \parbox[t]{2mm}{\multirow{4}{*}{\rotatebox[origin=c]{90}{Correct}}}"
+            + f" & 4 & {self._make_points_string(func, 4)}" + r"\\" + '\n'
+            + f"        & 5 & {self._make_points_string(func, 5)}" + r"\\" + '\n'
+            + f"        & 6 & {self._make_points_string(func, 6)}" + r"\\" + '\n'
             + f"        & 7 & {self._make_points_string(func, 7)}"
+        )
 
     def _make_points_string(self, func, correct_games):
         """Create the string for the points for a specific series duration"""
         return " & ".join(
-            func(correct_games, array(utils.series_duration_options(self.playoff_round))
-        ).astype(str).tolist())
+            func(correct_games, array(utils.series_duration_options(self.playoff_round)))
+            .astype(str)
+            .tolist()
+        )
 
     @property
     def blank(self):
         """Return an empty line which matches the column colouring
         and has a thin horizontal black line below the line"""
-        return (self._number_of_columns-1)*"&"+" \\\\\\hline\n"
+        return (self._number_of_columns - 1) * "&" + " \\\\\\hline\n"
 
     @property
     def blanker(self):
         """Return an empty line which matches the column colouring"""
-        return (self._number_of_columns-1)*"&"+" \\\\\n"
+        return (self._number_of_columns - 1) * "&" + " \\\\\n"
+
 
 def shorten_player_name(name):
     """Shorten a player name"""
     last_name = name.split(' ')[1]
-    num_letters = min(len(last_name),7)
+    num_letters = min(len(last_name), 7)
     return last_name[:num_letters]

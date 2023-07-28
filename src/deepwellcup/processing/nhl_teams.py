@@ -1,8 +1,8 @@
 """Functions for handling NHL team names"""
 
+
 def shorten_team_name(team):
     '''Shorten the team name into its acronym'''
-
     if team == 'Anaheim Ducks':
         return_val = 'ANA'
     elif team == 'Arizona Coyotes':
@@ -77,9 +77,9 @@ def shorten_team_name(team):
         raise ValueError(f'Team "{team}" is not a valid input')
     return return_val
 
-def lengthen_team_name( team ):
-    '''Lengthen the team name from its acronym'''
 
+def lengthen_team_name(team):
+    '''Lengthen the team name from its acronym'''
     if team == 'ANA':
         return_val = 'Anaheim Ducks'
     elif team == 'ARI':
@@ -152,9 +152,9 @@ def lengthen_team_name( team ):
         raise ValueError(f'Team "{team}" is not a valid input')
     return return_val
 
+
 def conference(team, year):
     "Return the conference that a team belongs in"
-
     east_list = [
         'ATL', 'Atlanta Thrashers',
         'BOS', 'Boston Bruins',
@@ -190,7 +190,6 @@ def conference(team, year):
         'CHI', 'Chicago Blackhawks',
         'SEA', 'Seattle Kraken',
     ]
-
     if year <= 2013:
         west_list += [
             'CBJ', 'Columbus Blue Jackets',
@@ -203,15 +202,14 @@ def conference(team, year):
             'DET', 'Detroit Red Wings'
         ]
         west_list += ['WPG', 'Winnipeg Jets']
-
     if team in east_list:
         conf = 'East'
     elif team in west_list:
         conf = 'West'
     else:
-        raise Exception(f'The team ({team}) was not understood')
-
+        raise ValueError(f'The team ({team}) was not understood')
     return conf
+
 
 def team_of_player(player):
     """Return the team that a player plays for in 2019"""

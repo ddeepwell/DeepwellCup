@@ -8,16 +8,18 @@ from deepwellcup.processing.results import Results
 from deepwellcup.processing.selections import Selections
 from deepwellcup.processing.other_points import OtherPoints
 
+
 class Points():
     """Class for constructing a points table for a year"""
 
-    def __init__(self,
-                year,
-                playoff_round,
-                selections_directory=None,
-                keep_stanley_cup_winner_points=True,
-                **kwargs
-        ):
+    def __init__(
+        self,
+        year,
+        playoff_round,
+        selections_directory=None,
+        keep_stanley_cup_winner_points=True,
+        **kwargs
+    ):
         self._year = year
         self._playoff_round = playoff_round
         self._selections = Selections(
@@ -72,10 +74,11 @@ class Points():
     @property
     def _selection_individuals(self):
         """The individuals who made selections for the playoff round"""
-        return (self.selections.selections
-                .index
-                .get_level_values('Individual')
-                .unique()
+        return (
+            self.selections.selections
+            .index
+            .get_level_values('Individual')
+            .unique()
         )
 
     @property
@@ -89,8 +92,10 @@ class Points():
     @property
     def other_points(self):
         """Other points for the playoff round"""
-        if self.playoff_round != 'Champions' and \
-            self._other_points.points is not None:
+        if (
+            self.playoff_round != 'Champions'
+            and self._other_points.points is not None
+        ):
             return self._other_points.points.sort_values(ascending=False)
         return None
 
@@ -114,10 +119,11 @@ class Points():
     def total_points(self):
         """Combined points from selections and other"""
         if self.other_points is not None:
-            return (self.selection_points
-                        .combine(self.other_points, add, fill_value=0)
-                        .rename(self.selection_points.name)
-                        .sort_values(ascending=False)
+            return (
+                self.selection_points
+                .combine(self.other_points, add, fill_value=0)
+                .rename(self.selection_points.name)
+                .sort_values(ascending=False)
             )
         return self.selection_points
 
@@ -137,16 +143,18 @@ class Points():
 
     #     return df_int
 
+
 class IndividualScoring():
     '''Class for functions to calculate points for each individual'''
 
-    def __init__(self,
-            year,
-            playoff_round=None,
-            selections=None,
-            results=None,
-            keep_stanley_cup_winner_points=True,
-        ):
+    def __init__(
+        self,
+        year,
+        playoff_round=None,
+        selections=None,
+        results=None,
+        keep_stanley_cup_winner_points=True,
+    ):
         self.year = year
         self.playoff_round = playoff_round
         self.selections = selections.selections if selections is not None else None
@@ -156,7 +164,6 @@ class IndividualScoring():
         self.results_overtime = results.results_overtime \
             if (self.results is not None and playoff_round != 'Champions') else None
         self.keep_stanley_cup_winner_points = keep_stanley_cup_winner_points
-
 
     def scoring_system(self):
         """Return the scoring system for a year"""
@@ -342,12 +349,12 @@ class IndividualScoring():
         incorrect = comparison.query("@comparison.Team.selections != @comparison.Team.results")
 
         correct_points = f_correct(
-            correct[('Duration','selections')].to_numpy(),
-            correct[('Duration','results')].to_numpy()
+            correct[('Duration', 'selections')].to_numpy(),
+            correct[('Duration', 'results')].to_numpy()
         ).sum()
         incorrect_points = f_incorrect(
-            incorrect[('Duration','selections')].to_numpy(),
-            incorrect[('Duration','results')].to_numpy()
+            incorrect[('Duration', 'selections')].to_numpy(),
+            incorrect[('Duration', 'results')].to_numpy()
         ).sum()
 
         if 'Player' in self.selections.columns:
@@ -362,13 +369,23 @@ class IndividualScoring():
             exact = system['Overtime'] \
                 if self.selections_overtime[individual] == str(self.results_overtime) \
                 else 0
-            if (self.selections_overtime[individual] == "More than 3" \
-            or str(self.results_overtime) == "More than 3") \
-            and self.selections_overtime[individual] != str(self.results_overtime):
-                if (self.selections_overtime[individual] == "More than 3" \
-                and self.results_overtime == 3) \
-                or (self.results_overtime == "More than 3" \
-                and self.selections_overtime[individual] == '3'):
+            if (
+                (
+                    self.selections_overtime[individual] == "More than 3"
+                    or str(self.results_overtime) == "More than 3"
+                )
+                and self.selections_overtime[individual] != str(self.results_overtime)
+            ):
+                if (
+                    (
+                        self.selections_overtime[individual] == "More than 3"
+                        and self.results_overtime == 3
+                    )
+                    or (
+                        self.results_overtime == "More than 3"
+                        and self.selections_overtime[individual] == '3'
+                    )
+                ):
                     off_by_1 = system['Overtime (1 game off)']
                 else:
                     off_by_1 = 0
@@ -399,8 +416,11 @@ class IndividualScoring():
         selections = self.selections.loc[individual]
 
         def find_runnerup(table):
-            return [team for team in table[['East','West']] \
-                    if team != table['Stanley Cup']][0]
+            return [
+                team
+                for team in table[['East', 'West']]
+                if team != table['Stanley Cup']
+            ][0]
 
         winner_points = system['stanley_cup_winner'] \
             if selections['Stanley Cup'] == self.results['Stanley Cup'] \
@@ -419,16 +439,17 @@ class IndividualScoring():
         selections = self.selections.loc[individual]
 
         # find finalists
-        selected_finalists = list(selections[['East','West']])
+        selected_finalists = list(selections[['East', 'West']])
         selected_champion = selections['Stanley Cup']
         # find winners
-        finalists = list(self.results[['East','West']])
+        finalists = list(self.results[['East', 'West']])
         champion = self.results['Stanley Cup']
 
         # points for stanley cup finalists
-        finalist_points = sum(system['stanley_cup_finalist']
-                                for team in selected_finalists
-                                if team in finalists
+        finalist_points = sum(
+            system['stanley_cup_finalist']
+            for team in selected_finalists
+            if team in finalists
         )
         champion_points = system['stanley_cup_winner'] \
             if selected_champion == champion and self.keep_stanley_cup_winner_points \

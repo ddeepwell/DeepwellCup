@@ -2,11 +2,11 @@
 import argparse
 from deepwellcup.processing.playoff_round import PlayoffRound
 
+
 def multi_year_remake(years, **kwargs):
     """Remake the entire database and all figures and tables between year1 and year2"""
-
     for year in years:
-        for rnd in [1,2,3,4]:
+        for rnd in [1, 2, 3, 4]:
             current_round = PlayoffRound(
                 year=year,
                 playoff_round=rnd,
@@ -18,21 +18,25 @@ def multi_year_remake(years, **kwargs):
             current_round.make_latex_table()
             current_round.make_standings_chart()
 
+
 def main():
     """Main argument processing"""
-
-    parser = argparse.ArgumentParser(description = 'Import data into database')
+    parser = argparse.ArgumentParser(description='Import data into database')
     # required arguments
     required = parser.add_argument_group('required arguments')
-    required.add_argument("-y", "--years",
-                            nargs='+',
-                            type=int,
-                            help = "Years to remake",
-                            required = True)
+    required.add_argument(
+        "-y", "--years",
+        nargs='+',
+        type=int,
+        help="Years to remake",
+        required=True
+    )
     # optional arguments
-    parser.add_argument("-d", "--database",
-                            type=str,
-                            help = "Database to import data into")
+    parser.add_argument(
+        "-d", "--database",
+        type=str,
+        help="Database to import data into"
+    )
     # parse the arguments
     args = parser.parse_args()
 
@@ -46,6 +50,7 @@ def main():
     database = {} if args.database is None else {'database': args.database}
 
     multi_year_remake(years, **database)
+
 
 if __name__ == "__main__":
     main()

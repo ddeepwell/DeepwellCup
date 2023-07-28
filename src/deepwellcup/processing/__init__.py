@@ -1,10 +1,10 @@
 """Init"""
 from .data_files import DataFile
 from .database import DataBaseOperations
-from .dirs import *
+from . import dirs
 from .insert import Insert
 from .latex import Latex
-from .nhl_teams import *
+from . import nhl_teams
 from .other_points import OtherPoints
 from .playoff_round import PlayoffRound
 from .plots import Plots
@@ -15,7 +15,7 @@ from .selections import Selections
 from .series_results import print_series_results
 from .update_results import update_results
 from .update_selections import update_selections
-from .utils import *
+from . import utils
 
 __all__ = [
     "DataBaseOperations",
@@ -37,6 +37,7 @@ __all__ = [
     "update_selections",
     "utils",
 ]
+
 
 def __dir__():
     # see also:

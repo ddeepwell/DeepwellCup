@@ -8,9 +8,10 @@ from deepwellcup.processing.scores import Points, IndividualScoring
 from deepwellcup.processing import dirs
 
 # set font to look like Latex
-font = {'family' : 'serif',
-        'size'   : 12}
+font = {'family': 'serif',
+        'size': 12}
 rc('font', **font)
+
 
 class Plots():
     """Class for creating plots"""
@@ -68,7 +69,14 @@ class Plots():
     @property
     def _colors(self):
         """Colors to use in bar chart"""
-        round_colors = ['#B87D63','#95c4e8','#a3e6be','#fbee9d','#fbbf9d','#e29dfb']
+        round_colors = [
+            '#B87D63',
+            '#95c4e8',
+            '#a3e6be',
+            '#fbee9d',
+            '#fbbf9d',
+            '#e29dfb',
+        ]
         return dict(zip(self._round_names.values(), round_colors))
 
     @property
@@ -93,21 +101,24 @@ class Plots():
         else:
             end = self.max_round+1
         start = 1 if self.year != 2020 else 0
-        indices = slice(start,end)
+        indices = slice(start, end)
         rounds_to_keep = dict(list(self._round_names.items())[indices])
-        if self.max_round == 3 and self.plot_champions \
-            and 'stanley_cup_finalist' in self._scoring_system:
+        if (
+            self.max_round == 3
+            and self.plot_champions
+            and 'stanley_cup_finalist' in self._scoring_system
+        ):
             rounds_to_keep['Champions'] = 'Champions'
         return rounds_to_keep
 
     def _add_column_to_table(self, rnd, category):
         """Modify returned Series to be the appropriate structure for making a Dataframe"""
-        keep_stanley_cup_winner_points = not (self.max_round==3 and self.plot_champions)
+        keep_stanley_cup_winner_points = not (self.max_round == 3 and self.plot_champions)
         self._points = Points(
-                        self.year,
-                        rnd,
-                        keep_stanley_cup_winner_points=keep_stanley_cup_winner_points,
-                        **self._kwargs
+            self.year,
+            rnd,
+            keep_stanley_cup_winner_points=keep_stanley_cup_winner_points,
+            **self._kwargs
         )
         # warning, do not use self._points as it depends on the last call to this function
         # it is used here, so that a UML diagram catches the compositional use of Points
@@ -123,23 +134,24 @@ class Plots():
         all_round_series = [self._add_column_to_table(rnd, category)
                             for rnd in self.rounds_to_plot.keys()]
         df = concat(all_round_series, axis=1).transpose()
-        total = (df
+        total = (
+            df
             .sum()
             .rename('Total')
             .to_frame()
             .transpose()
         )
         df_with_total = concat([df, total])
-        return (df_with_total
+        return (
+            df_with_total
             .rename_axis(columns='Individuals')
             .astype('Int64')
             .sort_values(
-                by=['Total','Individuals'],
+                by=['Total', 'Individuals'],
                 axis='columns',
-                ascending=[True,False]
+                ascending=[True, False]
             )
         )
-
 
     def standings(self):
         """Create a bar chart of the points standings in a year"""
@@ -159,7 +171,7 @@ class Plots():
         # figure title
         fig_title = f'Points - {self.year} - Round {self.max_round}'
         if not self.plot_champions:
-            fig_title += f' - no Champions'
+            fig_title += ' - no Champions'
         self.axis.set_title(fig_title)
 
         self._add_legend()
@@ -179,11 +191,11 @@ class Plots():
                     self._patch = self.axis.barh(
                         individual_index,
                         round_points,
-                        left = left_end,
-                        align = 'center',
-                        edgecolor = 'black',
-                        color = self._colors[playoff_round],
-                        label = playoff_round
+                        left=left_end,
+                        align='center',
+                        edgecolor='black',
+                        color=self._colors[playoff_round],
+                        label=playoff_round
                     )
                     if playoff_round not in [item.get_label() for item in self._axis_list]:
                         self._axis_list.append(self._patch)
@@ -206,9 +218,11 @@ class Plots():
 
         # create the string
         point_string = f"{round_points}"
-        if playoff_round != 'Champions'\
-            and individual in self.other_points.columns\
-            and not isna(self.other_points[individual][playoff_round]):
+        if (
+            playoff_round != 'Champions'
+            and individual in self.other_points.columns
+            and not isna(self.other_points[individual][playoff_round])
+        ):
             if self.year == 2009:
                 point_string += '$\\ast$'
             elif self.year == 2015:
@@ -256,24 +270,37 @@ class Plots():
             elif self.year == 2015:
                 label = '$\\dagger$: 50 points given'
             ordered_handles.append(
-                patches.Rectangle((0, 0), 1, 1,
-                    facecolor = "none",
-                    fill = False,
-                    edgecolor = 'none',
-                    linewidth = 0,
-                    label = label)
+                patches.Rectangle(
+                    (0, 0),
+                    1,
+                    1,
+                    facecolor="none",
+                    fill=False,
+                    edgecolor='none',
+                    linewidth=0,
+                    label=label,
+                )
             )
 
         # Put a legend to the right of the current axis
-        plt.legend(handles=ordered_handles, loc='center left', bbox_to_anchor=(1.05,0.5))
+        plt.legend(handles=ordered_handles, loc='center left', bbox_to_anchor=(1.05, 0.5))
 
     def _save_figure(self):
         """Save figure to disk"""
         # file_name = self.axis.get_title()
-        file_name = self.axis.get_title().replace(' ','')
+        file_name = self.axis.get_title().replace(' ', '')
         figure_dir = dirs.year_figures(self.year)
         if not os.path.exists(figure_dir):
             os.mkdir(figure_dir)
-        plt.savefig(f'{figure_dir}/{file_name}.pdf', bbox_inches='tight', format='pdf')
-        plt.savefig(f'{figure_dir}/{file_name}.png', bbox_inches='tight', format='png',
-                            dpi=300, transparent=True)
+        plt.savefig(
+            f'{figure_dir}/{file_name}.pdf',
+            bbox_inches='tight',
+            format='pdf'
+        )
+        plt.savefig(
+            f'{figure_dir}/{file_name}.png',
+            bbox_inches='tight',
+            format='png',
+            dpi=300,
+            transparent=True
+        )

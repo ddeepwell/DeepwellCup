@@ -3,8 +3,12 @@ import pytest
 import pandas as pd
 from deepwellcup.processing.database import DataBaseOperations
 
-@pytest.fixture(scope="function")
-def individuals_database(nonempty_database_function_conn):
+
+@pytest.fixture(
+    scope="function",
+    name="individuals_database",
+)
+def fixture_individuals_database(nonempty_database_function_conn):
     '''Create and populate the individuals table'''
     database = DataBaseOperations(database=nonempty_database_function_conn)
     with database as db:
@@ -13,8 +17,12 @@ def individuals_database(nonempty_database_function_conn):
     yield database
     nonempty_database_function_conn.close()
 
-@pytest.fixture(scope="function")
-def stanley_cup_database(nonempty_database_function_conn):
+
+@pytest.fixture(
+    scope="function",
+    name="stanley_cup_database",
+)
+def fixture_stanley_cup_database(nonempty_database_function_conn):
     '''Create and populate the Stanley Cup table'''
     database = DataBaseOperations(database=nonempty_database_function_conn)
     year = 2011
@@ -22,16 +30,20 @@ def stanley_cup_database(nonempty_database_function_conn):
         db.add_new_individual('David', 'D')
         db.add_new_individual('Michael', 'D')
         picks = [
-            ['David', 'D', 'Boston Bruins','San Jose Sharks','Toronto Maple Leafs'],
-            ['Michael', 'D', 'Tampa Bay Lightning','Vancouver Canucks','Vancouver Canucks'],
+            ['David', 'D', 'Boston Bruins', 'San Jose Sharks', 'Toronto Maple Leafs'],
+            ['Michael', 'D', 'Tampa Bay Lightning', 'Vancouver Canucks', 'Vancouver Canucks'],
         ]
         db.add_stanley_cup_selection_for_everyone(year, picks)
-        db.add_stanley_cup_results(year, 'Boston Bruins','Vancouver Canucks', 'Boston Bruins')
+        db.add_stanley_cup_results(year, 'Boston Bruins', 'Vancouver Canucks', 'Boston Bruins')
     yield database
     nonempty_database_function_conn.close()
 
-@pytest.fixture(scope="module")
-def series_database(nonempty_database_module_conn):
+
+@pytest.fixture(
+    scope="module",
+    name="series_database",
+)
+def fixture_series_database(nonempty_database_module_conn):
     '''Create and populate the Series table'''
     database = DataBaseOperations(database=nonempty_database_module_conn)
     # series
@@ -39,8 +51,8 @@ def series_database(nonempty_database_module_conn):
     playoff_round = 3
     conference = 'East'
     series_list = [
-        ['Toronto Maple Leafs','Carolina Hurricanes', None, None],
-        ['Montreal Canadiens','Boston Bruins','Max Domi','Brad Marchand']
+        ['Toronto Maple Leafs', 'Carolina Hurricanes', None, None],
+        ['Montreal Canadiens', 'Boston Bruins', 'Max Domi', 'Brad Marchand']
     ]
     # selections
     series_number = 1
@@ -69,20 +81,21 @@ def series_database(nonempty_database_module_conn):
     yield database
     nonempty_database_module_conn.close()
 
+
 class TestDatabase:
     '''Class for tests of the database module'''
 
     def test_check_if_individual_exists_true(self, individuals_database):
         '''a test'''
         with individuals_database as db:
-            returned_val = db.check_if_individual_exists('David','D')
+            returned_val = db.check_if_individual_exists('David', 'D')
         expected_val = True
         assert returned_val == expected_val
 
     def test_check_if_individual_exists_false(self, individuals_database):
         '''a test'''
         with individuals_database as db:
-            returned_val = db.check_if_individual_exists('Mark','D')
+            returned_val = db.check_if_individual_exists('Mark', 'D')
         expected_val = False
         assert returned_val == expected_val
 
@@ -90,38 +103,38 @@ class TestDatabase:
         '''a test'''
         with individuals_database as db:
             returned_individuals = db.get_individuals()
-        expected_individuals = [('David','D'),('Michael','D')]
+        expected_individuals = [('David', 'D'), ('Michael', 'D')]
         assert returned_individuals == expected_individuals
 
     def test_add_new_individual_length(self, individuals_database):
         '''a test'''
         with pytest.raises(Exception):
             with individuals_database as db:
-                db.add_new_individual('David','Deepwell')
+                db.add_new_individual('David', 'Deepwell')
 
     def test_add_new_individual_exists(self, individuals_database):
         '''a test'''
         with pytest.warns(UserWarning, match=r'\bis already in the database'):
             with individuals_database as db:
-                returned_val = db.add_new_individual('David','D')
+                returned_val = db.add_new_individual('David', 'D')
                 returned_individuals = db.get_individuals()
-        expected_individuals = [('David','D'),('Michael','D')]
+        expected_individuals = [('David', 'D'), ('Michael', 'D')]
         assert returned_val is None
         assert returned_individuals == expected_individuals
 
     def test_add_new_individual_nonexists(self, individuals_database):
         '''a test'''
         with individuals_database as db:
-            returned_val = db.add_new_individual('Mark','D')
+            returned_val = db.add_new_individual('Mark', 'D')
             returned_individuals = db.get_individuals()
-        expected_individuals = [('David','D'),('Michael','D'),('Mark','D')]
+        expected_individuals = [('David', 'D'), ('Michael', 'D'), ('Mark', 'D')]
         assert returned_val is None
         assert returned_individuals == expected_individuals
 
     def test_get_individual_id(self, individuals_database):
         '''a test'''
         with individuals_database as db:
-            returned_val = db._get_individual_id('David','D')
+            returned_val = db._get_individual_id('David', 'D')
         expected_val = 1
         assert returned_val == expected_val
 
@@ -129,7 +142,7 @@ class TestDatabase:
         '''a test'''
         with pytest.warns(UserWarning, match=r'\bdoes not exist in the database'):
             with individuals_database as db:
-                db._get_individual_id('Mark','D')
+                db._get_individual_id('Mark', 'D')
 
     def test_get_individual_from_id(self, individuals_database):
         '''a test'''
@@ -202,7 +215,7 @@ class TestDatabase:
         '''a test'''
         with stanley_cup_database as db:
             received_data = db.get_stanley_cup_results(2011)
-        data = ['Boston Bruins','Vancouver Canucks', 'Boston Bruins', None]
+        data = ['Boston Bruins', 'Vancouver Canucks', 'Boston Bruins', None]
         index = ['East', 'West', 'Stanley Cup', 'Duration']
         expected_data = pd.Series(data=data, index=index, name=2011)
         assert received_data.equals(expected_data)
@@ -221,8 +234,10 @@ class TestDatabase:
         series_number = 1
         team_higher_seed = 'Toronto Maple Leafs'
         team_lower_seed = 'Carolina Hurricanes'
-        expected_list = [year, playoff_round, conference, series_number,
-            team_higher_seed, team_lower_seed, None, None]
+        expected_list = [
+            year, playoff_round, conference, series_number,
+            team_higher_seed, team_lower_seed, None, None
+        ]
         with series_database as db:
             series_raw = db.get_year_round_series(year, playoff_round, conference, series_number)
         series = list(series_raw.loc[0])

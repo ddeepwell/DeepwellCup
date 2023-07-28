@@ -13,18 +13,19 @@ from deepwellcup.processing.nhl_teams import (
     team_of_player,
 )
 
+
 class Selections(DataFile):
     """Class for gathering and processing information about a playoff round"""
 
     def __init__(
-            self,
-            year,
-            playoff_round,
-            selections_directory=None,
-            keep_results=False,
-            use_database_first=True,
-            **kwargs
-        ):
+        self,
+        year,
+        playoff_round,
+        selections_directory=None,
+        keep_results=False,
+        use_database_first=True,
+        **kwargs
+    ):
         super().__init__(year=year, playoff_round=playoff_round, directory=selections_directory)
         self._database = DataBaseOperations(**kwargs)
         self._use_database_first = use_database_first
@@ -87,8 +88,10 @@ class Selections(DataFile):
         """Return the players in each series in each conference"""
         self._raise_error_if_champions_round()
         if not self.players_selected:
-            raise Exception("The 'players' category doesn't exist in "\
-                f"round {self.playoff_round} in {self.year}")
+            raise ValueError(
+                "The 'players' category doesn't exist in "
+                f"round {self.playoff_round} in {self.year}"
+            )
         return {conference: [self._players_in_series(series) for series in series_teams]
                 for conference, series_teams in self.series.items()}
 
@@ -118,26 +121,39 @@ class Selections(DataFile):
         """Return the players in the series"""
         players = list(set(self.selections['Player']))
         teams_in_series = [ltn(team) for team in series.split('-')]
-        players_to_keep = [player for player in players if team_of_player(player) in teams_in_series]
+        players_to_keep = [
+            player for player in players
+            if team_of_player(player) in teams_in_series
+        ]
         if team_of_player(players_to_keep[0]) != teams_in_series[0]:
             players_to_keep.reverse()
         return players_to_keep
 
     def _load_selections(self, **kwargs):
         """Load the selections from database or raw file"""
-        if self.in_database and self.use_database_first \
-            and (kwargs["keep_results"] is False or self._results_in_database):
+        if (
+            self.in_database
+            and self.use_database_first
+            and (
+                not kwargs["keep_results"]
+                or self._results_in_database
+            )
+        ):
             if self.playoff_round in utils.selection_rounds(self.year):
                 with self.database as db:
-                    self._selections_overtime = db.get_overtime_selections(self.year, self.playoff_round)
+                    self._selections_overtime = db.get_overtime_selections(
+                        self.year, self.playoff_round
+                    )
                     self._preferences = db.get_all_round_preferences(self.year, self.playoff_round)
                     self._monikers = db.get_all_round_monikers(self.year, self.playoff_round)
                 self._selections = self._load_playoff_round_selections_from_database()
             elif self.playoff_round == 'Champions':
                 self._selections = self._load_champions_selections_from_database()
         else:
-            print(f'Round data for {self.playoff_round} in {self.year} is not '\
-                    f'in the database with path\n {self.database.path}')
+            print(
+                f'Round data for {self.playoff_round} in {self.year} is not '
+                f'in the database with path\n {self.database.path}'
+            )
             if self.playoff_round in utils.selection_rounds(self.year):
                 self._load_monikers_from_file()
                 self._load_overtime_selections_from_file()
@@ -162,24 +178,26 @@ class Selections(DataFile):
         """Extract monikers from file"""
         data = self._read_data_file()
         if 'Moniker' in data.columns:
-            self._monikers = (data[['Individual','Moniker']]
-                    .set_index('Individual')
-                    .drop(labels='Results', axis='index')
-                    .squeeze()
-                    .sort_index()
-                    # .replace(to_replace="", value=None)
-                    .to_dict()
-                )
+            self._monikers = (
+                data[['Individual', 'Moniker']]
+                .set_index('Individual')
+                .drop(labels='Results', axis='index')
+                .squeeze()
+                .sort_index()
+                # .replace(to_replace="", value=None)
+                .to_dict()
+            )
 
     def _load_overtime_selections_from_file(self):
         """Extract overtime selections from file"""
         data = self._read_data_file()
         if 'How many overtime games will occur this round?' in data.columns:
-            self._selections_overtime = (data
+            self._selections_overtime = (
+                data
                 .rename(
                     columns={'How many overtime games will occur this round?': 'Overtime'}
                 )
-                [['Individual','Overtime']]
+                [['Individual', 'Overtime']]
                 .set_index('Individual')
                 .squeeze()
                 .sort_index()
@@ -195,13 +213,14 @@ class Selections(DataFile):
                     columns={
                         'Favourite team:': 'Favourite team',
                         'Current team cheering for:': 'Cheering team',
-                    })
-                    [['Individual','Favourite team', 'Cheering team']]
-                    .set_index('Individual')
-                    .drop(index='Results')
-                    .squeeze()
-                    .sort_index()
-                    .astype('str')
+                    }
+                )
+                [['Individual', 'Favourite team', 'Cheering team']]
+                .set_index('Individual')
+                .drop(index='Results')
+                .squeeze()
+                .sort_index()
+                .astype('str')
             )
 
     def _load_playoff_round_selections_from_file(self, keep_results=False):
@@ -214,10 +233,13 @@ class Selections(DataFile):
 
         data = self._read_data_file()
         series = self._series_from_file()
-        non_series_columns = [col for col in data.columns
-                if not bool(re.match(r"^[A-Z]{3}-[A-Z]{3}", col))
-                and col != 'Individual']
-        pre_pivot = (data
+        non_series_columns = [
+            col for col in data.columns
+            if not bool(re.match(r"^[A-Z]{3}-[A-Z]{3}", col))
+            and col != 'Individual'
+        ]
+        pre_pivot = (
+            data
             .rename(columns=dict(list(zip(series, [f'{ser}Team' for ser in series]))))
             .drop(columns=non_series_columns)
         )
@@ -242,7 +264,8 @@ class Selections(DataFile):
             get_conference(a_series)
             for a_series in post_pivot.index.get_level_values('Series')
         ]
-        post_pivot = (post_pivot
+        post_pivot = (
+            post_pivot
             .set_index(Index(conf_index, name='Conference'), append=True)
             .reorder_levels(['Individual', 'Conference', 'Series'])
             .rename(columns={' series length:': 'Duration'})
@@ -253,29 +276,33 @@ class Selections(DataFile):
             post_pivot.rename(columns={' Who will score more points?': 'Player'}, inplace=True)
             selection_columns += ['Player']
         # modify duration column
-        mask = (post_pivot
-            .loc[:,'Duration']
+        mask = (
+            post_pivot
+            .loc[:, 'Duration']
             .str[0]
             .isin(
                 map(str, utils.series_duration_options(self.playoff_round))
             )
         )
-        post_pivot.loc[~mask,'Duration'] = [None]*len(post_pivot.loc[~mask,'Duration'])
+        post_pivot.loc[~mask, 'Duration'] = [None] * len(post_pivot.loc[~mask, 'Duration'])
         with warnings.catch_warnings():
             warnings.filterwarnings(
                 "ignore",
                 category=FutureWarning,
                 message=(
-                    ".*will attempt to set the values inplace instead of always setting a new array. "
+                    ".*will attempt to set the values inplace instead "
+                    "of always setting a new array. "
                     "To retain the old behavior, use either.*"
                 ),
             )
-            post_pivot.loc[mask,'Duration'] = (post_pivot
-                .loc[mask,'Duration']
+            post_pivot.loc[mask, 'Duration'] = (
+                post_pivot
+                .loc[mask, 'Duration']
                 .str[0]
                 .astype("Int64")
             )
-        return (post_pivot[selection_columns]
+        return (
+            post_pivot[selection_columns]
             .sort_index(
                 level=["Individual", "Conference"],
                 sort_remaining=False
@@ -296,7 +323,9 @@ class Selections(DataFile):
                     else teams[1]
             return row['Who will win the Stanley Cup?']
 
-        data = (self._read_data_file()
+        data = (
+            self
+            ._read_data_file()
             .set_index(['Individual'])
             .rename_axis(columns=['Selections'])
             .pipe(
@@ -329,7 +358,8 @@ class Selections(DataFile):
             data = db.get_all_round_selections(self.year, self.playoff_round)
         num_individuals = len(data.index.unique())
         series_list = [subval for values in self.series.values() for subval in values]
-        new_data = (data
+        new_data = (
+            data
             .drop(columns=['SeriesNumber'])
             .set_index('Conference', append=True)
             .set_index(Index(series_list*num_individuals), append=True)
@@ -371,7 +401,8 @@ class Selections(DataFile):
                 team_conference(series[:3], self.year) == conference \
                 and team_conference(series[-3:], self.year) == conference
 
-        return {conf:
+        return {
+            conf:
             [a_series for a_series in series if correct_conference(a_series, conf)]
             for conf in self._conference_list()
         }
@@ -387,13 +418,17 @@ class Selections(DataFile):
             """Get the series name for a series number in a conference
             from the pandas table from the database"""
             # conference = conference if conference=="None" else f'"{conference}"'
-            series_str = ','.join(series_table.query(
+            series_str = ','.join(
+                series_table.query(
                     f'Conference in ["{conference}"] and SeriesNumber=={series_number}'
-                )[['TeamHigherSeed','TeamLowerSeed']].values[0]
+                )
+                [['TeamHigherSeed', 'TeamLowerSeed']]
+                .values[0]
             )
             return '-'.join(map(stn, series_str.split(',')))
 
-        return {conf:
+        return {
+            conf:
             [series_name(conf, num) for num in range(1, num_series+1)]
             for conf in self._conference_list()
         }

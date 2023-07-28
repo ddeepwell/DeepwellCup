@@ -1,6 +1,7 @@
 """Specifying the file containing selections and results"""
 from deepwellcup.processing import dirs
 
+
 class DataFile():
     """Class for specifying the file containing selections and results"""
 
@@ -26,12 +27,10 @@ class DataFile():
     def selections_file(self):
         """Return the csv file name containing selections
         for the year and playoff round"""
-
         if self.playoff_round == 'Champions':
             playoff_round = 1
         else:
             playoff_round = self.playoff_round
-
         file_name = f'{self.year} Deepwell Cup Round {playoff_round}.csv'
         return self.directory / file_name
 
@@ -39,6 +38,6 @@ class DataFile():
     def other_points_file(self):
         """Return the csv file name containing other points
         for the year and playoff round"""
-
-        file_name = f'{self.year} Deepwell Cup Other Points Round {self.playoff_round}.csv'
+        file_name = f'{self.year} Deepwell Cup Other Points Round '\
+            f'{self.playoff_round}.csv'
         return self.directory / file_name

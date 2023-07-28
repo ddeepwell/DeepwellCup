@@ -7,6 +7,7 @@ from deepwellcup.processing.selections import Selections
 from deepwellcup.processing.results import Results
 from deepwellcup.processing import dirs
 
+
 class Settings:
     """Test settings"""
     def __init__(self, empty_database_conn, nonempty_database):
@@ -15,97 +16,105 @@ class Settings:
         self.full_database = nonempty_database
         self.year = 2017
 
-@pytest.fixture(scope="module")
-def nonempty_database(nonempty_database_module_conn):
+
+@pytest.fixture(
+    scope="module",
+    name="nonempty_database",
+)
+def fixture_nonempty_database(nonempty_database_module_conn):
     """Build a full database of selections"""
     database = DataBaseOperations(database=nonempty_database_module_conn)
     year = 2017
     r1_series_east = [
-        ['Washington Capitals','Toronto Maple Leafs'],
-        ['Pittsburgh Penguins','Columbus Blue Jackets'],
-        ['Montreal Canadiens','New York Rangers'],
-        ['Ottawa Senators','Boston Bruins'],
+        ['Washington Capitals', 'Toronto Maple Leafs'],
+        ['Pittsburgh Penguins', 'Columbus Blue Jackets'],
+        ['Montreal Canadiens', 'New York Rangers'],
+        ['Ottawa Senators', 'Boston Bruins'],
     ]
     r1_series_west = [
-        ['Chicago Blackhawks','Nashville Predators'],
-        ['Minnesota Wild','St Louis Blues'],
-        ['Anaheim Ducks','Calgary Flames'],
-        ['Edmonton Oilers','San Jose Sharks'],
+        ['Chicago Blackhawks', 'Nashville Predators'],
+        ['Minnesota Wild', 'St Louis Blues'],
+        ['Anaheim Ducks', 'Calgary Flames'],
+        ['Edmonton Oilers', 'San Jose Sharks'],
     ]
     r2_series_east = [
-        ['Ottawa Senators','New York Rangers'],
-        ['Washington Capitals','Pittsburgh Penguins'],
+        ['Ottawa Senators', 'New York Rangers'],
+        ['Washington Capitals', 'Pittsburgh Penguins'],
     ]
     r2_series_west = [
-        ['St Louis Blues','Nashville Predators'],
+        ['St Louis Blues', 'Nashville Predators'],
         ['Anaheim Ducks', 'Edmonton Oilers'],
     ]
-    r3_series_east = [['Pittsburgh Penguins','Ottawa Senators']]
-    r3_series_west = [['Anaheim Ducks','Nashville Predators']]
-    r4_series = [['Pittsburgh Penguins','Nashville Predators']]
+    r3_series_east = [['Pittsburgh Penguins', 'Ottawa Senators']]
+    r3_series_west = [['Anaheim Ducks', 'Nashville Predators']]
+    r4_series = [['Pittsburgh Penguins', 'Nashville Predators']]
     r1_selections_east = [
-        ['Alita', 'D',
-            ['Washington Capitals',7],
-            ['Pittsburgh Penguins',6],
-            ['Montreal Canadiens',6],
-            ['Boston Bruins',5],
+        [
+            'Alita', 'D',
+            ['Washington Capitals', 7],
+            ['Pittsburgh Penguins', 6],
+            ['Montreal Canadiens', 6],
+            ['Boston Bruins', 5],
         ]
     ]
     r1_selections_west = [
-        ['Alita', 'D',
-            ['Chicago Blackhawks',6],
-            ['Minnesota Wild',6],
-            ['Calgary Flames',7],
-            ['Edmonton Oilers',5],
+        [
+            'Alita', 'D',
+            ['Chicago Blackhawks', 6],
+            ['Minnesota Wild', 6],
+            ['Calgary Flames', 7],
+            ['Edmonton Oilers', 5],
         ]
     ]
     r2_selections_east = [
-        ['Alita', 'D',
-            ['New York Rangers',5],
-            ['Washington Capitals',6],
+        [
+            'Alita', 'D',
+            ['New York Rangers', 5],
+            ['Washington Capitals', 6],
         ]
     ]
     r2_selections_west = [
-        ['Alita', 'D',
-            ['St Louis Blues',6],
-            ['Edmonton Oilers',7],
+        [
+            'Alita', 'D',
+            ['St Louis Blues', 6],
+            ['Edmonton Oilers', 7],
         ]
     ]
     r3_selections_east = [
-        ['Alita', 'D',['Ottawa Senators',7],]
+        ['Alita', 'D', ['Ottawa Senators', 7], ]
     ]
     r3_selections_west = [
-        ['Alita', 'D',['Nashville Predators',6],]
+        ['Alita', 'D', ['Nashville Predators', 6], ]
     ]
     r4_selections = [
-        ['Alita', 'D',['Pittsburgh Penguins',7],]
+        ['Alita', 'D', ['Pittsburgh Penguins', 7], ]
     ]
     stanley_cup_selections = [
         ['Alita', 'D', 'Montreal Canadiens', 'Edmonton Oilers', 'Edmonton Oilers']
     ]
     r1_results_east = [
-        ['Washington Capitals',6],
-        ['Pittsburgh Penguins',5],
-        ['New York Rangers',6],
-        ['Ottawa Senators',6],
+        ['Washington Capitals', 6],
+        ['Pittsburgh Penguins', 5],
+        ['New York Rangers', 6],
+        ['Ottawa Senators', 6],
     ]
     r1_results_west = [
-        ['Nashville Predators',4],
-        ['St Louis Blues',5],
-        ['Anaheim Ducks',4],
-        ['Edmonton Oilers',6],
+        ['Nashville Predators', 4],
+        ['St Louis Blues', 5],
+        ['Anaheim Ducks', 4],
+        ['Edmonton Oilers', 6],
     ]
     r2_results_east = [
-        ['Ottawa Senators',6],
-        ['Pittsburgh Penguins',7],
+        ['Ottawa Senators', 6],
+        ['Pittsburgh Penguins', 7],
     ]
     r2_results_west = [
-        ['Nashville Predators',6],
-        ['Anaheim Ducks',7],
+        ['Nashville Predators', 6],
+        ['Anaheim Ducks', 7],
     ]
-    r3_results_east = [['Pittsburgh Penguins',7]]
-    r3_results_west = [['Nashville Predators',6]]
-    r4_results = [['Pittsburgh Penguins',6]]
+    r3_results_east = [['Pittsburgh Penguins', 7]]
+    r3_results_west = [['Nashville Predators', 6]]
+    r4_results = [['Pittsburgh Penguins', 6]]
     stanley_cup_results = [
         'Pittsburgh Penguins',
         'Nashville Predators',
@@ -138,18 +147,21 @@ def nonempty_database(nonempty_database_module_conn):
         db.add_stanley_cup_results(year, *stanley_cup_results)
     yield nonempty_database_module_conn
 
-@pytest.fixture
-def setup(empty_database_conn, nonempty_database):
+
+@pytest.fixture(name="setup")
+def fixture_setup(empty_database_conn, nonempty_database):
     """General setup options"""
     return Settings(empty_database_conn, nonempty_database)
 
-@pytest.fixture
-def database(request, setup):
+
+@pytest.fixture(name="database")
+def fixture_database(request, setup):
     """Database fixture"""
     if request.param == 'full':
         return setup.full_database
     elif request.param == 'empty':
         return setup.empty_database
+
 
 def test_individuals(setup):
     """Test for individuals"""
@@ -162,8 +174,9 @@ def test_individuals(setup):
     expected_individuals = ['Alita D']
     assert sel.individuals == expected_individuals
 
-@pytest.fixture
-def expected_series(playoff_round):
+
+@pytest.fixture(name="expected_series")
+def fixture_expected_series(playoff_round):
     """Return the expected series"""
     all_expected_series = {
         1: {
@@ -179,6 +192,7 @@ def expected_series(playoff_round):
         'Champions': None,
     }
     return all_expected_series[playoff_round]
+
 
 @pytest.mark.parametrize("database", ['full', 'empty'], indirect=["database"])
 @pytest.mark.parametrize(
@@ -202,8 +216,9 @@ def test_series(playoff_round, expectation, database, expected_series, setup):
         )
         assert expected_series == sel.series
 
-@pytest.fixture
-def expected_selections(playoff_round):
+
+@pytest.fixture(name="expected_selections")
+def fixture_expected_selections(playoff_round):
     """Return the expected selections"""
     all_expected_selections = {
         1: DataFrame(
@@ -270,10 +285,10 @@ def expected_selections(playoff_round):
         ),
         'Champions': DataFrame(
             {
-                'East': {'Alita D': 'Montreal Canadiens',},
-                'West': {'Alita D': 'Edmonton Oilers',},
-                'Stanley Cup': {'Alita D': 'Edmonton Oilers',},
-                'Duration': {'Alita D': None,}
+                'East': {'Alita D': 'Montreal Canadiens', },
+                'West': {'Alita D': 'Edmonton Oilers', },
+                'Stanley Cup': {'Alita D': 'Edmonton Oilers', },
+                'Duration': {'Alita D': None, }
             }
         ),
     }
@@ -282,8 +297,9 @@ def expected_selections(playoff_round):
         playoff_round_selections['Duration'] = playoff_round_selections['Duration'].astype("Int64")
     return playoff_round_selections
 
+
 @pytest.mark.parametrize("database", ['full', 'empty'], indirect=["database"])
-@pytest.mark.parametrize("playoff_round", [1,2,3,4,'Champions'])
+@pytest.mark.parametrize("playoff_round", [1, 2, 3, 4, 'Champions'])
 def test_selections(playoff_round, database, expected_selections, setup):
     """Test for selections in playoff rounds"""
     sel = Selections(
@@ -294,8 +310,9 @@ def test_selections(playoff_round, database, expected_selections, setup):
     )
     assert expected_selections.equals(sel.selections)
 
-@pytest.fixture
-def expected_results(playoff_round):
+
+@pytest.fixture(name="expected_results")
+def fixture_expected_results(playoff_round):
     """Return the expected results"""
     all_expected_results = {
         1: DataFrame(
@@ -370,8 +387,9 @@ def expected_results(playoff_round):
         playoff_round_results['Duration'] = playoff_round_results['Duration'].astype("Int64")
     return playoff_round_results
 
+
 @pytest.mark.parametrize("database", ['full', 'empty'], indirect=["database"])
-@pytest.mark.parametrize("playoff_round", [1,2,3,4,'Champions'])
+@pytest.mark.parametrize("playoff_round", [1, 2, 3, 4, 'Champions'])
 def test_results(playoff_round, database, expected_results, setup):
     """Test for results in playoff rounds"""
     res = Results(

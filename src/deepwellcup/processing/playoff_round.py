@@ -4,16 +4,17 @@ from deepwellcup.processing.insert import Insert
 from deepwellcup.processing.latex import Latex
 from deepwellcup.processing.plots import Plots
 
+
 class PlayoffRound():
     """Class for all information about a playoff round"""
 
     def __init__(
-            self,
-            year,
-            playoff_round,
-            selections_directory=None,
-            **kwargs
-        ):
+        self,
+        year,
+        playoff_round,
+        selections_directory=None,
+        **kwargs
+    ):
         self.year = year
         self.playoff_round = playoff_round
         self._selections_directory = selections_directory

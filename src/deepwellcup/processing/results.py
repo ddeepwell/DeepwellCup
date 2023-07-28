@@ -5,6 +5,7 @@ from deepwellcup.processing.selections import Selections
 from deepwellcup.processing.data_files import DataFile
 from deepwellcup.processing.database import DataBaseOperations
 
+
 class Results(DataFile):
     """Class for gathering the results for a playoff round"""
 
@@ -68,7 +69,8 @@ class Results(DataFile):
             data = db.get_all_round_results(self.year, self.playoff_round)
         series_list = [subval for values in self.series.values() for subval in values]
         no_player_picks = data['Player'].tolist().count(None) == len(data['Player'])
-        return (data
+        return (
+            data
             .drop(columns=['SeriesNumber'])
             .set_index(['Conference', Index(series_list)])
             .rename_axis(

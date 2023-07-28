@@ -8,6 +8,7 @@ from deepwellcup.processing import utils
 from deepwellcup.processing.database import DataBaseOperations
 from deepwellcup.processing.nhl_teams import lengthen_team_name as ltn
 
+
 class Insert():
     "User-friendly class for inserting round selections and results into the database"
 
@@ -17,13 +18,21 @@ class Insert():
         self._database = DataBaseOperations(**kwargs)
 
         # import values
-        self._round_selections = Selections(year, playoff_round, selections_directory, **kwargs)
+        self._round_selections = Selections(
+            year, playoff_round, selections_directory, **kwargs
+        )
         if playoff_round == 1:
-            self._champions_selections = Selections(year, 'Champions', selections_directory, **kwargs)
+            self._champions_selections = Selections(
+                year, 'Champions', selections_directory, **kwargs
+            )
         else:
             self._champions_selections = None
-        self._results = Results(year, playoff_round, selections_directory, **kwargs)
-        self._other_points = OtherPoints(year, playoff_round, selections_directory, **kwargs)
+        self._results = Results(
+            year, playoff_round, selections_directory, **kwargs
+        )
+        self._other_points = OtherPoints(
+            year, playoff_round, selections_directory, **kwargs
+        )
 
     @property
     def year(self):
@@ -96,16 +105,21 @@ class Insert():
 
                 series_list_for_database = [
                     [ltn(team) for team in series_name.split('-')] + players
-                    for series_name, players  in zip(series_pair_list, players_list)
+                    for series_name, players in zip(series_pair_list, players_list)
                 ]
                 if self.year == 2021 and self.playoff_round == 2:
                     series_list_for_database = [
-                        item if len(item)==2 else [item[0],','.join(item[1:])] for item in series_list_for_database
+                        item
+                        if len(item) == 2
+                        else [item[0], ','.join(item[1:])]
+                        for item in series_list_for_database
                     ]
                 db.add_year_round_series_for_conference(
-                        self.year, self.playoff_round, conference, series_list_for_database)
+                    self.year, self.playoff_round, conference, series_list_for_database
+                )
                 db.add_series_selections_for_conference(
-                        self.year, self.playoff_round, conference, processed_selections)
+                    self.year, self.playoff_round, conference, processed_selections
+                )
 
             if self.round_selections.overtime_selected:
                 for individual in individuals:
@@ -145,14 +159,15 @@ class Insert():
             series_pair_list = series[conference]
             processed_results = [
                 self._convert_to_int(
-                    results.loc[conference,series_pair].to_list()
+                    results.loc[conference, series_pair].to_list()
                 )
                 for series_pair in series_pair_list
             ]
 
             with self.database as db:
                 db.add_series_results_for_conference(
-                        self.year, self.playoff_round, conference, processed_results)
+                    self.year, self.playoff_round, conference, processed_results
+                )
 
         if self.round_selections.overtime_selected:
             with self.database as db:
