@@ -4,7 +4,7 @@ import os
 import math
 import warnings
 from pathlib import Path
-from pandas import read_sql_query, IndexSlice as idx
+from pandas import isna, read_sql_query, IndexSlice as idx
 from deepwellcup.processing import utils
 from deepwellcup.processing import dirs
 from deepwellcup.processing.nhl_teams import shorten_team_name as stn
@@ -360,6 +360,8 @@ class DataBaseOperations():
             team_selection, game_selection, player_selection=None):
         '''Add series selections to the database'''
         # checks on inputs
+        if isna(game_selection):
+            game_selection = None
         check_if_year_is_valid(year)
         self.check_playoff_round(year, playoff_round)
         self.check_conference(year, playoff_round, conference)

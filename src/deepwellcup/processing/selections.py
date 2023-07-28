@@ -280,6 +280,7 @@ class Selections(DataFile):
                 level=["Individual", "Conference"],
                 sort_remaining=False
             )
+            .astype({'Duration': "Int64"})
         )
 
     def _load_champions_selections_from_file(self, keep_results=False):
