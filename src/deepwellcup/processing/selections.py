@@ -2,7 +2,7 @@
 import re
 import math
 import warnings
-from pandas import read_csv, Index, wide_to_long
+import pandas as pd
 from deepwellcup.processing import utils
 from deepwellcup.processing.data_files import DataFile
 from deepwellcup.processing.database import DataBaseOperations
@@ -164,13 +164,13 @@ class Selections(DataFile):
 
     def _read_data_file(self):
         """Read selections from selections file"""
-        data = read_csv(
+        data = pd.read_csv(
             self.selections_file,
             sep=',',
             converters={
                 'Name:': str.strip,
                 'Moniker': str.strip,
-                }
+            }
         )
         return data.rename(columns={'Name:': 'Individual'})
 
@@ -243,7 +243,7 @@ class Selections(DataFile):
             .rename(columns=dict(list(zip(series, [f'{ser}Team' for ser in series]))))
             .drop(columns=non_series_columns)
         )
-        post_pivot = (wide_to_long(
+        post_pivot = (pd.wide_to_long(
                 pre_pivot,
                 stubnames=series,
                 i='Individual',
@@ -266,7 +266,10 @@ class Selections(DataFile):
         ]
         post_pivot = (
             post_pivot
-            .set_index(Index(conf_index, name='Conference'), append=True)
+            .set_index(
+                pd.Index(conf_index, name='Conference'),
+                append=True
+            )
             .reorder_levels(['Individual', 'Conference', 'Series'])
             .rename(columns={' series length:': 'Duration'})
             .replace(to_replace=math.nan, value=None)
@@ -362,7 +365,10 @@ class Selections(DataFile):
             data
             .drop(columns=['SeriesNumber'])
             .set_index('Conference', append=True)
-            .set_index(Index(series_list*num_individuals), append=True)
+            .set_index(
+                pd.Index(series_list*num_individuals),
+                append=True
+            )
             .rename_axis(
                 index=['Individual', 'Conference', 'Series'],
                 columns=['Selections'],

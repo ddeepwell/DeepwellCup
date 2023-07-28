@@ -1,7 +1,6 @@
 """Functions for creating plots"""
 import os
-from pandas import Series, concat
-from pandas import isna
+import pandas as pd
 from matplotlib import rc, patches
 import matplotlib.pyplot as plt
 from deepwellcup.processing.scores import Points, IndividualScoring
@@ -124,7 +123,7 @@ class Plots():
         # it is used here, so that a UML diagram catches the compositional use of Points
         column = getattr(self._points, category)
         if column is None:
-            return Series(name=self.rounds_to_plot[rnd], dtype='int64')
+            return pd.Series(name=self.rounds_to_plot[rnd], dtype='int64')
         if category == 'other_points':
             column.name = self.rounds_to_plot[rnd]
         return column
@@ -133,7 +132,7 @@ class Plots():
         """Create a table of values for a category for each individual"""
         all_round_series = [self._add_column_to_table(rnd, category)
                             for rnd in self.rounds_to_plot.keys()]
-        df = concat(all_round_series, axis=1).transpose()
+        df = pd.concat(all_round_series, axis=1).transpose()
         total = (
             df
             .sum()
@@ -141,7 +140,7 @@ class Plots():
             .to_frame()
             .transpose()
         )
-        df_with_total = concat([df, total])
+        df_with_total = pd.concat([df, total])
         return (
             df_with_total
             .rename_axis(columns='Individuals')
@@ -187,7 +186,7 @@ class Plots():
             left_end = 0
             for playoff_round in self.rounds_to_plot.values():
                 round_points = self.total_points[individual][playoff_round]
-                if not isna(round_points):
+                if not pd.isna(round_points):
                     self._patch = self.axis.barh(
                         individual_index,
                         round_points,
@@ -221,7 +220,7 @@ class Plots():
         if (
             playoff_round != 'Champions'
             and individual in self.other_points.columns
-            and not isna(self.other_points[individual][playoff_round])
+            and not pd.isna(self.other_points[individual][playoff_round])
         ):
             if self.year == 2009:
                 point_string += '$\\ast$'
