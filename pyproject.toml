@@ -11,7 +11,7 @@ authors = [
 ]
 description = "Manage and analyze the Deepwell Cup"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
   "jinja2>=3.1.2",
   "matplotlib==3.5.1",
