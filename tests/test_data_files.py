@@ -7,7 +7,7 @@ from deepwellcup.processing import dirs
 class Settings:
     """Test settings"""
     def __init__(self):
-        self.test_data_dir = dirs.tests_data()
+        self.test_data_dir = pytest.data_dir
 
 
 @pytest.fixture(

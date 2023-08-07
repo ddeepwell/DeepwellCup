@@ -5,13 +5,12 @@ import pytest
 from deepwellcup.processing.database import DataBaseOperations
 from deepwellcup.processing.selections import Selections
 from deepwellcup.processing.results import Results
-from deepwellcup.processing import dirs
 
 
 class Settings:
     """Test settings"""
     def __init__(self, empty_database_conn, nonempty_database):
-        self.test_data_dir = dirs.tests_data()
+        self.test_data_dir = pytest.data_dir
         self.empty_database = empty_database_conn
         self.full_database = nonempty_database
         self.year = 2017

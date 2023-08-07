@@ -2,11 +2,14 @@
 import sqlite3
 import pytest
 from deepwellcup.processing.database import DataBaseOperations
+from deepwellcup.processing import dirs
 
 
 def pytest_configure():
     '''Pytest defaults'''
     pytest.database = ':memory:'
+    project = dirs.src().parents[1]
+    pytest.data_dir = project / 'tests/data'
 
 
 @pytest.fixture(

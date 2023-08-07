@@ -3,13 +3,12 @@ from pandas import Series
 import pytest
 from deepwellcup.processing.database import DataBaseOperations
 from deepwellcup.processing.other_points import OtherPoints
-from deepwellcup.processing import dirs
 
 
 class Settings:
     """Test settings"""
     def __init__(self, empty_database_conn, nonempty_database_conn):
-        self.test_data_dir = dirs.tests_data()
+        self.test_data_dir = pytest.data_dir
         self.nonempty_database = nonempty_database_conn
         self.empty_database = empty_database_conn
         self.year = 2009

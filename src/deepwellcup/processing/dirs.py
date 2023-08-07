@@ -40,8 +40,3 @@ def year_tables(year):
 def year_figures(year):
     """Return the path for the figures from a year"""
     return project() / f'figures/{year}'
-
-
-def tests_data():
-    """Return the path to the tests directory"""
-    return project() / 'tests/data'
