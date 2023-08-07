@@ -7,7 +7,6 @@ from deepwellcup.processing import dirs
 class Settings:
     """Test settings"""
     def __init__(self):
-        self.data_dir = dirs.project()/'data'
         self.test_data_dir = dirs.tests_data()
 
 
@@ -48,31 +47,31 @@ def test_selections_file_input(setup):
     assert dfile.selections_file == expected_value
 
 
-def test_selections_file_default(setup):
+def test_selections_file_default():
     """Test for selections_file with default path"""
     year = 2017
     playoff_round = 1
     dfile = DataFile(year=year, playoff_round=playoff_round)
-    expected_value = setup.data_dir / str(year) / \
-        f"{year} Deepwell Cup Round {playoff_round}.csv"
+    expected_value = dirs.data() / f"selections_and_results/{year}" \
+        / f"{year} Deepwell Cup Round {playoff_round}.csv"
     assert dfile.selections_file == expected_value
 
 
-def test_selections_file_default_champions(setup):
+def test_selections_file_default_champions():
     """Test for selections_file with default path and champions selections"""
     year = 2017
     playoff_round = 'Champions'
     dfile = DataFile(year=year, playoff_round=playoff_round)
-    expected_value = setup.data_dir / str(year) / \
-        f"{year} Deepwell Cup Round 1.csv"
+    expected_value = dirs.data() / f"selections_and_results/{year}" \
+        / f"{year} Deepwell Cup Round 1.csv"
     assert dfile.selections_file == expected_value
 
 
-def test_other_points_file_default(setup):
+def test_other_points_file_default():
     """Test for other_points_file with default path"""
     year = 2017
     playoff_round = 1
     dfile = DataFile(year=year, playoff_round=playoff_round)
-    expected_value = setup.data_dir / str(year) / \
-        f"{year} Deepwell Cup Other Points Round {playoff_round}.csv"
+    expected_value = dirs.data() / f"selections_and_results/{year}" \
+        / f"{year} Deepwell Cup Other Points Round {playoff_round}.csv"
     assert dfile.other_points_file == expected_value
