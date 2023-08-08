@@ -8,10 +8,10 @@ from deepwellcup.processing.database import DataBaseOperations
 class Settings:
     """Test settings"""
     def __init__(self, database_conn):
-        self.test_data_dir = pytest.data_dir
-        self.tables_dir = dirs.project()/'tables'
-        self.full_database = database_conn
         self.year = 2017
+        self.test_data_dir = pytest.data_dir
+        self.tables_dir = dirs.year_tables(self.year).parent
+        self.full_database = database_conn
 
 
 @pytest.fixture(

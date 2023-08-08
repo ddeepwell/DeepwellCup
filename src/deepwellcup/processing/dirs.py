@@ -1,5 +1,8 @@
 """Functions for returning useful directories"""
 from pathlib import Path
+import json
+import warnings
+from . import data_files
 
 
 def src():
@@ -27,16 +30,68 @@ def templates():
     return data() / 'templates'
 
 
-def project():
-    """Return the path of the project root directory"""
-    return src().parents[1]
+def initialize_products_directory() -> None:
+    """Ask for and save the products directory"""
+    if data_files.products_dir_file().exists():
+        warnings.warn(
+            "The products directory already exists and contains the path "
+            f"{_read_products_path_from_file(data_files.products_dir_file())}. "
+            "It will be overwritten if you continue."
+        )
+    products_dir = _request_products_path()
+    _write_products_path_to_file(
+        products_dir=products_dir,
+        file=data_files.products_dir_file()
+    )
+    _make_directory(products_dir / "tables")
+    _make_directory(products_dir / "figures")
+
+
+def _make_directory(directory: Path) -> None:
+    """Make the directory"""
+    directory.mkdir(parents=True, exist_ok=True)
+
+
+def _request_products_path() -> Path:
+    """Ask the user for a path to a directory for created products"""
+    products_dir = Path(
+        input('Enter a directory to store the produced tables and figures: ')
+        .strip()
+    )
+    if not products_dir.exists():
+        raise FileNotFoundError(f"{products_dir} doesn't exist")
+    if not products_dir.is_dir():
+        raise NotADirectoryError(f"{products_dir} is not a directory")
+    return products_dir
+
+
+def _write_products_path_to_file(products_dir: Path, file: Path) -> None:
+    """Write the products directory to a file"""
+    with open(file, 'w', encoding="utf-8") as file_handle:
+        json.dump(
+            {"products_dir": str(products_dir)},
+            file_handle,
+        )
+
+
+def _read_products_path_from_file(file: Path) -> Path:
+    """Read the products directory from a file"""
+    if not file.exists():
+        raise FileNotFoundError(
+            f"The products file, {file}, doesn't exist. "
+            "Initialize the products directory with 'initialize'.")
+    with open(file, 'r', encoding="utf-8") as file_handle:
+        contents = json.load(file_handle)
+    return Path(contents["products_dir"])
 
 
 def year_tables(year):
     """Return the path for the tables from a year"""
-    return project() / f'tables/{year}'
+    return _read_products_path_from_file(data_files.products_dir_file()) \
+        / f'tables/{year}'
 
 
 def year_figures(year):
     """Return the path for the figures from a year"""
-    return project() / f'figures/{year}'
+    return _read_products_path_from_file(data_files.products_dir_file()) \
+        / f'figures/{year}'

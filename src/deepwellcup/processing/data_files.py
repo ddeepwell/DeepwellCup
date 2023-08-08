@@ -1,4 +1,5 @@
 """Specifying the file containing selections and results"""
+from pathlib import Path
 from deepwellcup.processing import dirs
 
 
@@ -41,3 +42,8 @@ class DataFile():
         file_name = f'{self.year} Deepwell Cup Other Points Round '\
             f'{self.playoff_round}.csv'
         return self.directory / file_name
+
+
+def products_dir_file() -> Path:
+    """Return the file containing the products directory"""
+    return dirs.data() / 'products_dir.json'
