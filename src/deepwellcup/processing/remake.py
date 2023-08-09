@@ -1,6 +1,7 @@
 """Remake everything."""
 import argparse
 from .playoff_round import PlayoffRound
+from . import utils
 
 
 def multi_year_remake(
@@ -9,7 +10,7 @@ def multi_year_remake(
 ) -> None:
     """Remake the database, figures and tables."""
     for year in _parse_year_inputs(years):
-        for rnd in [1, 2, 3, 4]:
+        for rnd in utils.selection_rounds(year):
             current_round = PlayoffRound(
                 year=year,
                 playoff_round=rnd,
