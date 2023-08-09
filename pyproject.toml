@@ -48,6 +48,7 @@ disable = ["C0103"]
 
 [project.scripts]
 initialize = "deepwellcup.processing.dirs:initialize_products_directory"
+products_directory = "deepwellcup.processing.dirs:print_products_path"
 remake = "deepwellcup.processing.remake:main"
 update_selections = "deepwellcup.processing.update_selections:main"
 update_results = "deepwellcup.processing.update_results:main"

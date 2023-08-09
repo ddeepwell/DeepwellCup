@@ -85,6 +85,14 @@ def _read_products_path_from_file(file: Path) -> Path:
     return Path(contents["products_dir"])
 
 
+def print_products_path() -> None:
+    """Print the products directory"""
+    print(
+        "The produced tables and figures are under "
+        f"{_read_products_path_from_file(data_files.products_dir_file())}"
+    )
+
+
 def year_tables(year):
     """Return the path for the tables from a year"""
     return _read_products_path_from_file(data_files.products_dir_file()) \
