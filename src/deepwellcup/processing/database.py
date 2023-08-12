@@ -16,7 +16,9 @@ class DataBaseOperations():
         self._is_in_memory_database = False
         self.conn = None
         self.cursor = None
-        if isinstance(database, sqlite3.Connection):
+        if database is None:
+            database_path = dirs.products() / "DeepwellCup.db"
+        elif isinstance(database, sqlite3.Connection):
             self._is_in_memory_database = True
             database_path = database
         elif database[0] == '/':

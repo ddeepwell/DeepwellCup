@@ -27,6 +27,10 @@ class Insert():
             )
         else:
             self._champions_selections = None
+        if playoff_round == 4:
+            self._champions_results = Results(
+                year, 'Champions', selections_directory, **kwargs
+            )
         self._results = Results(
             year, playoff_round, selections_directory, **kwargs
         )
@@ -178,9 +182,8 @@ class Insert():
                 )
 
         if self.playoff_round == 4:
-            champions_results = Results(self.year, 'Champions')
             champions_list = self._convert_to_none(
-                champions_results.results.tolist()
+                self._champions_results.results.tolist()
             )
 
             with self.database as db:
