@@ -35,8 +35,7 @@ def initialize_products_directory() -> None:
     if data_files.products_dir_file().exists():
         warnings.warn(
             "The products directory already exists and contains the path "
-            f"{_read_products_path_from_file(data_files.products_dir_file())}. "
-            "It will be overwritten if you continue."
+            f"{products()}. It will be overwritten if you continue."
         )
     products_dir = _request_products_path()
     _write_products_path_to_file(
@@ -85,21 +84,21 @@ def _read_products_path_from_file(file: Path) -> Path:
     return Path(contents["products_dir"])
 
 
+def products() -> Path:
+    """Return the path for the products directory"""
+    return _read_products_path_from_file(data_files.products_dir_file())
+
+
 def print_products_path() -> None:
     """Print the products directory"""
-    print(
-        "The produced tables and figures are under "
-        f"{_read_products_path_from_file(data_files.products_dir_file())}"
-    )
+    print(f"The produced tables and figures are under {products()}")
 
 
 def year_tables(year):
     """Return the path for the tables from a year"""
-    return _read_products_path_from_file(data_files.products_dir_file()) \
-        / f'tables/{year}'
+    return products() / f'tables/{year}'
 
 
 def year_figures(year):
     """Return the path for the figures from a year"""
-    return _read_products_path_from_file(data_files.products_dir_file()) \
-        / f'figures/{year}'
+    return products() / f'figures/{year}'

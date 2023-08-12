@@ -22,7 +22,7 @@ class DataBaseOperations():
         elif database[0] == '/':
             database_path = database
         else:
-            database_path = dirs.database() / database
+            database_path = dirs.products() / database
         self.path = database_path
         if not self.database_exists():
             self.create_database()
