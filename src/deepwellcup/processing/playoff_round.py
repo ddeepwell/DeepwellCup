@@ -13,13 +13,13 @@ class PlayoffRound():
         year,
         playoff_round,
         selections_directory=None,
-        **kwargs
+        database=None,
     ):
         self.year = year
         self.playoff_round = playoff_round
         self._selections_directory = selections_directory
-        self._kwargs = kwargs
-        self._points = Points(year, playoff_round, selections_directory, **kwargs)
+        self._database = database
+        self._points = Points(year, playoff_round, selections_directory, database)
         self._selections = self._points._selections
         self._results = self._points._results
         self._other_points = self._points.other_points
@@ -65,7 +65,7 @@ class PlayoffRound():
                 self.year,
                 self.playoff_round,
                 self._selections_directory,
-                **self._kwargs
+                self._database,
             )
         return self._latex
 
@@ -92,7 +92,7 @@ class PlayoffRound():
                 self.year,
                 self.playoff_round,
                 self._selections_directory,
-                **self._kwargs
+                self._database,
             )
         return self._insert
 
@@ -122,7 +122,7 @@ class PlayoffRound():
                 max_round=playoff_round,
                 save=True,
                 selections_directory=self._selections_directory,
-                **self._kwargs
+                database=self._database,
             )
         return self._plots
 

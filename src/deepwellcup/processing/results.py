@@ -9,9 +9,9 @@ from deepwellcup.processing.database import DataBaseOperations
 class Results(DataFile):
     """Class for gathering the results for a playoff round"""
 
-    def __init__(self, year, playoff_round, selections_directory=None, **kwargs):
+    def __init__(self, year, playoff_round, selections_directory=None, database=None):
         super().__init__(year=year, playoff_round=playoff_round, directory=selections_directory)
-        self._database = DataBaseOperations(**kwargs)
+        self._database = DataBaseOperations(database)
         with self.database as db:
             self.in_database = db.year_round_results_in_database(year, playoff_round)
         self._selections = Selections(
@@ -19,7 +19,8 @@ class Results(DataFile):
             playoff_round,
             selections_directory,
             keep_results=True,
-            **kwargs)
+            database=database,
+        )
         self._load_results()
 
     @property

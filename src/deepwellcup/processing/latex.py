@@ -17,20 +17,22 @@ from deepwellcup.processing.nhl_teams import (
 class Latex():
     """Class making LaTex table files"""
 
-    def __init__(self, year, playoff_round, selections_directory=None, **kwargs):
+    def __init__(self, year, playoff_round, selections_directory=None, database=None):
         self._year = year
         self._playoff_round = playoff_round
         self._round_selections = Selections(
             year=year,
             playoff_round=playoff_round,
             selections_directory=selections_directory,
-            **kwargs)
+            database=database
+        )
         if playoff_round != 'Q':
             self._champions_selections = Selections(
                 year=year,
                 playoff_round='Champions',
                 selections_directory=selections_directory,
-                **kwargs)
+                database=database,
+            )
         else:
             self._champions_selections = None
         self._system = IndividualScoring(self.year).scoring_system()

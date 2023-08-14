@@ -12,7 +12,7 @@ from deepwellcup.processing.nhl_teams import shorten_team_name as stn
 class DataBaseOperations():
     '''Class for functions to work with the database'''
 
-    def __init__(self, database='DeepwellCup.db'):
+    def __init__(self, database=None):
         self._is_in_memory_database = False
         self.conn = None
         self.cursor = None
@@ -23,8 +23,6 @@ class DataBaseOperations():
             database_path = database
         elif database[0] == '/':
             database_path = database
-        else:
-            database_path = dirs.products() / database
         self.path = database_path
         if not self.database_exists():
             self.create_database()

@@ -24,10 +24,10 @@ class Selections(DataFile):
         selections_directory=None,
         keep_results=False,
         use_database_first=True,
-        **kwargs
+        database=None,
     ):
         super().__init__(year=year, playoff_round=playoff_round, directory=selections_directory)
-        self._database = DataBaseOperations(**kwargs)
+        self._database = DataBaseOperations(database)
         self._use_database_first = use_database_first
         with self.database as db:
             if playoff_round in utils.selection_rounds(self.year):
@@ -38,7 +38,7 @@ class Selections(DataFile):
         self._selections_overtime = None
         self._preferences = None
         self._monikers = None
-        self._load_selections(keep_results=keep_results)
+        self._load_selections(keep_results)
 
     @property
     def selections(self):
@@ -129,13 +129,13 @@ class Selections(DataFile):
             players_to_keep.reverse()
         return players_to_keep
 
-    def _load_selections(self, **kwargs):
+    def _load_selections(self, keep_results=False):
         """Load the selections from database or raw file"""
         if (
             self.in_database
             and self.use_database_first
             and (
-                not kwargs["keep_results"]
+                not keep_results
                 or self._results_in_database
             )
         ):
@@ -158,9 +158,9 @@ class Selections(DataFile):
                 self._load_monikers_from_file()
                 self._load_overtime_selections_from_file()
                 self._load_preferences_from_file()
-                self._selections = self._load_playoff_round_selections_from_file(**kwargs)
+                self._selections = self._load_playoff_round_selections_from_file(keep_results)
             elif self.playoff_round == 'Champions':
-                self._selections = self._load_champions_selections_from_file(**kwargs)
+                self._selections = self._load_champions_selections_from_file(keep_results)
 
     def _read_data_file(self):
         """Read selections from selections file"""

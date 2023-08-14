@@ -12,30 +12,30 @@ from deepwellcup.processing.nhl_teams import lengthen_team_name as ltn
 class Insert():
     "User-friendly class for inserting round selections and results into the database"
 
-    def __init__(self, year, playoff_round, selections_directory=None, **kwargs):
+    def __init__(self, year, playoff_round, selections_directory=None, database=None):
         self._year = year
         self._playoff_round = playoff_round
-        self._database = DataBaseOperations(**kwargs)
+        self._database = DataBaseOperations(database)
 
         # import values
         self._round_selections = Selections(
-            year, playoff_round, selections_directory, **kwargs
+            year, playoff_round, selections_directory, database
         )
         if playoff_round == 1:
             self._champions_selections = Selections(
-                year, 'Champions', selections_directory, **kwargs
+                year, 'Champions', selections_directory, database
             )
         else:
             self._champions_selections = None
         if playoff_round == 4:
             self._champions_results = Results(
-                year, 'Champions', selections_directory, **kwargs
+                year, 'Champions', selections_directory, database
             )
         self._results = Results(
-            year, playoff_round, selections_directory, **kwargs
+            year, playoff_round, selections_directory, database
         )
         self._other_points = OtherPoints(
-            year, playoff_round, selections_directory, **kwargs
+            year, playoff_round, selections_directory, database
         )
 
     @property

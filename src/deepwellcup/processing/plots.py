@@ -15,13 +15,23 @@ rc('font', **font)
 class Plots():
     """Class for creating plots"""
 
-    def __init__(self, year, max_round=4, plot_champions=True, save=False, show=False, **kwargs):
+    def __init__(
+        self,
+        year,
+        max_round=4,
+        plot_champions=True,
+        save=False,
+        show=False,
+        selections_directory=None,
+        database=None,
+    ):
         self.year = year
         self.max_round = max_round
         self.plot_champions = plot_champions
         self.save = save
         self.show = show
-        self._kwargs = kwargs
+        self._selections_directory = selections_directory
+        self._database = database
         self._scoring_system = IndividualScoring(year).scoring_system()
         self._total_points = self._create_table('total_points')
         self._other_points = self._create_table('other_points')
@@ -117,7 +127,8 @@ class Plots():
             self.year,
             rnd,
             keep_stanley_cup_winner_points=keep_stanley_cup_winner_points,
-            **self._kwargs
+            selections_directory=self._selections_directory,
+            database=self._database,
         )
         # warning, do not use self._points as it depends on the last call to this function
         # it is used here, so that a UML diagram catches the compositional use of Points

@@ -18,7 +18,7 @@ class Points():
         playoff_round,
         selections_directory=None,
         keep_stanley_cup_winner_points=True,
-        **kwargs
+        database=None,
     ):
         self._year = year
         self._playoff_round = playoff_round
@@ -26,20 +26,20 @@ class Points():
             year,
             playoff_round,
             selections_directory=selections_directory,
-            **kwargs
+            database=database,
         )
         self._results = Results(
             year,
             playoff_round,
             selections_directory=selections_directory,
-            **kwargs
+            database=database,
         )
         if playoff_round != 'Champions':
             self._other_points = OtherPoints(
                 year,
                 playoff_round,
                 selections_directory=selections_directory,
-                **kwargs
+                database=database
             )
         else:
             self._other_points = None

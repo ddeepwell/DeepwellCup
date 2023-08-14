@@ -5,12 +5,12 @@ from deepwellcup.processing import utils
 from deepwellcup.processing.playoff_round import PlayoffRound
 
 
-def update_results(year, playoff_round, update_database=True, **kwargs):
+def update_results(year, playoff_round, update_database=True, database=None):
     """Add results to database and make new stanings plot"""
     current_round = PlayoffRound(
         year=year,
         playoff_round=playoff_round,
-        **kwargs
+        database=database,
     )
     if update_database:
         current_round.add_results_to_database()

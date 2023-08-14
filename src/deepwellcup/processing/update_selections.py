@@ -4,12 +4,12 @@ from deepwellcup.processing import utils
 from deepwellcup.processing.playoff_round import PlayoffRound
 
 
-def update_selections(year, playoff_round, **kwargs):
+def update_selections(year, playoff_round, database=None):
     """Update the database and selections table"""
     current_round = PlayoffRound(
         year=year,
         playoff_round=playoff_round,
-        **kwargs
+        database=database,
     )
     current_round.add_selections_to_database()
     current_round.add_other_points_to_database()

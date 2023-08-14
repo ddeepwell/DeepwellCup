@@ -14,10 +14,10 @@ class OtherPoints(DataFile):
         year,
         playoff_round,
         selections_directory=None,
-        **kwargs
+        database=None,
     ):
         super().__init__(year=year, playoff_round=playoff_round, directory=selections_directory)
-        self._database = DataBaseOperations(**kwargs)
+        self._database = DataBaseOperations(database)
         with self.database as db:
             self._in_database = db.year_round_other_points_in_database(year, playoff_round)
         self._load_other_points()
