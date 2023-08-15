@@ -1,4 +1,7 @@
 """Utility functions"""
+from pathlib import Path
+import sqlite3
+from typing import NamedTuple
 
 
 def split_name(name):
@@ -44,3 +47,9 @@ def read_file_to_string(filename):
     """Read entire file contents into a string"""
     with open(filename, 'r', encoding='utf-8') as file:
         return file.read().replace('\n', '')
+
+
+class DataStores(NamedTuple):
+    """Data storage locations."""
+    raw_data_directory: Path | None
+    database: str | sqlite3.Connection | None

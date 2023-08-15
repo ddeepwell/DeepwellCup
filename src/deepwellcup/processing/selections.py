@@ -12,6 +12,7 @@ from deepwellcup.processing.nhl_teams import (
     lengthen_team_name as ltn,
     team_of_player,
 )
+from .utils import DataStores
 
 
 class Selections(DataFile):
@@ -21,13 +22,16 @@ class Selections(DataFile):
         self,
         year,
         playoff_round,
-        selections_directory=None,
         keep_results=False,
         use_database_first=True,
-        database=None,
+        datastores: DataStores = DataStores(None, None),
     ):
-        super().__init__(year=year, playoff_round=playoff_round, directory=selections_directory)
-        self._database = DataBaseOperations(database)
+        super().__init__(
+            year=year,
+            playoff_round=playoff_round,
+            directory=datastores.raw_data_directory
+        )
+        self._database = DataBaseOperations(datastores.database)
         self._use_database_first = use_database_first
         with self.database as db:
             if playoff_round in utils.selection_rounds(self.year):

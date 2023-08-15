@@ -12,26 +12,30 @@ from deepwellcup.processing.nhl_teams import (
     shorten_team_name as stn,
     lengthen_team_name as ltn,
 )
+from .utils import DataStores
 
 
 class Latex():
     """Class making LaTex table files"""
 
-    def __init__(self, year, playoff_round, selections_directory=None, database=None):
+    def __init__(
+        self,
+        year,
+        playoff_round,
+        datastores: DataStores = DataStores(None, None),
+    ):
         self._year = year
         self._playoff_round = playoff_round
         self._round_selections = Selections(
             year=year,
             playoff_round=playoff_round,
-            selections_directory=selections_directory,
-            database=database
+            datastores=datastores,
         )
         if playoff_round != 'Q':
             self._champions_selections = Selections(
                 year=year,
                 playoff_round='Champions',
-                selections_directory=selections_directory,
-                database=database,
+                datastores=datastores,
             )
         else:
             self._champions_selections = None

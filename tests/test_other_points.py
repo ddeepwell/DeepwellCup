@@ -3,15 +3,15 @@ from pandas import Series
 import pytest
 from deepwellcup.processing.database import DataBaseOperations
 from deepwellcup.processing.other_points import OtherPoints
+from deepwellcup.processing.utils import DataStores
 
 
 class Settings:
     """Test settings"""
     def __init__(self, empty_database_conn, nonempty_database_conn):
-        self.test_data_dir = pytest.data_dir
-        self.nonempty_database = nonempty_database_conn
-        self.empty_database = empty_database_conn
         self.year = 2009
+        self.datastores_empty = DataStores(pytest.data_dir, empty_database_conn)
+        self.datastores_nonempty = DataStores(pytest.data_dir, nonempty_database_conn)
 
 
 @pytest.fixture(
@@ -42,14 +42,14 @@ def fixture_setup(empty_database_conn, nonempty_database):
 
 @pytest.fixture(
     scope="function",
-    name='database',
+    name='datastores',
 )
-def fixture_database(request, setup):
-    """Database fixture"""
+def fixture_datastores(request, setup):
+    """Datastores fixture"""
     if request.param == 'nonempty':
-        return setup.nonempty_database
-    elif request.param == 'empty':
-        return setup.empty_database
+        return setup.datastores_nonempty
+    if request.param == 'empty':
+        return setup.datastores_empty
 
 
 def test_individuals(setup):
@@ -57,8 +57,7 @@ def test_individuals(setup):
     pts = OtherPoints(
         setup.year,
         playoff_round=2,
-        selections_directory=setup.test_data_dir,
-        database=setup.nonempty_database
+        datastores=setup.datastores_nonempty,
     )
     expected_individuals = ['Harry L', 'Kollin H']
     assert pts.individuals == expected_individuals
@@ -87,15 +86,14 @@ def fixture_expected_points(playoff_round):
     return all_expected_points[playoff_round]
 
 
-@pytest.mark.parametrize("database", ['nonempty', 'empty'], indirect=["database"])
+@pytest.mark.parametrize("datastores", ['nonempty', 'empty'], indirect=["datastores"])
 @pytest.mark.parametrize("playoff_round", [1, 2, 3, 4])
-def test_points(playoff_round, database, expected_points, setup):
+def test_points(playoff_round, datastores, expected_points, setup):
     """Test for selections in playoff rounds"""
     pts = OtherPoints(
         setup.year,
         playoff_round=playoff_round,
-        selections_directory=setup.test_data_dir,
-        database=database
+        datastores=datastores
     )
     if expected_points is None:
         assert pts.points is None

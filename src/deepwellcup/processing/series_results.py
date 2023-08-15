@@ -3,14 +3,19 @@ import argparse
 from pathlib import Path
 from deepwellcup.processing import utils
 from deepwellcup.processing.selections import Selections
+from .utils import DataStores
 
 
-def print_series_results(year, playoff_round, directory=None):
+def print_series_results(
+    year,
+    playoff_round,
+    datastores: DataStores = DataStores(None, None),
+):
     """Print the series results from the CSV"""
     selections = Selections(
         year,
         playoff_round,
-        selections_directory=directory,
+        datastores=datastores,
         keep_results=True,
         use_database_first=False
     )

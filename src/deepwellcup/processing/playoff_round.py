@@ -3,6 +3,7 @@ from deepwellcup.processing.scores import Points
 from deepwellcup.processing.insert import Insert
 from deepwellcup.processing.latex import Latex
 from deepwellcup.processing.plots import Plots
+from .utils import DataStores
 
 
 class PlayoffRound():
@@ -12,14 +13,12 @@ class PlayoffRound():
         self,
         year,
         playoff_round,
-        selections_directory=None,
-        database=None,
+        datastores: DataStores = DataStores(None, None),
     ):
         self.year = year
         self.playoff_round = playoff_round
-        self._selections_directory = selections_directory
-        self._database = database
-        self._points = Points(year, playoff_round, selections_directory, database)
+        self._datastores = datastores
+        self._points = Points(year, playoff_round, datastores=datastores)
         self._selections = self._points._selections
         self._results = self._points._results
         self._other_points = self._points.other_points
@@ -64,8 +63,7 @@ class PlayoffRound():
             self._latex = Latex(
                 self.year,
                 self.playoff_round,
-                self._selections_directory,
-                self._database,
+                datastores=self._datastores,
             )
         return self._latex
 
@@ -91,8 +89,7 @@ class PlayoffRound():
             self._insert = Insert(
                 self.year,
                 self.playoff_round,
-                self._selections_directory,
-                self._database,
+                datastores=self._datastores,
             )
         return self._insert
 
@@ -121,8 +118,7 @@ class PlayoffRound():
                 self.year,
                 max_round=playoff_round,
                 save=True,
-                selections_directory=self._selections_directory,
-                database=self._database,
+                datastores=self._datastores,
             )
         return self._plots
 

@@ -7,6 +7,7 @@ from deepwellcup.processing import utils
 from deepwellcup.processing.results import Results
 from deepwellcup.processing.selections import Selections
 from deepwellcup.processing.other_points import OtherPoints
+from .utils import DataStores
 
 
 class Points():
@@ -16,30 +17,26 @@ class Points():
         self,
         year,
         playoff_round,
-        selections_directory=None,
         keep_stanley_cup_winner_points=True,
-        database=None,
+        datastores: DataStores = DataStores(None, None),
     ):
         self._year = year
         self._playoff_round = playoff_round
         self._selections = Selections(
             year,
             playoff_round,
-            selections_directory=selections_directory,
-            database=database,
+            datastores=datastores,
         )
         self._results = Results(
             year,
             playoff_round,
-            selections_directory=selections_directory,
-            database=database,
+            datastores=datastores,
         )
         if playoff_round != 'Champions':
             self._other_points = OtherPoints(
                 year,
                 playoff_round,
-                selections_directory=selections_directory,
-                database=database
+                datastores=datastores,
             )
         else:
             self._other_points = None

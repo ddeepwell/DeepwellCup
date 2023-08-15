@@ -3,15 +3,15 @@ import pytest
 from deepwellcup.processing.latex import Latex
 from deepwellcup.processing import dirs
 from deepwellcup.processing.database import DataBaseOperations
+from deepwellcup.processing.utils import DataStores
 
 
 class Settings:
     """Test settings"""
     def __init__(self, database_conn):
         self.year = 2017
-        self.test_data_dir = pytest.data_dir
         self.tables_dir = dirs.year_tables(self.year).parent
-        self.full_database = database_conn
+        self.datastores = DataStores(pytest.data_dir, database_conn)
 
 
 @pytest.fixture(
@@ -45,8 +45,7 @@ def test_year(setup):
     tables = Latex(
         year=setup.year,
         playoff_round=1,
-        selections_directory=setup.test_data_dir,
-        database=setup.full_database
+        datastores=setup.datastores,
     )
     assert tables.year == setup.year
 
@@ -57,8 +56,7 @@ def test_playoff_round(setup):
     tables = Latex(
         year=setup.year,
         playoff_round=playoff_round,
-        selections_directory=setup.test_data_dir,
-        database=setup.full_database
+        datastores=setup.datastores,
     )
     assert tables.playoff_round == playoff_round
 
@@ -69,8 +67,7 @@ def test_playoff_round_latex_file(setup):
     tables = Latex(
         year=setup.year,
         playoff_round=playoff_round,
-        selections_directory=setup.test_data_dir,
-        database=setup.full_database
+        datastores=setup.datastores,
     )
     expected_result = setup.tables_dir / f"{setup.year}/round{playoff_round}.tex"
     assert tables.latex_file == expected_result

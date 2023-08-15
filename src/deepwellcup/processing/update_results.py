@@ -1,16 +1,23 @@
 """Populate the database with the results and make the standings plot
 for a specific playoff round"""
 import argparse
+from pathlib import Path
 from deepwellcup.processing import utils
 from deepwellcup.processing.playoff_round import PlayoffRound
+from .utils import DataStores
 
 
-def update_results(year, playoff_round, update_database=True, database=None):
+def update_results(
+    year,
+    playoff_round,
+    update_database=True,
+    datastores: DataStores = DataStores(None, None),
+) -> None:
     """Add results to database and make new stanings plot"""
     current_round = PlayoffRound(
-        year=year,
         playoff_round=playoff_round,
-        database=database,
+        year=year,
+        datastores=datastores,
     )
     if update_database:
         current_round.add_results_to_database()
@@ -36,8 +43,8 @@ def main():
     args = parser.parse_args()
     args = modify_and_check_arguments(args)
     update_database = not args.no_database_update
-    database = {} if args.database is None else {'database': args.database}
-    update_results(args.year, args.playoff_round, update_database, **database)
+    datastores = DataStores(args.raw_data_directory, args.database)
+    update_results(args.year, args.playoff_round, update_database, datastores)
 
 
 def parse_arguments():
@@ -61,6 +68,11 @@ def parse_arguments():
         "-d", "--database",
         type=str,
         help="Database to import data into"
+    )
+    parser.add_argument(
+        "-w", "--raw-data-directory",
+        type=Path,
+        help="directory with raw data",
     )
     return parser
 

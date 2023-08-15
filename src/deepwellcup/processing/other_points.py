@@ -3,6 +3,7 @@ import os
 from pandas import read_csv
 from deepwellcup.processing.data_files import DataFile
 from deepwellcup.processing.database import DataBaseOperations
+from .utils import DataStores
 
 
 class OtherPoints(DataFile):
@@ -13,11 +14,14 @@ class OtherPoints(DataFile):
         self,
         year,
         playoff_round,
-        selections_directory=None,
-        database=None,
+        datastores: DataStores = DataStores(None, None),
     ):
-        super().__init__(year=year, playoff_round=playoff_round, directory=selections_directory)
-        self._database = DataBaseOperations(database)
+        super().__init__(
+            year=year,
+            playoff_round=playoff_round,
+            directory=datastores.raw_data_directory
+        )
+        self._database = DataBaseOperations(datastores.database)
         with self.database as db:
             self._in_database = db.year_round_other_points_in_database(year, playoff_round)
         self._load_other_points()

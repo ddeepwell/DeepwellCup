@@ -5,6 +5,7 @@ from matplotlib import rc, patches
 import matplotlib.pyplot as plt
 from deepwellcup.processing.scores import Points, IndividualScoring
 from deepwellcup.processing import dirs
+from .utils import DataStores
 
 # set font to look like Latex
 font = {'family': 'serif',
@@ -22,16 +23,14 @@ class Plots():
         plot_champions=True,
         save=False,
         show=False,
-        selections_directory=None,
-        database=None,
+        datastores: DataStores = DataStores(None, None),
     ):
         self.year = year
         self.max_round = max_round
         self.plot_champions = plot_champions
         self.save = save
         self.show = show
-        self._selections_directory = selections_directory
-        self._database = database
+        self._datastores = datastores
         self._scoring_system = IndividualScoring(year).scoring_system()
         self._total_points = self._create_table('total_points')
         self._other_points = self._create_table('other_points')
@@ -127,8 +126,7 @@ class Plots():
             self.year,
             rnd,
             keep_stanley_cup_winner_points=keep_stanley_cup_winner_points,
-            selections_directory=self._selections_directory,
-            database=self._database,
+            datastores=self._datastores,
         )
         # warning, do not use self._points as it depends on the last call to this function
         # it is used here, so that a UML diagram catches the compositional use of Points

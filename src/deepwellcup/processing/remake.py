@@ -1,12 +1,14 @@
 """Remake everything."""
 import argparse
+from pathlib import Path
 from .playoff_round import PlayoffRound
 from . import utils
+from .utils import DataStores
 
 
 def multi_year_remake(
     years: int | list[int],
-    database: str | None = None,
+    datastores: DataStores = DataStores(None, None),
 ) -> None:
     """Remake the database, figures and tables."""
     for year in _parse_year_inputs(years):
@@ -14,7 +16,7 @@ def multi_year_remake(
             current_round = PlayoffRound(
                 year=year,
                 playoff_round=rnd,
-                database=database,
+                datastores=datastores,
             )
             current_round.add_selections_to_database()
             current_round.add_other_points_to_database()
@@ -59,10 +61,16 @@ def main() -> None:
         type=str,
         help="database to import data into",
     )
+    parser.add_argument(
+        "-w", "--raw-data-directory",
+        type=Path,
+        help="directory with raw data",
+    )
     args = parser.parse_args()
+    datastores = DataStores(args.raw_data_directory, args.database)
     multi_year_remake(
         years=args.years,
-        database=args.database,
+        datastores=datastores,
     )
 
 

@@ -5,15 +5,15 @@ import pytest
 from deepwellcup.processing.database import DataBaseOperations
 from deepwellcup.processing.selections import Selections
 from deepwellcup.processing.results import Results
+from deepwellcup.processing.utils import DataStores
 
 
 class Settings:
     """Test settings"""
-    def __init__(self, empty_database_conn, nonempty_database):
-        self.test_data_dir = pytest.data_dir
-        self.empty_database = empty_database_conn
-        self.full_database = nonempty_database
+    def __init__(self, empty_database_conn, nonempty_database_conn):
         self.year = 2017
+        self.datastores_empty = DataStores(pytest.data_dir, empty_database_conn)
+        self.datastores_nonempty = DataStores(pytest.data_dir, nonempty_database_conn)
 
 
 @pytest.fixture(
@@ -153,13 +153,16 @@ def fixture_setup(empty_database_conn, nonempty_database):
     return Settings(empty_database_conn, nonempty_database)
 
 
-@pytest.fixture(name="database")
-def fixture_database(request, setup):
-    """Database fixture"""
-    if request.param == 'full':
-        return setup.full_database
-    elif request.param == 'empty':
-        return setup.empty_database
+@pytest.fixture(
+    scope="function",
+    name='datastores',
+)
+def fixture_datastores(request, setup):
+    """Datastores fixture"""
+    if request.param == 'nonempty':
+        return setup.datastores_nonempty
+    if request.param == 'empty':
+        return setup.datastores_empty
 
 
 def test_individuals(setup):
@@ -167,8 +170,7 @@ def test_individuals(setup):
     sel = Selections(
         year=setup.year,
         playoff_round=1,
-        selections_directory=setup.test_data_dir,
-        database=setup.full_database
+        datastores=setup.datastores_nonempty,
     )
     expected_individuals = ['Alita D']
     assert sel.individuals == expected_individuals
@@ -193,7 +195,7 @@ def fixture_expected_series(playoff_round):
     return all_expected_series[playoff_round]
 
 
-@pytest.mark.parametrize("database", ['full', 'empty'], indirect=["database"])
+@pytest.mark.parametrize("datastores", ['nonempty', 'empty'], indirect=["datastores"])
 @pytest.mark.parametrize(
     "playoff_round, expectation",
     [
@@ -204,14 +206,13 @@ def fixture_expected_series(playoff_round):
         ('Champions', pytest.raises(ValueError))
     ]
 )
-def test_series(playoff_round, expectation, database, expected_series, setup):
+def test_series(playoff_round, expectation, datastores, expected_series, setup):
     """Test for series"""
     with expectation:
         sel = Selections(
             setup.year,
             playoff_round=playoff_round,
-            selections_directory=setup.test_data_dir,
-            database=database
+            datastores=datastores,
         )
         assert expected_series == sel.series
 
@@ -297,15 +298,14 @@ def fixture_expected_selections(playoff_round):
     return playoff_round_selections
 
 
-@pytest.mark.parametrize("database", ['full', 'empty'], indirect=["database"])
+@pytest.mark.parametrize("datastores", ['nonempty', 'empty'], indirect=["datastores"])
 @pytest.mark.parametrize("playoff_round", [1, 2, 3, 4, 'Champions'])
-def test_selections(playoff_round, database, expected_selections, setup):
+def test_selections(playoff_round, datastores, expected_selections, setup):
     """Test for selections in playoff rounds"""
     sel = Selections(
         setup.year,
         playoff_round=playoff_round,
-        selections_directory=setup.test_data_dir,
-        database=database
+        datastores=datastores,
     )
     assert expected_selections.equals(sel.selections)
 
@@ -387,14 +387,13 @@ def fixture_expected_results(playoff_round):
     return playoff_round_results
 
 
-@pytest.mark.parametrize("database", ['full', 'empty'], indirect=["database"])
+@pytest.mark.parametrize("datastores", ['nonempty', 'empty'], indirect=["datastores"])
 @pytest.mark.parametrize("playoff_round", [1, 2, 3, 4, 'Champions'])
-def test_results(playoff_round, database, expected_results, setup):
+def test_results(playoff_round, datastores, expected_results, setup):
     """Test for results in playoff rounds"""
     res = Results(
         setup.year,
         playoff_round=playoff_round,
-        selections_directory=setup.test_data_dir,
-        database=database
+        datastores=datastores,
     )
     assert expected_results.equals(res.results)
