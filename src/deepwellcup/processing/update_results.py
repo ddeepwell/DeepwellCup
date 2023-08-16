@@ -29,8 +29,13 @@ def main_without_database():
     parser = parse_arguments()
     args = parser.parse_args()
     args = modify_and_check_arguments(args)
-    database = {} if args.database is None else {'database': args.database}
-    update_results(args.year, args.playoff_round, update_database=False, **database)
+    datastores = DataStores(args.raw_data_directory, args.database)
+    update_results(
+        args.year,
+        args.playoff_round,
+        update_database=False,
+        datastores=datastores
+    )
 
 
 def main():
@@ -44,7 +49,12 @@ def main():
     args = modify_and_check_arguments(args)
     update_database = not args.no_database_update
     datastores = DataStores(args.raw_data_directory, args.database)
-    update_results(args.year, args.playoff_round, update_database, datastores)
+    update_results(
+        args.year,
+        args.playoff_round,
+        update_database=update_database,
+        datastores=datastores
+    )
 
 
 def parse_arguments():
