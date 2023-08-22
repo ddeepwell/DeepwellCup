@@ -1,8 +1,8 @@
 """Print the series results from the CSV file"""
 import argparse
 from pathlib import Path
-from deepwellcup.processing import utils
-from deepwellcup.processing.selections import Selections
+from .selections import Selections
+from . import utils
 from .utils import DataStores
 
 

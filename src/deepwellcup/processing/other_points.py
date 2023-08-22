@@ -1,8 +1,8 @@
 """Participant other points in round"""
 import os
 from pandas import read_csv
-from deepwellcup.processing.data_files import DataFile
-from deepwellcup.processing.database import DataBaseOperations
+from .data_files import DataFile
+from .database import DataBaseOperations
 from .utils import DataStores
 
 

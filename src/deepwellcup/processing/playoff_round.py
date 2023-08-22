@@ -1,8 +1,8 @@
 """Hold all data for a playoff round in a year"""
-from deepwellcup.processing.scores import Points
-from deepwellcup.processing.insert import Insert
-from deepwellcup.processing.latex import Latex
-from deepwellcup.processing.plots import Plots
+from .scores import Points
+from .insert import Insert
+from .latex import Latex
+from .plots import Plots
 from .utils import DataStores
 
 

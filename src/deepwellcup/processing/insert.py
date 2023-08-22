@@ -1,12 +1,12 @@
 """Import round selections for a single round into the database"""
 from pandas import isna
 from numpy import int64
-from deepwellcup.processing.other_points import OtherPoints
-from deepwellcup.processing.results import Results
-from deepwellcup.processing.selections import Selections
-from deepwellcup.processing import utils
-from deepwellcup.processing.database import DataBaseOperations
-from deepwellcup.processing.nhl_teams import lengthen_team_name as ltn
+from .other_points import OtherPoints
+from .results import Results
+from .selections import Selections
+from .database import DataBaseOperations
+from .nhl_teams import lengthen_team_name as ltn
+from . import utils
 from .utils import DataStores
 
 

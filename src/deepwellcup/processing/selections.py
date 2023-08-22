@@ -3,15 +3,15 @@ import re
 import math
 import warnings
 import pandas as pd
-from deepwellcup.processing import utils
-from deepwellcup.processing.data_files import DataFile
-from deepwellcup.processing.database import DataBaseOperations
-from deepwellcup.processing.nhl_teams import (
+from .data_files import DataFile
+from .database import DataBaseOperations
+from .nhl_teams import (
     conference as team_conference,
     shorten_team_name as stn,
     lengthen_team_name as ltn,
     team_of_player,
 )
+from . import utils
 from .utils import DataStores
 
 

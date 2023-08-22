@@ -1,6 +1,6 @@
 """Specifying the file containing selections and results"""
 from pathlib import Path
-from deepwellcup.processing import dirs
+from . import dirs
 
 
 class DataFile():

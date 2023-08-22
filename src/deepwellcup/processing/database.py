@@ -5,8 +5,8 @@ import math
 import warnings
 from pathlib import Path
 import pandas as pd
-from deepwellcup.processing import dirs, utils
-from deepwellcup.processing.nhl_teams import shorten_team_name as stn
+from . import dirs, utils
+from .nhl_teams import shorten_team_name as stn
 
 
 class DataBaseOperations():

@@ -3,8 +3,8 @@ import os
 import pandas as pd
 from matplotlib import rc, patches
 import matplotlib.pyplot as plt
-from deepwellcup.processing.scores import Points, IndividualScoring
-from deepwellcup.processing import dirs
+from .scores import Points, IndividualScoring
+from . import dirs
 from .utils import DataStores
 
 # set font to look like Latex

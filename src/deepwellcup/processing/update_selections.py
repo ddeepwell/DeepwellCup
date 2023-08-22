@@ -1,8 +1,8 @@
 """Populate the database and make the selections table for a specific playoff round"""
 import argparse
 from pathlib import Path
-from deepwellcup.processing import utils
-from deepwellcup.processing.playoff_round import PlayoffRound
+from .playoff_round import PlayoffRound
+from . import utils
 from .utils import DataStores
 
 
