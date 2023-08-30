@@ -11,7 +11,7 @@ class Settings:
     def __init__(self, database_conn):
         self.year = 2017
         self.tables_dir = dirs.year_tables(self.year).parent
-        self.datastores = DataStores(pytest.data_dir, database_conn)
+        self.datastores = DataStores(pytest.test_data_dir, database_conn)
 
 
 @pytest.fixture(

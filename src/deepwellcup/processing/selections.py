@@ -3,7 +3,6 @@ import re
 import math
 import warnings
 import pandas as pd
-from .data_files import DataFile
 from .database import DataBaseOperations
 from .nhl_teams import (
     conference as team_conference,
@@ -11,11 +10,11 @@ from .nhl_teams import (
     lengthen_team_name as ltn,
     team_of_player,
 )
-from . import utils
+from . import data_files, utils
 from .utils import DataStores
 
 
-class Selections(DataFile):
+class Selections():
     """Class for gathering and processing information about a playoff round"""
 
     def __init__(
@@ -26,11 +25,9 @@ class Selections(DataFile):
         use_database_first=True,
         datastores: DataStores = DataStores(None, None),
     ):
-        super().__init__(
-            year=year,
-            playoff_round=playoff_round,
-            directory=datastores.raw_data_directory
-        )
+        self._year = year
+        self._playoff_round = playoff_round
+        self._datastores = datastores
         self._database = DataBaseOperations(datastores.database)
         self._use_database_first = use_database_first
         with self.database as db:
@@ -39,10 +36,25 @@ class Selections(DataFile):
             else:
                 self.in_database = db.champions_round_in_database(year)
             self._results_in_database = db.year_round_results_in_database(year, playoff_round)
+        self._selections_file = data_files.selections_file(
+            year=self.year,
+            selection_round=self.playoff_round,
+            directory=self._datastores.raw_data_directory,
+        )
         self._selections_overtime = None
         self._preferences = None
         self._monikers = None
         self._load_selections(keep_results)
+
+    @property
+    def year(self):
+        """The year"""
+        return self._year
+
+    @property
+    def playoff_round(self):
+        """The playoff round"""
+        return self._playoff_round
 
     @property
     def selections(self):
@@ -169,7 +181,7 @@ class Selections(DataFile):
     def _read_data_file(self):
         """Read selections from selections file"""
         data = pd.read_csv(
-            self.selections_file,
+            self._selections_file,
             sep=',',
             converters={
                 'Name:': str.strip,

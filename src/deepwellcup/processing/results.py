@@ -1,13 +1,12 @@
 """Read the results in a playoff round"""
 from pandas import Index
 from .selections import Selections
-from .data_files import DataFile
 from .database import DataBaseOperations
 from . import utils
 from .utils import DataStores
 
 
-class Results(DataFile):
+class Results():
     """Class for gathering the results for a playoff round"""
 
     def __init__(
@@ -16,11 +15,8 @@ class Results(DataFile):
         playoff_round,
         datastores: DataStores = DataStores(None, None),
     ):
-        super().__init__(
-            year=year,
-            playoff_round=playoff_round,
-            directory=datastores.raw_data_directory
-        )
+        self._year = year
+        self._playoff_round = playoff_round
         self._database = DataBaseOperations(datastores.database)
         with self.database as db:
             self.in_database = db.year_round_results_in_database(year, playoff_round)
@@ -31,6 +27,16 @@ class Results(DataFile):
             datastores=datastores,
         )
         self._load_results()
+
+    @property
+    def year(self):
+        """The year"""
+        return self._year
+
+    @property
+    def playoff_round(self):
+        """The playoff round"""
+        return self._playoff_round
 
     @property
     def results(self):

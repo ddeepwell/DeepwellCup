@@ -12,8 +12,8 @@ class Settings:
     """Test settings"""
     def __init__(self, empty_database_conn, nonempty_database_conn):
         self.year = 2017
-        self.datastores_empty = DataStores(pytest.data_dir, empty_database_conn)
-        self.datastores_nonempty = DataStores(pytest.data_dir, nonempty_database_conn)
+        self.datastores_empty = DataStores(pytest.test_data_dir, empty_database_conn)
+        self.datastores_nonempty = DataStores(pytest.test_data_dir, nonempty_database_conn)
 
 
 @pytest.fixture(

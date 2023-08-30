@@ -1,12 +1,11 @@
 """Participant other points in round"""
-import os
 from pandas import read_csv
-from .data_files import DataFile
+from . import data_files
 from .database import DataBaseOperations
 from .utils import DataStores
 
 
-class OtherPoints(DataFile):
+class OtherPoints():
     """Class for gathering and processing information regarding other
     points in a playoff round"""
 
@@ -16,15 +15,28 @@ class OtherPoints(DataFile):
         playoff_round,
         datastores: DataStores = DataStores(None, None),
     ):
-        super().__init__(
-            year=year,
-            playoff_round=playoff_round,
-            directory=datastores.raw_data_directory
-        )
+        self._year = year
+        self._playoff_round = playoff_round
+        self._datastores = datastores
         self._database = DataBaseOperations(datastores.database)
         with self.database as db:
             self._in_database = db.year_round_other_points_in_database(year, playoff_round)
+        self._other_points_file = data_files.other_points_file(
+            year=self.year,
+            selection_round=self.playoff_round,
+            directory=self._datastores.raw_data_directory,
+        )
         self._load_other_points()
+
+    @property
+    def year(self):
+        """The year"""
+        return self._year
+
+    @property
+    def playoff_round(self):
+        """The playoff round"""
+        return self._playoff_round
 
     @property
     def points(self):
@@ -43,8 +55,7 @@ class OtherPoints(DataFile):
 
     def _load_other_points(self):
         """Load the other points from database or raw source file"""
-
-        if os.path.exists(self.other_points_file):
+        if self._other_points_file.exists():
             if self._in_database:
                 self._points = self._load_playoff_round_other_points_from_database()
             else:
@@ -59,7 +70,7 @@ class OtherPoints(DataFile):
     def _load_playoff_round_other_points_from_file(self):
         """Return the playoff round selections from the raw source file"""
         data = read_csv(
-            self.other_points_file,
+            self._other_points_file,
             sep=',',
             converters={'Name:': str.strip}
         )

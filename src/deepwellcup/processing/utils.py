@@ -1,7 +1,10 @@
 """Utility functions"""
 from pathlib import Path
 import sqlite3
-from typing import NamedTuple
+from typing import Literal, NamedTuple
+
+SelectionRound = Literal["Q", 1, 2, 3, 4, "Champions"]
+PlayoffRound = Literal["Q", 1, 2, 3, 4]
 
 
 def split_name(name):

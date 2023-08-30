@@ -1,5 +1,5 @@
 """Init"""
-from .data_files import DataFile
+from . import data_files
 from .database import DataBaseOperations
 from . import dirs
 from .insert import Insert
@@ -19,7 +19,7 @@ from . import utils
 
 __all__ = [
     "DataBaseOperations",
-    "DataFile",
+    "data_files",
     "dirs",
     "IndividualScoring",
     "Insert",

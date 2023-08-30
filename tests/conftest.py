@@ -9,7 +9,8 @@ def pytest_configure():
     '''Pytest defaults'''
     pytest.database = ':memory:'
     project = dirs.src().parents[1]
-    pytest.data_dir = project / 'tests/data'
+    pytest.test_data_dir = project / 'tests/data'
+    pytest.data_dir = project / 'src/deepwellcup/data'
 
 
 @pytest.fixture(
