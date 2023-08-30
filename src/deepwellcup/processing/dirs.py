@@ -2,7 +2,7 @@
 from pathlib import Path
 import json
 import warnings
-from . import data_files
+from . import files
 
 
 def src():
@@ -32,7 +32,7 @@ def templates():
 
 def initialize_products_directory() -> None:
     """Ask for and save the products directory"""
-    if data_files.products_dir_file().exists():
+    if files.products_dir_file().exists():
         warnings.warn(
             "The products directory already exists and contains the path "
             f"{products()}. It will be overwritten if you continue."
@@ -40,7 +40,7 @@ def initialize_products_directory() -> None:
     products_dir = _request_products_path()
     _write_products_path_to_file(
         products_dir=products_dir,
-        file=data_files.products_dir_file()
+        file=files.products_dir_file()
     )
     _make_directory(products_dir / "tables")
     _make_directory(products_dir / "figures")
@@ -86,7 +86,7 @@ def _read_products_path_from_file(file: Path) -> Path:
 
 def products() -> Path:
     """Return the path for the products directory"""
-    return _read_products_path_from_file(data_files.products_dir_file())
+    return _read_products_path_from_file(files.products_dir_file())
 
 
 def print_products_path() -> None:

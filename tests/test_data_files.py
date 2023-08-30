@@ -1,6 +1,6 @@
 """Tests for data_file"""
 import pytest
-from deepwellcup.processing import data_files
+from deepwellcup.processing import files
 
 
 @pytest.mark.parametrize("data_directory", [pytest.test_data_dir, None])
@@ -22,7 +22,7 @@ def test_selections_file(selections_round, source_round, data_directory):
         data_directory = pytest.data_dir
     directory = data_directory / f'selections_and_results/{year}'
     expected = directory / f"{year} Deepwell Cup Round {source_round}.csv"
-    received = data_files.selections_file(year, selections_round, directory)
+    received = files.selections_file(year, selections_round, directory)
     assert expected == received
 
 
@@ -35,7 +35,7 @@ def test_other_points_file(playoff_round, data_directory):
         data_directory = pytest.data_dir
     directory = data_directory / f'selections_and_results/{year}'
     expected = directory / f"{year} Deepwell Cup Other Points Round {playoff_round}.csv"
-    received = data_files.other_points_file(
+    received = files.other_points_file(
         year=year,
         selection_round=playoff_round,
         directory=directory,

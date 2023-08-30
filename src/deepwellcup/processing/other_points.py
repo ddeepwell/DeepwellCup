@@ -1,6 +1,6 @@
 """Participant other points in round"""
 from pandas import read_csv
-from . import data_files
+from . import files
 from .database import DataBaseOperations
 from .utils import DataStores
 
@@ -21,7 +21,7 @@ class OtherPoints():
         self._database = DataBaseOperations(datastores.database)
         with self.database as db:
             self._in_database = db.year_round_other_points_in_database(year, playoff_round)
-        self._other_points_file = data_files.other_points_file(
+        self._other_points_file = files.other_points_file(
             year=self.year,
             selection_round=self.playoff_round,
             directory=self._datastores.raw_data_directory,

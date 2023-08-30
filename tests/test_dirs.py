@@ -6,7 +6,7 @@ import pytest
 from deepwellcup.processing import dirs
 
 
-@mock.patch("deepwellcup.processing.data_files.products_dir_file")
+@mock.patch("deepwellcup.processing.files.products_dir_file")
 def test_initialize_products_directory_nonexist(mock_file, tmp_path):
     """Test for initialize_products_directory when the products_dir doesn't exist"""
     mock_file.return_value = Path(tmp_path / "products_dir.json")
@@ -18,7 +18,7 @@ def test_initialize_products_directory_nonexist(mock_file, tmp_path):
     assert (tmp_path / 'figures').exists()
 
 
-@mock.patch("deepwellcup.processing.data_files.products_dir_file")
+@mock.patch("deepwellcup.processing.files.products_dir_file")
 def test_initialize_products_directory_exist(mock_file, tmp_path):
     """Test for initialize_products_directory when the products_dir exists"""
     products_file = Path(tmp_path / "products_dir.json")

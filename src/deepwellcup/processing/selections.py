@@ -10,7 +10,7 @@ from .nhl_teams import (
     lengthen_team_name as ltn,
     team_of_player,
 )
-from . import data_files, utils
+from . import files, utils
 from .utils import DataStores
 
 
@@ -36,7 +36,7 @@ class Selections():
             else:
                 self.in_database = db.champions_round_in_database(year)
             self._results_in_database = db.year_round_results_in_database(year, playoff_round)
-        self._selections_file = data_files.selections_file(
+        self._selections_file = files.selections_file(
             year=self.year,
             selection_round=self.playoff_round,
             directory=self._datastores.raw_data_directory,
