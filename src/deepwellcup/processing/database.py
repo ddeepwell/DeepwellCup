@@ -18,11 +18,15 @@ class DataBaseOperations():
         self.cursor = None
         if database is None:
             database_path = dirs.products() / "DeepwellCup.db"
+        elif isinstance(database, Path):
+            database_path = dirs.products() / database
         elif isinstance(database, sqlite3.Connection):
             self._is_in_memory_database = True
             database_path = database
         elif database[0] == '/':
             database_path = database
+        else:
+            raise Exception(f"Database ({database}) was not understood.")
         self.path = database_path
         if not self.database_exists():
             self.create_database()

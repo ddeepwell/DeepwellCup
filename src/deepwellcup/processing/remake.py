@@ -58,7 +58,7 @@ def main() -> None:
     )
     parser.add_argument(
         "-d", "--database",
-        type=str,
+        type=Path,
         help="database to import data into",
     )
     parser.add_argument(
