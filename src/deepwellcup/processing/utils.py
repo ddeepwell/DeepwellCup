@@ -1,10 +1,13 @@
 """Utility functions"""
 from pathlib import Path
 import sqlite3
-from typing import Literal, NamedTuple
+import typing
 
-SelectionRound = Literal["Q", 1, 2, 3, 4, "Champions"]
-PlayoffRound = Literal["Q", 1, 2, 3, 4]
+TypicalRound = typing.Literal[1, 2, 3, 4]
+SelectionRound = typing.Literal["Q", TypicalRound, "Champions"]
+PlayedRound = typing.Literal["Q", TypicalRound]
+ConferenceRound = typing.Literal["Q", 1, 2, 3]
+SeriesLength = typing.Literal[3, 4, 5, 6, 7]
 
 
 def split_name(name):
@@ -17,33 +20,34 @@ def split_name(name):
     return first_name, last_name
 
 
-def rounds(year):
-    """The rounds in a year"""
-    all_rounds = [1, 2, 3, 4, "Champions"]
+def selection_rounds(year: int) -> tuple[SelectionRound, ...]:
+    """The rounds with distinct selections."""
     if year == 2020:
-        return ["Q"] + all_rounds
-    return all_rounds
+        return typing.get_args(SelectionRound)
+    return tuple(
+        a_round for a_round in typing.get_args(SelectionRound) if a_round != "Q"
+    )
 
 
-def selection_rounds(year):
-    """The rounds where selections are made"""
-    all_rounds = rounds(year)
-    all_rounds.remove("Champions")
-    return all_rounds
+def played_rounds(year: int) -> tuple[PlayedRound, ...]:
+    """The rounds where teams play."""
+    return tuple(
+        a_round for a_round in selection_rounds(year) if a_round != "Champions"
+    )
 
 
-def selection_rounds_with_conference(year):
-    """The rounds where selections are made and a conference exists"""
-    conference_rounds = selection_rounds(year)
-    conference_rounds.remove(4)
-    return conference_rounds
+def conference_rounds(year: int) -> tuple[ConferenceRound, ...]:
+    """The rounds where selections are made and a conference exists."""
+    return tuple(
+        a_round for a_round in played_rounds(year) if a_round != 4
+    )
 
 
-def series_duration_options(playoff_round):
-    """List of possible number of games in a series"""
+def series_duration_options(playoff_round: PlayedRound) -> tuple[SeriesLength, ...]:
+    """List of possible number of games in a series."""
     if playoff_round == 'Q':
-        return [3, 4, 5]
-    return [4, 5, 6, 7]
+        return (3, 4, 5)
+    return (4, 5, 6, 7)
 
 
 def read_file_to_string(filename):
@@ -52,7 +56,7 @@ def read_file_to_string(filename):
         return file.read().replace('\n', '')
 
 
-class DataStores(NamedTuple):
+class DataStores(typing.NamedTuple):
     """Data storage locations."""
     raw_data_directory: Path | None
     database: str | sqlite3.Connection | None

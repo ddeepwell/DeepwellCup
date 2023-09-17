@@ -31,7 +31,7 @@ class Selections():
         self._database = DataBaseOperations(datastores.database)
         self._use_database_first = use_database_first
         with self.database as db:
-            if playoff_round in utils.selection_rounds(self.year):
+            if playoff_round in utils.played_rounds(self.year):
                 self.in_database = db.year_round_in_database(year, playoff_round)
             else:
                 self.in_database = db.champions_round_in_database(year)
@@ -155,7 +155,7 @@ class Selections():
                 or self._results_in_database
             )
         ):
-            if self.playoff_round in utils.selection_rounds(self.year):
+            if self.playoff_round in utils.played_rounds(self.year):
                 with self.database as db:
                     self._selections_overtime = db.get_overtime_selections(
                         self.year, self.playoff_round
@@ -170,7 +170,7 @@ class Selections():
                 f'Round data for {self.playoff_round} in {self.year} is not '
                 f'in the database with path\n {self.database.path}'
             )
-            if self.playoff_round in utils.selection_rounds(self.year):
+            if self.playoff_round in utils.played_rounds(self.year):
                 self._load_monikers_from_file()
                 self._load_overtime_selections_from_file()
                 self._load_preferences_from_file()
@@ -459,7 +459,7 @@ class Selections():
         """List the conferences in the current playoff round"""
         if self.playoff_round == 4 or self.year == 2021:
             return ["None"]
-        if self.playoff_round in utils.selection_rounds_with_conference(self.year):
+        if self.playoff_round in utils.conference_rounds(self.year):
             return ['East', 'West']
 
     def _champions_headers(self):

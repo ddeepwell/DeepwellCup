@@ -86,10 +86,10 @@ class DataBaseOperations():
 
     def check_playoff_round(self, year, playoff_round):
         """Check for valid playoff round"""
-        selection_rounds = utils.selection_rounds(year)
-        if playoff_round not in selection_rounds:
+        played_rounds = utils.played_rounds(year)
+        if playoff_round not in played_rounds:
             raise ValueError(
-                f"The playoff round must be one of {selection_rounds}."
+                f"The playoff round must be one of {played_rounds}."
             )
 
     def check_conference(self, year, playoff_round, conference):
@@ -98,7 +98,7 @@ class DataBaseOperations():
             raise ValueError("The conference in the 4th round must be 'None'")
         if year == 2021 and conference != "None":
             raise ValueError("The conference must be 'None' in 2021")
-        if playoff_round in utils.selection_rounds_with_conference(year) \
+        if playoff_round in utils.conference_rounds(year) \
                 and conference not in ['East', 'West'] \
                 and year != 2021:
             raise ValueError(
@@ -417,7 +417,7 @@ class DataBaseOperations():
     def get_teams_in_year_round(self, year, playoff_round):
         '''Get list of team pairs for each series in each conference'''
         series_data = self.get_all_series_in_round(year, playoff_round)
-        if playoff_round in utils.selection_rounds_with_conference(year):
+        if playoff_round in utils.conference_rounds(year):
             full_east_data = series_data.query('Conference=="East"')
             full_west_data = series_data.query('Conference=="West"')
             east_data = full_east_data[['TeamHigherSeed', 'TeamLowerSeed']].values.tolist()
