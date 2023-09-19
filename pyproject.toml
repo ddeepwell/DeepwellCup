@@ -33,7 +33,7 @@ testpaths = [
 
 [project.optional-dependencies]
 dev = [
-  # "mypy>=1.3",
+  "mypy>=1.5",
   "pylint>=2.17",
   "pytest>=7.4",
   "flake8>=6.0",
