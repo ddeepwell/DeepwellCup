@@ -4,6 +4,7 @@ from .database import DataBaseOperations
 from . import dirs
 from .insert import Insert
 from .latex import Latex
+from . import io
 from . import nhl_teams
 from .other_points import OtherPoints
 from .playoff_round import PlayoffRound
@@ -23,6 +24,7 @@ __all__ = [
     "dirs",
     "IndividualScoring",
     "Insert",
+    "io",
     "Latex",
     "multi_year_remake",
     "nhl_teams",

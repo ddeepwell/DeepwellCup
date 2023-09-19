@@ -50,12 +50,6 @@ def series_duration_options(playoff_round: PlayedRound) -> tuple[SeriesLength, .
     return (4, 5, 6, 7)
 
 
-def read_file_to_string(filename):
-    """Read entire file contents into a string"""
-    with open(filename, 'r', encoding='utf-8') as file:
-        return file.read().replace('\n', '')
-
-
 class DataStores(typing.NamedTuple):
     """Data storage locations."""
     raw_data_directory: Path | None

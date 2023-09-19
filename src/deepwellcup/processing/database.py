@@ -5,7 +5,7 @@ import math
 import warnings
 from pathlib import Path
 import pandas as pd
-from . import dirs, utils
+from . import dirs, io, utils
 from .nhl_teams import shorten_team_name as stn
 
 
@@ -859,7 +859,7 @@ def check_if_year_is_valid(year):
 
 def create_table(cursor, table_file):
     '''Add a table to a database'''
-    sql_command = utils.read_file_to_string(table_file)
+    sql_command = io.read_file_to_string(table_file)
     cursor.execute(sql_command)
 
 
