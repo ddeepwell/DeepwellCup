@@ -51,6 +51,13 @@ class Ingestion():
         )
         return contents.rename(columns={'Name:': 'Individual'})
 
+    def individuals(self) -> list[str]:
+        """The individuals."""
+        return sorted(
+            name for name in self.raw_contents['Individual']
+            if name != 'Results'
+        )
+
     def monikers(self) -> dict[str, str] | None:
         """Extract monikers."""
         if 'Moniker' in self.raw_contents.columns:
