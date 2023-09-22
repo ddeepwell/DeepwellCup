@@ -104,7 +104,7 @@ class Points():
         for individual in self._selection_individuals:
             round_points[individual] = self._scoring.individual_points(individual)
         name = f"Round {self.playoff_round}" \
-            if self.playoff_round in utils.played_rounds(self.year) \
+            if self.playoff_round in utils.RoundsInfo(self.year).played_rounds \
             else "Champions"
         return Series(
             round_points,
@@ -269,7 +269,7 @@ class IndividualScoring():
     def individual_points(self, individual):
         """Return the points for an individual in a playoff round"""
 
-        if self.playoff_round in utils.played_rounds(self.year):
+        if self.playoff_round in utils.RoundsInfo(self.year).played_rounds:
             return self.round_points(individual)
         return self.champions_points(individual)
 
@@ -299,7 +299,7 @@ class IndividualScoring():
             team_key = 'correct_team'
             duration_key = 'correct_length'
         elif self.year in [2015, 2016, 2017]:
-            if self.playoff_round in utils.conference_rounds(self.year):
+            if self.playoff_round in utils.RoundsInfo(self.year).conference_rounds:
                 team_key = 'correct_team_rounds_123'
                 duration_key = 'correct_length_rounds_123'
             else:

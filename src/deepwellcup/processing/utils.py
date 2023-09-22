@@ -2,6 +2,7 @@
 from pathlib import Path
 import sqlite3
 import typing
+from dataclasses import dataclass
 
 TypicalRound = typing.Literal[1, 2, 3, 4]
 SelectionRound = typing.Literal["Q", TypicalRound, "Champions"]
@@ -20,34 +21,43 @@ def split_name(name):
     return first_name, last_name
 
 
-def selection_rounds(year: int) -> tuple[SelectionRound, ...]:
-    """The rounds with distinct selections."""
-    if year == 2020:
-        return typing.get_args(SelectionRound)
-    return tuple(
-        a_round for a_round in typing.get_args(SelectionRound) if a_round != "Q"
-    )
+@dataclass(frozen=True)
+class RoundsInfo:
+    """Playoff Round settings."""
+    year: int
+    playoff_round: str | int | None = None
 
+    @property
+    def selection_rounds(self) -> tuple[SelectionRound, ...]:
+        """The rounds with distinct selections."""
+        if self.year == 2020:
+            return typing.get_args(SelectionRound)
+        return tuple(
+            a_round for a_round in typing.get_args(SelectionRound) if a_round != "Q"
+        )
 
-def played_rounds(year: int) -> tuple[PlayedRound, ...]:
-    """The rounds where teams play."""
-    return tuple(
-        a_round for a_round in selection_rounds(year) if a_round != "Champions"
-    )
+    @property
+    def played_rounds(self) -> tuple[PlayedRound, ...]:
+        """The rounds where teams play."""
+        return tuple(
+            a_round for a_round in self.selection_rounds if a_round != "Champions"
+        )
 
+    @property
+    def conference_rounds(self) -> tuple[ConferenceRound, ...]:
+        """The rounds where selections are made and a conference exists."""
+        return tuple(
+            a_round for a_round in self.played_rounds if a_round != 4
+        )
 
-def conference_rounds(year: int) -> tuple[ConferenceRound, ...]:
-    """The rounds where selections are made and a conference exists."""
-    return tuple(
-        a_round for a_round in played_rounds(year) if a_round != 4
-    )
-
-
-def series_duration_options(playoff_round: PlayedRound) -> tuple[SeriesLength, ...]:
-    """List of possible number of games in a series."""
-    if playoff_round == 'Q':
-        return (3, 4, 5)
-    return (4, 5, 6, 7)
+    @property
+    def series_duration_options(self) -> tuple[SeriesLength, ...]:
+        """List of possible number of games in a series."""
+        if self.playoff_round == 'Q':
+            if self.year != 2020:
+                raise ValueError('Only 2020 has round "Q"')
+            return (3, 4, 5)
+        return (4, 5, 6, 7)
 
 
 class DataStores(typing.NamedTuple):

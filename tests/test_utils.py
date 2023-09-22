@@ -1,58 +1,71 @@
 """Tests for utils"""
+import pytest
+from contextlib import nullcontext as does_not_raise
+
 from deepwellcup.processing import utils
 
 
-def test_split_name_with_last_name():
+@pytest.mark.parametrize(
+    "name, expected_name",
+    [
+        ('David D', ('David', 'D')),
+        ('David', ('David', '')),
+    ]
+)
+def test_split_name_with_last_name(name, expected_name):
     """Test for split_name"""
-    first_name, last_name = utils.split_name('David D')
-    assert first_name == 'David'
-    assert last_name == 'D'
+    assert expected_name == utils.split_name(name)
 
 
-def test_split_name_without_last_name():
-    """Test for split_name"""
-    first_name, last_name = utils.split_name('David')
-    assert first_name == 'David'
-    assert last_name == ''
-
-
-def test_selection_rounds_not_2020():
+@pytest.mark.parametrize(
+    "year, rounds",
+    [
+        (2006, (1, 2, 3, 4, 'Champions')),
+        (2020, ("Q", 1, 2, 3, 4, 'Champions')),
+    ]
+)
+def test_selection_rounds(year, rounds):
     """Test for selection_rounds"""
-    expected = (1, 2, 3, 4, 'Champions')
-    returned = utils.selection_rounds(2006)
-    assert expected == returned
+    a_round = utils.RoundsInfo(year=year, playoff_round=1)
+    assert a_round.selection_rounds == rounds
 
 
-def test_selection_rounds_2020():
-    """Test for selection_rounds"""
-    expected = ("Q", 1, 2, 3, 4, 'Champions')
-    returned = utils.selection_rounds(2020)
-    assert expected == returned
-
-
-def test_played_rounds_not_2020():
+@pytest.mark.parametrize(
+    "year, rounds",
+    [
+        (2006, (1, 2, 3, 4)),
+        (2020, ("Q", 1, 2, 3, 4)),
+    ]
+)
+def test_played_rounds(year, rounds):
     """Test for played_rounds"""
-    expected = (1, 2, 3, 4)
-    returned = utils.played_rounds(2006)
-    assert expected == returned
+    a_round = utils.RoundsInfo(year=year, playoff_round=1)
+    assert a_round.played_rounds == rounds
 
 
-def test_played_rounds_2020():
-    """Test for played_rounds"""
-    expected = ("Q", 1, 2, 3, 4)
-    returned = utils.played_rounds(2020)
-    assert expected == returned
-
-
-def test_conference_rounds_not_2020():
+@pytest.mark.parametrize(
+    "year, rounds",
+    [
+        (2006, (1, 2, 3)),
+        (2020, ("Q", 1, 2, 3)),
+    ]
+)
+def test_conference_rounds(year, rounds):
     """Test for conference_rounds"""
-    expected = (1, 2, 3)
-    returned = utils.conference_rounds(2006)
-    assert expected == returned
+    a_round = utils.RoundsInfo(year=year, playoff_round=1)
+    assert a_round.conference_rounds == rounds
 
 
-def test_conference_rounds_2020():
-    """Test for conference_rounds"""
-    expected = ("Q", 1, 2, 3)
-    returned = utils.conference_rounds(2020)
-    assert expected == returned
+@pytest.mark.parametrize(
+    "year, playoff_round, durations, expectation",
+    [
+        (2006, 1, (4, 5, 6, 7), does_not_raise()),
+        (2006, "Q", (), pytest.raises(ValueError)),
+        (2020, "Q", (3, 4, 5), does_not_raise()),
+    ]
+)
+def test_series_duration_options(year, playoff_round, durations, expectation):
+    """Test for series_duration_options"""
+    with expectation:
+        a_round = utils.RoundsInfo(year=year, playoff_round=playoff_round)
+        assert a_round.series_duration_options == durations

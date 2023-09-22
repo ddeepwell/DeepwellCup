@@ -590,7 +590,7 @@ class Latex():
     def _make_points_string(self, func, correct_games):
         """Create the string for the points for a specific series duration"""
         return " & ".join(
-            func(correct_games, array(utils.series_duration_options(self.playoff_round)))
+            func(correct_games, array(utils.RoundsInfo(self.year, self.playoff_round).series_duration_options))
             .astype(str)
             .tolist()
         )
