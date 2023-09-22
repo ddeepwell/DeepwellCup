@@ -2,6 +2,7 @@
 from . import files
 from .database import DataBaseOperations
 from . import dirs
+from .ingestion import Ingestion
 from .insert import Insert
 from .latex import Latex
 from . import io
@@ -23,6 +24,7 @@ __all__ = [
     "files",
     "dirs",
     "IndividualScoring",
+    "Ingestion",
     "Insert",
     "io",
     "Latex",
