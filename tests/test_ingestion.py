@@ -22,3 +22,21 @@ def test_monikers():
         raw_data_directory=pytest.test_data_dir,
     )
     assert ing.monikers() == {"Alita D": "", "David D": "Nazzy"}
+
+
+@pytest.mark.parametrize(
+    "selection_round, conference_series",
+    [
+        (2, {"East": ["OTT-NYR", "WSH-PIT"], "West": ["STL-NSH", "ANA-EDM"]}),
+        (4, {"None": ["PIT-NSH"]}),
+        ("Champions", None),
+    ]
+)
+def test_conference_series(selection_round, conference_series):
+    """Test for conference_series."""
+    ing = Ingestion(
+        year=2017,
+        selection_round=selection_round,
+        raw_data_directory=pytest.test_data_dir,
+    )
+    assert ing.conference_series() == conference_series
