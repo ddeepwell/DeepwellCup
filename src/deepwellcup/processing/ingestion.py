@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 
 from . import files
-from .utils import RoundsInfo, SelectionRound
+from .utils import SelectionRound
 
 
 class Ingestion():
@@ -13,21 +13,27 @@ class Ingestion():
     def __init__(
         self,
         year: int,
-        playoff_round: SelectionRound,
+        selection_round: SelectionRound,
         raw_data_directory: Path | None = None,
     ):
-        self._round_info = RoundsInfo(year, playoff_round)
+        self._year = year
+        self._selection_round = selection_round
         self._selections_file = files.selections_file(
             year=year,
-            selection_round=playoff_round,
+            selection_round=selection_round,
             directory=raw_data_directory,
         )
         self._raw_contents = self.read_file()
 
     @property
-    def round_info(self) -> RoundsInfo:
-        """Information about the round."""
-        return self._round_info
+    def year(self) -> int:
+        """Return the year."""
+        return self._year
+
+    @property
+    def selection_round(self) -> SelectionRound:
+        """Return the selection round."""
+        return self._selection_round
 
     @property
     def selections_file(self) -> Path:

@@ -22,10 +22,9 @@ def split_name(name):
 
 
 @dataclass(frozen=True)
-class RoundsInfo:
-    """Playoff Round settings."""
+class YearInfo:
+    """Playoff round settings for an entire year."""
     year: int
-    playoff_round: str | int | None = None
 
     @property
     def selection_rounds(self) -> tuple[SelectionRound, ...]:
@@ -50,10 +49,17 @@ class RoundsInfo:
             a_round for a_round in self.played_rounds if a_round != 4
         )
 
+
+@dataclass(frozen=True)
+class RoundInfo:
+    """Settings for a playoff round."""
+    selection_round: SelectionRound
+    year: int
+
     @property
     def series_duration_options(self) -> tuple[SeriesLength, ...]:
         """List of possible number of games in a series."""
-        if self.playoff_round == 'Q':
+        if self.selection_round == 'Q':
             if self.year != 2020:
                 raise ValueError('Only 2020 has round "Q"')
             return (3, 4, 5)

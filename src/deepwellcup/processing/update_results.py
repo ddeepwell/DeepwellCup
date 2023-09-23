@@ -91,7 +91,7 @@ def modify_and_check_arguments(args):
     """Modify arguments"""
     if args.playoff_round.isdigit():
         args.playoff_round = int(args.playoff_round)
-    played_rounds = utils.RoundsInfo(args.year).played_rounds
+    played_rounds = utils.YearInfo(args.year).played_rounds
     if args.playoff_round not in played_rounds:
         raise ValueError(f'The playoff round must be one of {played_rounds}')
     return args

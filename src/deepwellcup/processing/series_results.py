@@ -47,7 +47,7 @@ def main():
     args = parser.parse_args()
     if args.playoff_round.isdigit():
         args.playoff_round = int(args.playoff_round)
-    played_rounds = utils.RoundsInfo(args.year).played_rounds
+    played_rounds = utils.YearInfo(args.year).played_rounds
     if args.playoff_round not in played_rounds:
         raise ValueError(f'The playoff round must be one of {played_rounds}')
     print_series_results(args.year, args.playoff_round, args.directory)

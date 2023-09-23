@@ -12,7 +12,7 @@ def multi_year_remake(
 ) -> None:
     """Remake the database, figures and tables."""
     for year in _parse_year_inputs(years):
-        for rnd in utils.RoundsInfo(year).played_rounds:
+        for rnd in utils.YearInfo(year).played_rounds:
             current_round = PlayoffRound(
                 year=year,
                 playoff_round=rnd,

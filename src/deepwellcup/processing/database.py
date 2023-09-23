@@ -86,7 +86,7 @@ class DataBaseOperations():
 
     def check_playoff_round(self, year, playoff_round):
         """Check for valid playoff round"""
-        played_rounds = utils.RoundsInfo(year).played_rounds
+        played_rounds = utils.YearInfo(year).played_rounds
         if playoff_round not in played_rounds:
             raise ValueError(
                 f"The playoff round must be one of {played_rounds}."
@@ -98,7 +98,7 @@ class DataBaseOperations():
             raise ValueError("The conference in the 4th round must be 'None'")
         if year == 2021 and conference != "None":
             raise ValueError("The conference must be 'None' in 2021")
-        if playoff_round in utils.RoundsInfo(year).conference_rounds \
+        if playoff_round in utils.YearInfo(year).conference_rounds \
                 and conference not in ['East', 'West'] \
                 and year != 2021:
             raise ValueError(
@@ -129,7 +129,7 @@ class DataBaseOperations():
                     f'The selected team, {team_selection}, '
                     f'is invalid for the series, {series_acronym}'
                 )
-        possible_lengths = utils.RoundsInfo(year, playoff_round).series_duration_options
+        possible_lengths = utils.RoundInfo(playoff_round, year).series_duration_options
         if game_selection not in possible_lengths:
             if game_selection is not None:
                 raise ValueError(
@@ -417,7 +417,7 @@ class DataBaseOperations():
     def get_teams_in_year_round(self, year, playoff_round):
         '''Get list of team pairs for each series in each conference'''
         series_data = self.get_all_series_in_round(year, playoff_round)
-        if playoff_round in utils.RoundsInfo(year).conference_rounds:
+        if playoff_round in utils.YearInfo(year).conference_rounds:
             full_east_data = series_data.query('Conference=="East"')
             full_west_data = series_data.query('Conference=="West"')
             east_data = full_east_data[['TeamHigherSeed', 'TeamLowerSeed']].values.tolist()

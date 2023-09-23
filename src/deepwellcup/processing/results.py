@@ -67,7 +67,7 @@ class Results():
         """Load the results from database or raw source file"""
 
         if self.in_database:
-            if self.playoff_round in utils.RoundsInfo(self.year).played_rounds:
+            if self.playoff_round in utils.YearInfo(self.year).played_rounds:
                 self._results = self._load_playoff_round_results_from_database()
                 self._results_overtime = self._load_overtime_results_from_database()
             elif self.playoff_round == 'Champions':
