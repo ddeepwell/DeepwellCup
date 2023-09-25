@@ -28,16 +28,16 @@ def test_SelectionsFile(selections_round, source_round, data_directory):
 
 @pytest.mark.parametrize("data_directory", [pytest.test_data_dir, None])
 @pytest.mark.parametrize("playoff_round", ["Q", 1, 2, 3, 4])
-def test_other_points_file(playoff_round, data_directory):
-    """Test for other_points_file"""
+def test_OtherPointsFile(playoff_round, data_directory):
+    """Test for OtherPointsFile"""
     year = 2017
     if data_directory is None:
         data_directory = pytest.data_dir
     directory = data_directory / f'selections_and_results/{year}'
     expected = directory / f"{year} Deepwell Cup Other Points Round {playoff_round}.csv"
-    received = files.other_points_file(
+    received = files.OtherPointsFile(
         year=year,
         selection_round=playoff_round,
         directory=directory,
-    )
+    ).file
     assert expected == received

@@ -21,11 +21,11 @@ class OtherPoints():
         self._database = DataBaseOperations(datastores.database)
         with self.database as db:
             self._in_database = db.year_round_other_points_in_database(year, playoff_round)
-        self._other_points_file = files.other_points_file(
+        self._other_points_file = files.OtherPointsFile(
             year=self.year,
             selection_round=self.playoff_round,
             directory=self._datastores.raw_data_directory,
-        )
+        ).file
         self._load_other_points()
 
     @property
