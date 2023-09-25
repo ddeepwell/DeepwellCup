@@ -1,25 +1,39 @@
 """Specifying the file containing selections and results"""
 from pathlib import Path
+from dataclasses import dataclass
+
 from . import dirs
-from .utils import SelectionRound
+from .utils import PlayedRound, SelectionRound
 
 
-def selections_file(
-    year: int,
-    selection_round: SelectionRound,
-    directory: None | Path = None,
-) -> Path:
-    """Return the csv file name containing selections
-    for the year and playoff round"""
-    if directory is None:
-        directory = dirs.year_data(year)
-    playoff_round_source: SelectionRound
-    if selection_round == 'Champions':
-        playoff_round_source = 1
-    else:
-        playoff_round_source = selection_round
-    file_name = f'{year} Deepwell Cup Round {playoff_round_source}.csv'
-    return directory / file_name
+@dataclass
+class SelectionsFile():
+    """Class for the file of selections and results.
+
+    For a selections round in a year."""
+    year: int
+    selection_round: SelectionRound
+    directory: None | Path = None
+
+    @property
+    def _data_directory(self) -> Path:
+        """Return the directory of the file."""
+        if self.directory is None:
+            return dirs.year_data(self.year)
+        return self.directory
+
+    @property
+    def _source_round(self) -> PlayedRound:
+        """Returned the played round with the data for the selection round."""
+        if self.selection_round == 'Champions':
+            return 1
+        return self.selection_round
+
+    @property
+    def file(self) -> Path:
+        """CSV file with selections and results."""
+        file_name = f'{self.year} Deepwell Cup Round {self._source_round}.csv'
+        return self._data_directory / file_name
 
 
 def other_points_file(

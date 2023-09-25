@@ -19,11 +19,11 @@ class Ingestion():
     ):
         self._year = year
         self._selection_round = selection_round
-        self._selections_file = files.selections_file(
+        self._selections_file = files.SelectionsFile(
             year=year,
             selection_round=selection_round,
             directory=raw_data_directory,
-        )
+        ).file
         self._raw_contents = self.read_file()
 
     @property

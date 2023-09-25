@@ -36,11 +36,11 @@ class Selections():
             else:
                 self.in_database = db.champions_round_in_database(year)
             self._results_in_database = db.year_round_results_in_database(year, playoff_round)
-        self._selections_file = files.selections_file(
+        self._selections_file = files.SelectionsFile(
             year=self.year,
             selection_round=self.playoff_round,
             directory=self._datastores.raw_data_directory,
-        )
+        ).file
         self._selections_overtime = None
         self._preferences = None
         self._monikers = None

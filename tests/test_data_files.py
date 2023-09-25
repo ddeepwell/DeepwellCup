@@ -15,14 +15,14 @@ from deepwellcup.processing import files
         ('Champions', 1)
     ]
 )
-def test_selections_file(selections_round, source_round, data_directory):
-    """Test for selections_file"""
+def test_SelectionsFile(selections_round, source_round, data_directory):
+    """Test for SelectionsFile"""
     year = 2017
     if data_directory is None:
         data_directory = pytest.data_dir
     directory = data_directory / f'selections_and_results/{year}'
     expected = directory / f"{year} Deepwell Cup Round {source_round}.csv"
-    received = files.selections_file(year, selections_round, directory)
+    received = files.SelectionsFile(year, selections_round, directory).file
     assert expected == received
 
 
