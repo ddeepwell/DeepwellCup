@@ -2,6 +2,8 @@
 from pathlib import Path
 from dataclasses import dataclass
 
+import pandas as pd
+
 from . import dirs
 from .utils import PlayedRound, SelectionRound
 
@@ -34,6 +36,18 @@ class SelectionsFile():
         """CSV file with selections and results."""
         return self._data_directory \
             / f'{self.year} Deepwell Cup Round {self._source_round}.csv'
+
+    def read(self) -> pd.DataFrame:
+        """Read the file."""
+        contents = pd.read_csv(
+            self.file,
+            sep=',',
+            converters={
+                'Name:': str.strip,
+                'Moniker': str.strip,
+            }
+        )
+        return contents.rename(columns={'Name:': 'Individual'})
 
 
 @dataclass

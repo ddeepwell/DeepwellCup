@@ -1,10 +1,10 @@
 """Read participant round selection data from the data files."""
-from pathlib import Path
 import re
 
 import pandas as pd
 
-from . import files, nhl_teams
+from . import nhl_teams
+from .files import SelectionsFile
 from .utils import SelectionRound
 
 
@@ -13,18 +13,11 @@ class Ingestion():
 
     def __init__(
         self,
-        year: int,
-        selection_round: SelectionRound,
-        raw_data_directory: Path | None = None,
+        selections_file: SelectionsFile,
     ):
-        self._year = year
-        self._selection_round = selection_round
-        self._selections_file = files.SelectionsFile(
-            year=year,
-            selection_round=selection_round,
-            directory=raw_data_directory,
-        ).file
-        self._raw_contents = self.read_file()
+        self._year = selections_file.year
+        self._selection_round = selections_file.selection_round
+        self._raw_contents = selections_file.read()
 
     @property
     def year(self) -> int:
@@ -37,26 +30,9 @@ class Ingestion():
         return self._selection_round
 
     @property
-    def selections_file(self) -> Path:
-        """Directory with the raw data."""
-        return self._selections_file
-
-    @property
     def raw_contents(self) -> pd.DataFrame:
         """Raw file contents."""
         return self._raw_contents
-
-    def read_file(self) -> pd.DataFrame:
-        """Read selections from selections file."""
-        contents = pd.read_csv(
-            self.selections_file,
-            sep=',',
-            converters={
-                'Name:': str.strip,
-                'Moniker': str.strip,
-            }
-        )
-        return contents.rename(columns={'Name:': 'Individual'})
 
     def individuals(self) -> list[str]:
         """The individuals."""
