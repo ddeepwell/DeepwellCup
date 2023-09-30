@@ -14,38 +14,61 @@ def fixture_round_3_raw() -> pd.DataFrame:
     """Return the raw round 3 data."""
     return pd.DataFrame(
         {
-            'Individual': {
-                0: 'Alita D',
-                1: 'David D',
-                2: 'Results',
+            "Individual": {
+                0: "Alita D",
+                1: "David D",
+                2: "Results",
             },
-            'Moniker': {
-                0: '',
-                1: 'Nazzy',
-                2: '',
+            "Moniker": {
+                0: "",
+                1: "Nazzy",
+                2: "",
             },
-            'ANA-EDM': {
-                0: 'Edmonton Oilers',
-                1: 'Edmonton Oilers',
-                2: 'Anaheim Ducks',
+            "ANA-EDM": {
+                0: "Edmonton Oilers",
+                1: "Edmonton Oilers",
+                2: "Anaheim Ducks",
             },
-            'ANA-EDM series length:': {
-                0: '6 Games',
-                1: '6 Games',
-                2: '6 Games',
+            "ANA-EDM series length:": {
+                0: "6 Games",
+                1: "6 Games",
+                2: "6 Games",
             },
-            'CAR-BUF': {
-                0: 'Carolina Hurricanes',
-                1: 'Buffalo Sabres',
-                2: 'Buffalo Sabres',
+            "CAR-BUF": {
+                0: "Carolina Hurricanes",
+                1: "Buffalo Sabres",
+                2: "Buffalo Sabres",
             },
-            'CAR-BUF series length:': {
-                0: '7 Games',
-                1: '7 Games',
-                2: '7 Games',
+            "CAR-BUF series length:": {
+                0: "7 Games",
+                1: "7 Games",
+                2: "7 Games",
             },
         }
     )
+
+
+@pytest.fixture(name="round_3_selections")
+def fixture_round_3_selections() -> pd.DataFrame:
+    """Return the selections for round 3 from raw."""
+    selections = pd.DataFrame(
+        {
+            "Team": {
+                ("Alita D", "East", "CAR-BUF"): "Carolina Hurricanes",
+                ("Alita D", "West", "ANA-EDM"): "Edmonton Oilers",
+                ("David D", "East", "CAR-BUF"): "Buffalo Sabres",
+                ("David D", "West", "ANA-EDM"): "Edmonton Oilers",
+            },
+            "Duration": {
+                ("Alita D", "East", "CAR-BUF"): 7,
+                ("Alita D", "West", "ANA-EDM"): 6,
+                ("David D", "East", "CAR-BUF"): 7,
+                ("David D", "West", "ANA-EDM"): 6,
+            },
+        }
+    )
+    selections["Duration"] = selections["Duration"].astype("Int64")
+    return selections
 
 
 @pytest.fixture(name="round_4_raw")
@@ -53,78 +76,112 @@ def fixture_round_4_raw() -> pd.DataFrame:
     """Return the raw round 4 data."""
     return pd.DataFrame(
         {
-            'PIT-NSH': {
-                0: 'Pittsburgh Penguins',
-                1: 'Pittsburgh Penguins',
+            "PIT-NSH": {
+                0: "Pittsburgh Penguins",
+                1: "Pittsburgh Penguins",
+                2: "",
             },
-            'PIT-NSH series length:': {
-                0: '6 Games',
-                1: '6 Games',
+            "PIT-NSH series length:": {
+                0: "6 Games",
+                1: "- Games",
+                2: "5 Games",
             },
-            'Individual': {
-                0: 'Alita D',
-                1: 'Results',
+            "Individual": {
+                0: "Results",
+                1: "Alita D",
+                2: "David D",
             },
         }
     )
 
 
+@pytest.fixture(name="round_4_selections")
+def fixture_round_4_selections() -> pd.DataFrame:
+    """Return the selections for round 4 from raw."""
+    selections = pd.DataFrame(
+        {
+            "Team": {
+                ("Alita D", "None", "PIT-NSH"): "Pittsburgh Penguins",
+                ("David D", "None", "PIT-NSH"): "",
+            },
+            "Duration": {
+                ("Alita D", "None", "PIT-NSH"): None,
+                ("David D", "None", "PIT-NSH"): 5,
+            },
+        }
+    )
+    selections["Duration"] = selections["Duration"].astype("Int64")
+    return selections
+
+
 @pytest.fixture(name="round_3_file")
 def fixture_round_3_file(round_3_raw) -> SelectionsFile:
     """Return the round 3 selections file dataclass."""
+
     @dataclass
-    class file():
+    class file:
         """Class docstring."""
+
         year: int = 2006
         selection_round: SelectionRound = 3
 
         def read(self) -> pd.DataFrame:
             """Read string."""
             return round_3_raw
+
     return file()
 
 
 @pytest.fixture(name="round_4_file")
 def fixture_round_4_file(round_4_raw) -> SelectionsFile:
     """Return the round 4 selections file dataclass."""
+
     @dataclass
-    class file():
+    class file:
         """Class docstring."""
+
         year: int = 2006
         selection_round: SelectionRound = 4
 
         def read(self) -> pd.DataFrame:
             """Read string."""
             return round_4_raw
+
     return file()
 
 
 @pytest.fixture(name="champions_file")
 def fixture_champions_file() -> SelectionsFile:
     """Return the champions round selections file dataclass."""
+
     @dataclass
-    class file():
+    class file:
         """Class docstring."""
+
         year: int = 2006
-        selection_round: SelectionRound = 'Champions'
+        selection_round: SelectionRound = "Champions"
 
         def read(self) -> str:
             """Read string."""
             return ""
+
     return file()
 
 
 def test_raw_contents():
     """Test for raw_contents."""
+
     @dataclass
-    class file():
+    class file:
         """Class docstring."""
+
         year: int = 2006
         selection_round: SelectionRound = 1
 
         def read(self) -> str:
             """Read string."""
             return "read"
+
     a_file = file()
     ing = Ingestion(a_file)
     assert ing.raw_contents == "read"
@@ -148,9 +205,25 @@ def test_monikers(round_3_file):
         ("round_3_file", {"East": ["CAR-BUF"], "West": ["ANA-EDM"]}),
         ("round_4_file", {"None": ["PIT-NSH"]}),
         ("champions_file", None),
-    ]
+    ],
 )
 def test_conference_series(file, conference_series, request):
     """Test for conference_series."""
     ing = Ingestion(request.getfixturevalue(file))
     assert ing.conference_series() == conference_series
+
+
+@pytest.mark.parametrize(
+    "file, selections",
+    [
+        ("round_3_file", "round_3_selections"),
+        ("round_4_file", "round_4_selections"),
+        # ("champions_file", None),
+    ],
+)
+def test_selections(file, selections, request):
+    """Test for selections."""
+    ing = Ingestion(request.getfixturevalue(file))
+    expected_selections = request.getfixturevalue(selections)
+    print(ing.selections().to_dict())
+    assert ing.selections().equals(expected_selections)
