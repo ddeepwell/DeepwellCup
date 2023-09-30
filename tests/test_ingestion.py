@@ -293,16 +293,16 @@ def test_conference_series(file, conference_series, request):
 )
 def test_played_selections(played_round, raw_data, selections, request):
     """Test for Played rounds selections."""
-    ing = CleanUpRawPlayedData(
+    pdata = CleanUpRawPlayedData(
         2006,
         played_round,
         request.getfixturevalue(raw_data)
     )
     expected_selections = request.getfixturevalue(selections)
-    assert ing.selections().equals(expected_selections)
+    assert pdata.selections().equals(expected_selections)
 
 
 def test_champions_selections(champions_raw, champions_selections):
     """Test for Champions round selections."""
-    ing = CleanUpRawChampionsData(2016, champions_raw)
-    assert ing.selections().equals(champions_selections)
+    cdata = CleanUpRawChampionsData(2016, champions_raw)
+    assert cdata.selections().equals(champions_selections)

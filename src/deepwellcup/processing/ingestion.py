@@ -198,7 +198,7 @@ class CleanUpRawPlayedData:
             sort_remaining=False
         )
 
-    def selections(self):
+    def selections(self) -> pd.DataFrame:
         """Return the playoff round selections."""
         cleaned_data = self._cleanup_raw_data()
         pivoted_data = self._pivot_raw_data(cleaned_data)
@@ -283,7 +283,7 @@ class CleanUpRawChampionsData:
         data.insert(len(data.columns), "Duration", duration)
         return data
 
-    def selections(self):
+    def selections(self) -> pd.DataFrame:
         """Return the Champions round selections."""
         cleaned_data = self._initial_data_cleanup(self.raw_data)
         updated_data = self._add_new_selection_columns(cleaned_data)
@@ -319,7 +319,9 @@ def _series_is_in_conference(
 
 
 def _convert_duration_to_int(
-    duration: str, year: int, selection_round: SelectionRound
+    duration: str,
+    year: int,
+    selection_round: SelectionRound,
 ) -> int | None:
     """Convert a duration string into an int or None."""
     str_options = [
