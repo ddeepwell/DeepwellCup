@@ -5,7 +5,11 @@ import pytest
 import pandas as pd
 
 from deepwellcup.processing.files import SelectionsFile
-from deepwellcup.processing.ingestion import CleanUpRawPlayedData, Ingestion
+from deepwellcup.processing.ingestion import (
+    CleanUpRawChampionsData,
+    CleanUpRawPlayedData,
+    Ingestion
+)
 from deepwellcup.processing.utils import SelectionRound
 
 
@@ -75,6 +79,24 @@ def fixture_round_3_selections() -> pd.DataFrame:
     return selections
 
 
+@pytest.fixture(name="round_3_file")
+def fixture_round_3_file(round_3_raw) -> SelectionsFile:
+    """Return the round 3 selections file dataclass."""
+
+    @dataclass
+    class file:
+        """Class docstring."""
+
+        year: int = 2006
+        selection_round: SelectionRound = 3
+
+        def read(self) -> pd.DataFrame:
+            """Read string."""
+            return round_3_raw
+
+    return file()
+
+
 @pytest.fixture(name="round_4_raw")
 def fixture_round_4_raw() -> pd.DataFrame:
     """Return the raw round 4 data."""
@@ -120,24 +142,6 @@ def fixture_round_4_selections() -> pd.DataFrame:
     return selections
 
 
-@pytest.fixture(name="round_3_file")
-def fixture_round_3_file(round_3_raw) -> SelectionsFile:
-    """Return the round 3 selections file dataclass."""
-
-    @dataclass
-    class file:
-        """Class docstring."""
-
-        year: int = 2006
-        selection_round: SelectionRound = 3
-
-        def read(self) -> pd.DataFrame:
-            """Read string."""
-            return round_3_raw
-
-    return file()
-
-
 @pytest.fixture(name="round_4_file")
 def fixture_round_4_file(round_4_raw) -> SelectionsFile:
     """Return the round 4 selections file dataclass."""
@@ -156,8 +160,69 @@ def fixture_round_4_file(round_4_raw) -> SelectionsFile:
     return file()
 
 
+@pytest.fixture(name="champions_raw")
+def fixture_champions_raw() -> pd.DataFrame:
+    """Return the raw champions data."""
+    return pd.DataFrame(
+        {
+            "Individual": {
+                0: "Alita D",
+                1: "Andre D",
+                2: "Results",
+            },
+            "Who will win the Western Conference?": {
+                0: "Vancouver Canucks",
+                1: "Vancouver Canucks",
+                2: "Los Angeles Kings",
+            },
+            "Who will win the Eastern Conference?": {
+                0: "New York Rangers",
+                1: "New York Rangers",
+                2: "New Jersey Devils",
+            },
+            "Who will win the Stanley Cup?": {
+                0: "Vancouver Canucks",
+                1: "Vancouver Canucks",
+                2: "Los Angeles Kings",
+            },
+        }
+
+    )
+
+
+@pytest.fixture(name="champions_selections")
+def fixture_champions_selections() -> pd.DataFrame:
+    """Return the Champions selections from raw."""
+    selections = pd.DataFrame(
+        {
+            "East": {
+                "Alita D": "New York Rangers",
+                "Andre D": "New York Rangers",
+                "Results": "New Jersey Devils",
+            },
+            "West": {
+                "Alita D": "Vancouver Canucks",
+                "Andre D": "Vancouver Canucks",
+                "Results": "Los Angeles Kings",
+            },
+            "Stanley Cup": {
+                "Alita D": "Vancouver Canucks",
+                "Andre D": "Vancouver Canucks",
+                "Results": "Los Angeles Kings",
+            },
+            "Duration": {
+                "Alita D": None,
+                "Andre D": None,
+                "Results": None,
+            },
+        }
+    )
+    selections["Duration"] = selections["Duration"].astype("Int64")
+    return selections
+
+
 @pytest.fixture(name="champions_file")
-def fixture_champions_file() -> SelectionsFile:
+def fixture_champions_file(champions_raw) -> SelectionsFile:
     """Return the champions round selections file dataclass."""
 
     @dataclass
@@ -169,7 +234,7 @@ def fixture_champions_file() -> SelectionsFile:
 
         def read(self) -> str:
             """Read string."""
-            return ""
+            return champions_raw
 
     return file()
 
@@ -227,7 +292,7 @@ def test_conference_series(file, conference_series, request):
     ],
 )
 def test_played_selections(played_round, raw_data, selections, request):
-    """Test for selections."""
+    """Test for Played rounds selections."""
     ing = CleanUpRawPlayedData(
         2006,
         played_round,
@@ -235,3 +300,9 @@ def test_played_selections(played_round, raw_data, selections, request):
     )
     expected_selections = request.getfixturevalue(selections)
     assert ing.selections().equals(expected_selections)
+
+
+def test_champions_selections(champions_raw, champions_selections):
+    """Test for Champions round selections."""
+    ing = CleanUpRawChampionsData(2016, champions_raw)
+    assert ing.selections().equals(champions_selections)

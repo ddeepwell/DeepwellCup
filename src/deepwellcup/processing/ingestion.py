@@ -74,13 +74,16 @@ class Ingestion:
 
     def _champions_selections(self) -> pd.DataFrame:
         """Return the Champions round selections."""
-        return pd.DataFrame({})
+        return CleanUpRawChampionsData(
+            self.year, self.raw_contents
+        ).selections()
 
     def selections(self, keep_results: bool = False) -> pd.DataFrame:
         """Return the selections for the round."""
         if self.selection_round == "Champions":
             selections = self._champions_selections()
-        selections = self._played_round_selections()
+        else:
+            selections = self._played_round_selections()
         return selections.pipe(
             lambda df: df.drop(index="Results") if not keep_results else df
         )
@@ -204,6 +207,87 @@ class CleanUpRawPlayedData:
         player_data = self._rename_player_column(improved_data)
         duration_data = self._convert_duration_to_int(player_data)
         return self._reorganize_data(duration_data)
+
+
+class CleanUpRawChampionsData:
+    """Class for cleaning up the raw Champions round data table."""
+
+    def __init__(
+        self,
+        year,
+        raw_data,
+    ):
+        self.year = year
+        self.raw_data = raw_data
+
+    def _champions_headers(self) -> list[str]:
+        """List the headers for the champions picks in round 1"""
+        if self.year == 2017:
+            return [
+                "Who will win the Stanley Cup?",
+                "Who will be the Stanley Cup runner-up?",
+            ]
+        base_list = [
+            "Who will win the Western Conference?",
+            "Who will win the Eastern Conference?",
+            "Who will win the Stanley Cup?",
+        ]
+        if self.year in [2006, 2007, 2008]:
+            return base_list + ["Length of Stanley Cup Finals"]
+        return base_list
+
+    def _select_conference_team(self, row: pd.Series, conference: str) -> str:
+        """Return the team in the dataframe row for a particular conference."""
+        if conference == "Stanley Cup":
+            return row["Who will win the Stanley Cup?"]
+        teams = row.values.tolist()
+        return (
+            teams[0]
+            if nhl_teams.conference(teams[0], self.year) == conference
+            else teams[1]
+        )
+
+    def _initial_data_cleanup(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Return cleaned initial data."""
+        return (
+            data
+            .set_index(["Individual"])
+            .rename_axis(columns=["Selections"])
+        )
+
+    def _add_new_selection_columns(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Add columns of correct champions round selections."""
+        champions_headers = ["East", "West", "Stanley Cup"]
+        for conference in champions_headers:
+            data[conference] = data.apply(
+                lambda row,
+                conf=conference: self._select_conference_team(
+                    row[self._champions_headers()], conf
+                ),
+                axis=1
+            )
+        return data[champions_headers]
+
+    def _add_duration(self, data: pd.DataFrame, raw_data: pd.DataFrame) -> pd.DataFrame:
+        """Add duration column."""
+        duration_header = "Length of Stanley Cup Finals"
+        if duration_header in raw_data.columns:
+            duration = (
+                raw_data[duration_header]
+                .str[0]
+                .astype("Int64")
+                .set_axis(raw_data['Individual'])
+            )
+        else:
+            duration = pd.Series([None] * len(data)).astype("Int64")
+        data.insert(len(data.columns), "Duration", duration)
+        return data
+
+    def selections(self):
+        """Return the Champions round selections."""
+        cleaned_data = self._initial_data_cleanup(self.raw_data)
+        updated_data = self._add_new_selection_columns(cleaned_data)
+        return self._add_duration(updated_data, self.raw_data)
 
 
 def _series(columns: list[str] | pd.Index) -> list[str]:
