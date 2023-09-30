@@ -1,4 +1,4 @@
-"""Tests for data_file"""
+"""Tests for files"""
 import pytest
 from deepwellcup.processing import files
 
