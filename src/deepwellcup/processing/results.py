@@ -6,7 +6,7 @@ from . import utils
 from .utils import DataStores
 
 
-class Results():
+class Results:
     """Class for gathering the results for a playoff round"""
 
     def __init__(
@@ -44,8 +44,8 @@ class Results():
         return self._results
 
     def _raise_error_if_champions_round(self):
-        if self.playoff_round == 'Champions':
-            raise ValueError('The playoff round must not be the Champions round')
+        if self.playoff_round == "Champions":
+            raise ValueError("The playoff round must not be the Champions round")
 
     @property
     def results_overtime(self):
@@ -70,37 +70,32 @@ class Results():
             if self.playoff_round in utils.YearInfo(self.year).played_rounds:
                 self._results = self._load_playoff_round_results_from_database()
                 self._results_overtime = self._load_overtime_results_from_database()
-            elif self.playoff_round == 'Champions':
+            elif self.playoff_round == "Champions":
                 self._results = self._load_champions_results_from_database()
         else:
-            self._results = self._selections.selections.loc['Results']
-            self._results_overtime = self._selections.selections_overtime['Results'] \
-                if self.playoff_round != 'Champions' \
-                and self._selections.selections_overtime is not None \
+            self._results = self._selections.selections.loc["Results"]
+            self._results_overtime = (
+                self._selections.selections_overtime["Results"]
+                if self.playoff_round != "Champions"
+                and self._selections.selections_overtime is not None
                 else None
+            )
 
     def _load_playoff_round_results_from_database(self):
         """Return the playoff round results from the database"""
         with self.database as db:
             data = db.get_all_round_results(self.year, self.playoff_round)
         series_list = [subval for values in self.series.values() for subval in values]
-        no_player_picks = data['Player'].tolist().count(None) == len(data['Player'])
+        no_player_picks = data["Player"].tolist().count(None) == len(data["Player"])
         return (
             data
-            .drop(columns=['SeriesNumber'])
-            .set_index(['Conference', Index(series_list)])
-            .rename_axis(
-                index=['Conference', 'Series'],
-                columns='Selections'
-            )
+            .drop(columns=["SeriesNumber"])
+            .set_index(["Conference", Index(series_list)])
+            .rename_axis(index=["Conference", "Series"], columns="Selections")
+            .pipe(lambda df: df.drop(columns=["Player"]) if no_player_picks else df)
             .pipe(
-                lambda df: df.drop(columns=['Player'])
-                if no_player_picks
-                else df
-            )
-            .pipe(
-                lambda df: df.astype({'Duration': "Int64"})
-                if self.playoff_round != 'Champions'
+                lambda df: df.astype({"Duration": "Int64"})
+                if self.playoff_round != "Champions"
                 else df
             )
         )

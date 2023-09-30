@@ -9,10 +9,11 @@ from .utils import PlayedRound, SelectionRound
 
 
 @dataclass
-class SelectionsFile():
+class SelectionsFile:
     """Class for the file of selections and results.
 
     For a selections round in a year."""
+
     year: int
     selection_round: SelectionRound
     directory: None | Path = None
@@ -27,34 +28,37 @@ class SelectionsFile():
     @property
     def _source_round(self) -> PlayedRound:
         """Returned the played round with the data for the selection round."""
-        if self.selection_round == 'Champions':
+        if self.selection_round == "Champions":
             return 1
         return self.selection_round
 
     @property
     def file(self) -> Path:
         """CSV file with selections and results."""
-        return self._data_directory \
-            / f'{self.year} Deepwell Cup Round {self._source_round}.csv'
+        return (
+            self._data_directory
+            / f"{self.year} Deepwell Cup Round {self._source_round}.csv"
+        )
 
     def read(self) -> pd.DataFrame:
         """Read the file."""
         contents = pd.read_csv(
             self.file,
-            sep=',',
+            sep=",",
             converters={
-                'Name:': str.strip,
-                'Moniker': str.strip,
-            }
+                "Name:": str.strip,
+                "Moniker": str.strip,
+            },
         )
-        return contents.rename(columns={'Name:': 'Individual'})
+        return contents.rename(columns={"Name:": "Individual"})
 
 
 @dataclass
-class OtherPointsFile():
+class OtherPointsFile:
     """Class for the file of other points.
 
     For a selections round in a year."""
+
     year: int
     selection_round: SelectionRound
     directory: None | Path = None
@@ -69,11 +73,12 @@ class OtherPointsFile():
     @property
     def file(self) -> Path:
         """CSV file with selections and results."""
-        return self._data_directory \
-            / f'{self.year} Deepwell Cup Other Points Round ' \
-            f'{self.selection_round}.csv'
+        return (
+            self._data_directory / f"{self.year} Deepwell Cup Other Points Round "
+            f"{self.selection_round}.csv"
+        )
 
 
 def products_dir_file() -> Path:
     """Return the file containing the products directory"""
-    return dirs.data() / 'products_dir.json'
+    return dirs.data() / "products_dir.json"

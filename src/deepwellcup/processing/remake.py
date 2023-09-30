@@ -31,38 +31,40 @@ def _parse_year_inputs(input_years: int | list[int]) -> list:
     2) the first and final years"""
     very_first_year = 2006
     if isinstance(input_years, int):
-        return range(very_first_year, input_years+1)
+        return range(very_first_year, input_years + 1)
     num_years = len(input_years)
     if num_years not in [1, 2]:
         raise ValueError(
-            'The years argument must be of length 1 or 2. '
-            f'It was {len(input_years)}'
+            f"The years argument must be of length 1 or 2. It was {len(input_years)}"
         )
     if num_years == 1:
-        return range(very_first_year, input_years[0]+1)
-    return range(input_years[0], input_years[1]+1)
+        return range(very_first_year, input_years[0] + 1)
+    return range(input_years[0], input_years[1] + 1)
 
 
 def main() -> None:
     """Command line argument processing"""
     parser = argparse.ArgumentParser(
-        description='Remake the database, figures and tables'
+        description="Remake the database, figures and tables"
     )
-    required = parser.add_argument_group('required arguments')
+    required = parser.add_argument_group("required arguments")
     required.add_argument(
-        "-y", "--years",
-        nargs='+',
+        "-y",
+        "--years",
+        nargs="+",
         type=int,
         help="year extrema to remake",
         required=True,
     )
     parser.add_argument(
-        "-d", "--database",
+        "-d",
+        "--database",
         type=Path,
         help="database to import data into",
     )
     parser.add_argument(
-        "-w", "--raw-data-directory",
+        "-w",
+        "--raw-data-directory",
         type=Path,
         help="directory with raw data",
     )

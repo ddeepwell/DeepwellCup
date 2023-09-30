@@ -12,22 +12,22 @@ def src():
 
 def data():
     """Return the path of the package data directory"""
-    return src() / 'data'
+    return src() / "data"
 
 
 def year_data(year):
     """Return the path for the data in a year"""
-    return data() / f'selections_and_results/{year}'
+    return data() / f"selections_and_results/{year}"
 
 
 def database():
     """Return the path to the database directory"""
-    return data() / 'database'
+    return data() / "database"
 
 
 def templates():
     """Return the path to the templates directory"""
-    return data() / 'templates'
+    return data() / "templates"
 
 
 def initialize_products_directory() -> None:
@@ -54,7 +54,7 @@ def _make_directory(directory: Path) -> None:
 def _request_products_path() -> Path:
     """Ask the user for a path to a directory for created products"""
     products_dir = Path(
-        input('Enter a directory to store the produced tables and figures: ')
+        input("Enter a directory to store the produced tables and figures: ")
         .strip()
     )
     if not products_dir.exists():
@@ -66,7 +66,7 @@ def _request_products_path() -> Path:
 
 def _write_products_path_to_file(products_dir: Path, file: Path) -> None:
     """Write the products directory to a file"""
-    with open(file, 'w', encoding="utf-8") as file_handle:
+    with open(file, "w", encoding="utf-8") as file_handle:
         json.dump(
             {"products_dir": str(products_dir)},
             file_handle,
@@ -78,8 +78,9 @@ def _read_products_path_from_file(file: Path) -> Path:
     if not file.exists():
         raise FileNotFoundError(
             f"The products file, {file}, doesn't exist. "
-            "Initialize the products directory with 'initialize'.")
-    with open(file, 'r', encoding="utf-8") as file_handle:
+            "Initialize the products directory with 'initialize'."
+        )
+    with open(file, "r", encoding="utf-8") as file_handle:
         contents = json.load(file_handle)
     return Path(contents["products_dir"])
 
@@ -96,9 +97,9 @@ def print_products_path() -> None:
 
 def year_tables(year):
     """Return the path for the tables from a year"""
-    return products() / f'tables/{year}'
+    return products() / f"tables/{year}"
 
 
 def year_figures(year):
     """Return the path for the figures from a year"""
-    return products() / f'figures/{year}'
+    return products() / f"figures/{year}"

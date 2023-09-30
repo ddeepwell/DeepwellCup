@@ -5,7 +5,7 @@ from .database import DataBaseOperations
 from .utils import DataStores
 
 
-class OtherPoints():
+class OtherPoints:
     """Class for gathering and processing information regarding other
     points in a playoff round"""
 
@@ -20,7 +20,9 @@ class OtherPoints():
         self._datastores = datastores
         self._database = DataBaseOperations(datastores.database)
         with self.database as db:
-            self._in_database = db.year_round_other_points_in_database(year, playoff_round)
+            self._in_database = db.year_round_other_points_in_database(
+                year, playoff_round
+            )
         self._other_points_file = files.OtherPointsFile(
             year=self.year,
             selection_round=self.playoff_round,
@@ -46,7 +48,7 @@ class OtherPoints():
     @property
     def individuals(self):
         """The individuals in the playoff round"""
-        return sorted(list(set(self.points.index.get_level_values('Individual'))))
+        return sorted(list(set(self.points.index.get_level_values("Individual"))))
 
     @property
     def database(self):
@@ -60,8 +62,8 @@ class OtherPoints():
                 self._points = self._load_playoff_round_other_points_from_database()
             else:
                 print(
-                    f'Other points data for {self.playoff_round} in {self.year} is not '
-                    f'in the database with path\n {self.database.path}'
+                    f"Other points data for {self.playoff_round} in {self.year} is not "
+                    f"in the database with path\n {self.database.path}"
                 )
                 self._points = self._load_playoff_round_other_points_from_file()
         else:
@@ -71,15 +73,14 @@ class OtherPoints():
         """Return the playoff round selections from the raw source file"""
         data = read_csv(
             self._other_points_file,
-            sep=',',
-            converters={'Name:': str.strip}
+            sep=",",
+            converters={"Name:": str.strip}
         )
         return (
-            data
-            .rename(columns={'Name:': 'Individual', 'Points': 'Other Points'})
-            .set_index('Individual')
+            data.rename(columns={"Name:": "Individual", "Points": "Other Points"})
+            .set_index("Individual")
             .sort_index()
-            .squeeze('columns')
+            .squeeze("columns")
         )
 
     def _load_playoff_round_other_points_from_database(self):
@@ -87,9 +88,8 @@ class OtherPoints():
         with self.database as db:
             data = db.get_other_points(self.year, self.playoff_round)
         return (
-            data
-            .drop(columns=['Year', 'Round'])
-            .rename(columns={'Points': 'Other Points'})
+            data.drop(columns=["Year", "Round"])
+            .rename(columns={"Points": "Other Points"})
             .sort_index()
-            .squeeze('columns')
+            .squeeze("columns")
         )

@@ -13,17 +13,18 @@ SeriesLength = typing.Literal[3, 4, 5, 6, 7]
 
 def split_name(name):
     """From a single string return the first and last name"""
-    if ' ' in name:
-        first_name, last_name = name.split(' ')
+    if " " in name:
+        first_name, last_name = name.split(" ")
     else:
         first_name = name
-        last_name = ''
+        last_name = ""
     return first_name, last_name
 
 
 @dataclass(frozen=True)
 class YearInfo:
     """Playoff round settings for an entire year."""
+
     year: int
 
     @property
@@ -45,21 +46,20 @@ class YearInfo:
     @property
     def conference_rounds(self) -> tuple[ConferenceRound, ...]:
         """The rounds where selections are made and a conference exists."""
-        return tuple(
-            a_round for a_round in self.played_rounds if a_round != 4
-        )
+        return tuple(a_round for a_round in self.played_rounds if a_round != 4)
 
 
 @dataclass(frozen=True)
 class RoundInfo:
     """Settings for a playoff round."""
+
     selection_round: SelectionRound
     year: int
 
     @property
     def series_duration_options(self) -> tuple[SeriesLength, ...]:
         """List of possible number of games in a series."""
-        if self.selection_round == 'Q':
+        if self.selection_round == "Q":
             if self.year != 2020:
                 raise ValueError('Only 2020 has round "Q"')
             return (3, 4, 5)
@@ -68,5 +68,6 @@ class RoundInfo:
 
 class DataStores(typing.NamedTuple):
     """Data storage locations."""
+
     raw_data_directory: Path | None
     database: str | sqlite3.Connection | None

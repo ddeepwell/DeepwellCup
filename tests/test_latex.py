@@ -8,6 +8,7 @@ from deepwellcup.processing.utils import DataStores
 
 class Settings:
     """Test settings"""
+
     def __init__(self, database_conn):
         self.year = 2017
         self.tables_dir = dirs.year_tables(self.year).parent
@@ -19,16 +20,18 @@ class Settings:
     name="stanley_cup_database",
 )
 def fixture_stanley_cup_database(nonempty_database_function_conn):
-    '''Create and populate the Stanley Cup table'''
+    """Create and populate the Stanley Cup table"""
     database = DataBaseOperations(database=nonempty_database_function_conn)
     year = 2017
     with database as db:
-        db.add_new_individual('David', 'D')
+        db.add_new_individual("David", "D")
         picks = [
-            ['David', 'D', 'Boston Bruins', 'San Jose Sharks', 'Toronto Maple Leafs'],
+            ["David", "D", "Boston Bruins", "San Jose Sharks", "Toronto Maple Leafs"],
         ]
         db.add_stanley_cup_selection_for_everyone(year, picks)
-        db.add_stanley_cup_results(year, 'Boston Bruins', 'Vancouver Canucks', 'Boston Bruins')
+        db.add_stanley_cup_results(
+            year, "Boston Bruins", "Vancouver Canucks", "Boston Bruins"
+        )
     yield nonempty_database_function_conn
 
 

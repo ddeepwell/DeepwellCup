@@ -12,7 +12,7 @@ from deepwellcup.processing import files
         (2, 2),
         (3, 3),
         (4, 4),
-        ('Champions', 1)
+        ("Champions", 1)
     ]
 )
 def test_SelectionsFile(selections_round, source_round, data_directory):
@@ -20,7 +20,7 @@ def test_SelectionsFile(selections_round, source_round, data_directory):
     year = 2017
     if data_directory is None:
         data_directory = pytest.data_dir
-    directory = data_directory / f'selections_and_results/{year}'
+    directory = data_directory / f"selections_and_results/{year}"
     expected = directory / f"{year} Deepwell Cup Round {source_round}.csv"
     received = files.SelectionsFile(year, selections_round, directory).file
     assert expected == received
@@ -33,7 +33,7 @@ def test_OtherPointsFile(playoff_round, data_directory):
     year = 2017
     if data_directory is None:
         data_directory = pytest.data_dir
-    directory = data_directory / f'selections_and_results/{year}'
+    directory = data_directory / f"selections_and_results/{year}"
     expected = directory / f"{year} Deepwell Cup Other Points Round {playoff_round}.csv"
     received = files.OtherPointsFile(
         year=year,

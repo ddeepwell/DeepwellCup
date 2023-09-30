@@ -6,7 +6,7 @@ from .plots import Plots
 from .utils import DataStores
 
 
-class PlayoffRound():
+class PlayoffRound:
     """Class for all information about a playoff round"""
 
     def __init__(
@@ -55,7 +55,10 @@ class PlayoffRound():
     def series(self):
         """The series in the playoff round"""
         conferences = list(set(self.results.index.get_level_values(0)))
-        return {conference: list(self.results.loc[conference].index) for conference in conferences}
+        return {
+            conference: list(self.results.loc[conference].index)
+            for conference in conferences
+        }
 
     def _get_latex(self):
         """Get the LaTeX class"""
@@ -100,8 +103,8 @@ class PlayoffRound():
 
     def add_other_points_to_database(self):
         """Add other points into the database"""
-        if self.playoff_round == 'Champions':
-            print('There are no other points to add to database in the Champions round')
+        if self.playoff_round == "Champions":
+            print("There are no other points to add to database in the Champions round")
         else:
             insert = self._get_insert()
             insert.insert_other_points()

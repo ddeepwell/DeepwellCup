@@ -10,7 +10,7 @@ from . import utils
 from .utils import DataStores
 
 
-class Insert():
+class Insert:
     "User-friendly class for inserting round selections and results into the database"
 
     def __init__(
@@ -24,25 +24,17 @@ class Insert():
         self._database = DataBaseOperations(datastores.database)
 
         # import values
-        self._round_selections = Selections(
-            year, playoff_round, datastores=datastores
-        )
+        self._round_selections = Selections(year, playoff_round, datastores=datastores)
         if playoff_round == 1:
             self._champions_selections = Selections(
-                year, 'Champions', datastores=datastores
+                year, "Champions", datastores=datastores
             )
         else:
             self._champions_selections = None
         if playoff_round == 4:
-            self._champions_results = Results(
-                year, 'Champions', datastores=datastores
-            )
-        self._results = Results(
-            year, playoff_round, datastores=datastores
-        )
-        self._other_points = OtherPoints(
-            year, playoff_round, datastores=datastores
-        )
+            self._champions_results = Results(year, "Champions", datastores=datastores)
+        self._results = Results(year, playoff_round, datastores=datastores)
+        self._other_points = OtherPoints(year, playoff_round, datastores=datastores)
 
     @property
     def year(self):
@@ -103,25 +95,20 @@ class Insert():
                 processed_selections = []
                 for individual in individuals:
                     picks = [
-                        selections.loc[
-                            individual,
-                            conference,
-                            series_pair
-                        ].to_list() for series_pair in series_pair_list
+                        selections.loc[individual, conference, series_pair].to_list()
+                        for series_pair in series_pair_list
                     ]
                     processed_selections += self._convert_to_int(
                         [[*utils.split_name(individual), *picks]]
                     )
 
                 series_list_for_database = [
-                    [ltn(team) for team in series_name.split('-')] + players
+                    [ltn(team) for team in series_name.split("-")] + players
                     for series_name, players in zip(series_pair_list, players_list)
                 ]
                 if self.year == 2021 and self.playoff_round == 2:
                     series_list_for_database = [
-                        item
-                        if len(item) == 2
-                        else [item[0], ','.join(item[1:])]
+                        item if len(item) == 2 else [item[0], ",".join(item[1:])]
                         for item in series_list_for_database
                     ]
                 db.add_year_round_series_for_conference(
@@ -137,7 +124,7 @@ class Insert():
                         self.year,
                         self.playoff_round,
                         *utils.split_name(individual),
-                        self.round_selections.selections_overtime[individual]
+                        self.round_selections.selections_overtime[individual],
                     )
 
         if self.playoff_round == 1:
@@ -150,7 +137,7 @@ class Insert():
         stanley_cup_selections = [
             [
                 *utils.split_name(individual),
-                *self._convert_to_int(selections.loc[individual].tolist())
+                *self._convert_to_int(selections.loc[individual].tolist()),
             ]
             for individual in self.champions_selections.individuals
         ]
@@ -168,9 +155,7 @@ class Insert():
         for conference in set(results.index.get_level_values(0)):
             series_pair_list = series[conference]
             processed_results = [
-                self._convert_to_int(
-                    results.loc[conference, series_pair].to_list()
-                )
+                self._convert_to_int(results.loc[conference, series_pair].to_list())
                 for series_pair in series_pair_list
             ]
 
@@ -182,9 +167,7 @@ class Insert():
         if self.round_selections.overtime_selected:
             with self.database as db:
                 db.add_overtime_results(
-                    self.year,
-                    self.playoff_round,
-                    self.results.results_overtime
+                    self.year, self.playoff_round, self.results.results_overtime
                 )
 
         if self.playoff_round == 4:
@@ -207,14 +190,14 @@ class Insert():
                         self.year,
                         self.playoff_round,
                         *utils.split_name(individual),
-                        int(self.other_points.points.loc[individual])
+                        int(self.other_points.points.loc[individual]),
                     )
 
     def add_missing_individuals(self, individuals, db):
         """Find which individuals are not in the db and add them"""
 
         existing_individuals = [
-            ' '.join(individual).strip() for individual in db.get_individuals()
+            " ".join(individual).strip() for individual in db.get_individuals()
         ]
         new_individuals = sorted(list(set(individuals) - set(existing_individuals)))
         for individual in new_individuals:
@@ -224,8 +207,8 @@ class Insert():
         """Add monikers to the database"""
         for individual, moniker in self.round_selections.monikers.items():
             db.add_moniker_in_series(
-                self.year, self.playoff_round,
-                *utils.split_name(individual), moniker)
+                self.year, self.playoff_round, *utils.split_name(individual), moniker
+            )
 
     def add_preferences(self, db):
         """Add team preferences to the database"""
@@ -234,7 +217,7 @@ class Insert():
                 self.year,
                 self.playoff_round,
                 *utils.split_name(individual),
-                *self.round_selections.preferences.loc[individual]
+                *self.round_selections.preferences.loc[individual],
             )
 
     def _convert_to_int(self, obj):

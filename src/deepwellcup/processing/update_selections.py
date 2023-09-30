@@ -24,28 +24,32 @@ def update_selections(
 
 def main():
     """Main argument processing"""
-    parser = argparse.ArgumentParser(description='Import data into database')
+    parser = argparse.ArgumentParser(description="Import data into database")
     # required arguments
-    required = parser.add_argument_group('required arguments')
+    required = parser.add_argument_group("required arguments")
     required.add_argument(
-        "-y", "--year",
+        "-y",
+        "--year",
         type=int,
         help="Year to update",
         required=True
     )
     required.add_argument(
-        "-r", "--playoff_round",
+        "-r",
+        "--playoff_round",
         help="Playoff round to update",
         required=True
     )
     # optional arguments
     parser.add_argument(
-        "-d", "--database",
+        "-d",
+        "--database",
         type=str,
         help="Database to import data into"
     )
     parser.add_argument(
-        "-w", "--raw-data-directory",
+        "-w",
+        "--raw-data-directory",
         type=Path,
         help="directory with raw data",
     )
@@ -55,7 +59,7 @@ def main():
         args.playoff_round = int(args.playoff_round)
     played_rounds = utils.YearInfo(args.year).played_rounds
     if args.playoff_round not in played_rounds:
-        raise ValueError(f'The playoff round must be one of {played_rounds}')
+        raise ValueError(f"The playoff round must be one of {played_rounds}")
     datastores = DataStores(args.raw_data_directory, args.database)
     update_selections(args.year, args.playoff_round, datastores)
 

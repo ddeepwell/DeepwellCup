@@ -42,9 +42,11 @@ def main():
     """Main argument processing"""
     parser = parse_arguments()
     parser.add_argument(
-        "-n", "--no-database-update",
+        "-n",
+        "--no-database-update",
         action="store_true",
-        help="If used, do not add data to database")
+        help="If used, do not add data to database",
+    )
     args = parser.parse_args()
     args = modify_and_check_arguments(args)
     update_database = not args.no_database_update
@@ -53,34 +55,38 @@ def main():
         args.year,
         args.playoff_round,
         update_database=update_database,
-        datastores=datastores
+        datastores=datastores,
     )
 
 
 def parse_arguments():
     """Argument parsing"""
-    parser = argparse.ArgumentParser(description='Import data into database')
+    parser = argparse.ArgumentParser(description="Import data into database")
     # required arguments
-    required = parser.add_argument_group('required arguments')
+    required = parser.add_argument_group("required arguments")
     required.add_argument(
-        "-y", "--year",
+        "-y",
+        "--year",
         type=int,
         help="Year to update",
-        required=True
+        required=True,
     )
     required.add_argument(
-        "-r", "--playoff_round",
+        "-r",
+        "--playoff_round",
         help="Playoff round to update",
-        required=True
+        required=True,
     )
     # optional arguments
     parser.add_argument(
-        "-d", "--database",
+        "-d",
+        "--database",
         type=str,
-        help="Database to import data into"
+        help="Database to import data into",
     )
     parser.add_argument(
-        "-w", "--raw-data-directory",
+        "-w",
+        "--raw-data-directory",
         type=Path,
         help="directory with raw data",
     )
@@ -93,7 +99,7 @@ def modify_and_check_arguments(args):
         args.playoff_round = int(args.playoff_round)
     played_rounds = utils.YearInfo(args.year).played_rounds
     if args.playoff_round not in played_rounds:
-        raise ValueError(f'The playoff round must be one of {played_rounds}')
+        raise ValueError(f"The playoff round must be one of {played_rounds}")
     return args
 
 
