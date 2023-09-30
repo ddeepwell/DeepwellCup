@@ -66,25 +66,28 @@ class Ingestion:
             for conf in nhl_teams.conferences(self.selection_round, self.year)
         }
 
-    def _played_round_selections(self, keep_results: bool = False) -> pd.DataFrame:
+    def _played_round_selections(self) -> pd.DataFrame:
         """Return the playoff round selections."""
-        return _CleanUpRawData(
+        return CleanUpRawPlayedData(
             self.year, self.selection_round, self.raw_contents
-        ).selections(keep_results)
+        ).selections()
 
     def _champions_selections(self) -> pd.DataFrame:
         """Return the Champions round selections."""
         return pd.DataFrame({})
 
-    def selections(self) -> pd.DataFrame:
-        """Return the selections for the round"""
+    def selections(self, keep_results: bool = False) -> pd.DataFrame:
+        """Return the selections for the round."""
         if self.selection_round == "Champions":
-            return self._champions_selections()
-        return self._played_round_selections()
+            selections = self._champions_selections()
+        selections = self._played_round_selections()
+        return selections.pipe(
+            lambda df: df.drop(index="Results") if not keep_results else df
+        )
 
 
-class _CleanUpRawData:
-    """Class for cleaning up the raw data table."""
+class CleanUpRawPlayedData:
+    """Class for cleaning up the raw Played round data table."""
 
     def __init__(
         self,
@@ -192,7 +195,7 @@ class _CleanUpRawData:
             sort_remaining=False
         )
 
-    def selections(self, keep_results=False):
+    def selections(self):
         """Return the playoff round selections."""
         cleaned_data = self._cleanup_raw_data()
         pivoted_data = self._pivot_raw_data(cleaned_data)
@@ -200,9 +203,7 @@ class _CleanUpRawData:
         improved_data = self._improve_columns(conference_data)
         player_data = self._rename_player_column(improved_data)
         duration_data = self._convert_duration_to_int(player_data)
-        return self._reorganize_data(duration_data).pipe(
-            lambda df: df.drop(index="Results") if not keep_results else df
-        )
+        return self._reorganize_data(duration_data)
 
 
 def _series(columns: list[str] | pd.Index) -> list[str]:

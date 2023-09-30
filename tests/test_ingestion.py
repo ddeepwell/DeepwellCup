@@ -5,7 +5,7 @@ import pytest
 import pandas as pd
 
 from deepwellcup.processing.files import SelectionsFile
-from deepwellcup.processing.ingestion import Ingestion
+from deepwellcup.processing.ingestion import CleanUpRawPlayedData, Ingestion
 from deepwellcup.processing.utils import SelectionRound
 
 
@@ -58,12 +58,16 @@ def fixture_round_3_selections() -> pd.DataFrame:
                 ("Alita D", "West", "ANA-EDM"): "Edmonton Oilers",
                 ("David D", "East", "CAR-BUF"): "Buffalo Sabres",
                 ("David D", "West", "ANA-EDM"): "Edmonton Oilers",
+                ("Results", "East", "CAR-BUF"): "Buffalo Sabres",
+                ("Results", "West", "ANA-EDM"): "Anaheim Ducks",
             },
             "Duration": {
                 ("Alita D", "East", "CAR-BUF"): 7,
                 ("Alita D", "West", "ANA-EDM"): 6,
                 ("David D", "East", "CAR-BUF"): 7,
                 ("David D", "West", "ANA-EDM"): 6,
+                ("Results", "East", "CAR-BUF"): 7,
+                ("Results", "West", "ANA-EDM"): 6,
             },
         }
     )
@@ -103,10 +107,12 @@ def fixture_round_4_selections() -> pd.DataFrame:
             "Team": {
                 ("Alita D", "None", "PIT-NSH"): "Pittsburgh Penguins",
                 ("David D", "None", "PIT-NSH"): "",
+                ("Results", "None", "PIT-NSH"): "Pittsburgh Penguins",
             },
             "Duration": {
                 ("Alita D", "None", "PIT-NSH"): None,
                 ("David D", "None", "PIT-NSH"): 5,
+                ("Results", "None", "PIT-NSH"): 6,
             },
         }
     )
@@ -214,16 +220,18 @@ def test_conference_series(file, conference_series, request):
 
 
 @pytest.mark.parametrize(
-    "file, selections",
+    "played_round, raw_data, selections",
     [
-        ("round_3_file", "round_3_selections"),
-        ("round_4_file", "round_4_selections"),
-        # ("champions_file", None),
+        (3, "round_3_raw", "round_3_selections"),
+        (4, "round_4_raw", "round_4_selections"),
     ],
 )
-def test_selections(file, selections, request):
+def test_played_selections(played_round, raw_data, selections, request):
     """Test for selections."""
-    ing = Ingestion(request.getfixturevalue(file))
+    ing = CleanUpRawPlayedData(
+        2006,
+        played_round,
+        request.getfixturevalue(raw_data)
+    )
     expected_selections = request.getfixturevalue(selections)
-    print(ing.selections().to_dict())
     assert ing.selections().equals(expected_selections)
