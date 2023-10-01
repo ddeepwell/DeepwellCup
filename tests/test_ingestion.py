@@ -288,3 +288,30 @@ def test_favourite_team():
         }
     )
     assert ing.favourite_team().equals(expected)
+
+
+def test_cheering_team():
+    """Test for cheering_team."""
+    raw_contents = pd.DataFrame(
+        {
+            "Individual": {
+                0: "Alita D",
+                1: "Mark D",
+                2: "Results",
+            },
+            "Current team cheering for:": {
+                0: "Toronto Maple Leafs",
+                1: "Montreal Canadiens",
+                2: "",
+            },
+        }
+    )
+    file = build_file(2006, 3, raw_contents)
+    ing = Ingestion(file)
+    expected = pd.Series(
+        {
+            "Alita D": "Toronto Maple Leafs",
+            "Mark D": "Montreal Canadiens"
+        }
+    )
+    assert ing.cheering_team().equals(expected)

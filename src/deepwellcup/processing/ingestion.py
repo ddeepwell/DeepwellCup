@@ -105,13 +105,19 @@ class Ingestion:
             )
         return None
 
-    def favourite_team(self) -> pd.Series | None:
-        """Return favourite team preferences."""
-        if "Favourite team:" in self.raw_contents.columns:
+    def _preferences(self, category) -> pd.Series | None:
+        """Return team preferences."""
+        if category == "Favourite":
+            old_column_name = "Favourite team:"
+            new_column_name = "Favourite team"
+        elif category == "Cheering":
+            old_column_name = "Current team cheering for:"
+            new_column_name = "Cheering team"
+        if old_column_name in self.raw_contents.columns:
             return (
                 self.raw_contents
-                .rename(columns={"Favourite team:": "Favourite team"})[
-                    ["Individual", "Favourite team"]
+                .rename(columns={old_column_name: new_column_name})[
+                    ["Individual", new_column_name]
                 ]
                 .set_index("Individual")
                 .drop(index="Results")
@@ -120,6 +126,14 @@ class Ingestion:
                 .astype("str")
             )
         return None
+
+    def favourite_team(self) -> pd.Series | None:
+        """Return favourite team preferences."""
+        return self._preferences("Favourite")
+
+    def cheering_team(self) -> pd.Series | None:
+        """Return the team being cheered for."""
+        return self._preferences("Cheering")
 
 
 class CleanUpRawPlayedData:
