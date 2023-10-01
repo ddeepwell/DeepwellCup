@@ -74,9 +74,7 @@ class Ingestion:
 
     def _champions_selections(self) -> pd.DataFrame:
         """Return the Champions round selections."""
-        return CleanUpRawChampionsData(
-            self.year, self.raw_contents
-        ).selections()
+        return CleanUpRawChampionsData(self.year, self.raw_contents).selections()
 
     def selections(self, keep_results: bool = False) -> pd.DataFrame:
         """Return the selections for the round."""
@@ -87,6 +85,25 @@ class Ingestion:
         return selections.pipe(
             lambda df: df.drop(index="Results") if not keep_results else df
         )
+
+    def overtime_selections(self, keep_results: bool = False) -> pd.Series | None:
+        """Return the overtime selections."""
+        overtime_header = "How many overtime games will occur this round?"
+        if overtime_header in self.raw_contents.columns:
+            return (
+                self.raw_contents
+                .rename(columns={overtime_header: "Overtime"})[
+                    ["Individual", "Overtime"]
+                ]
+                .set_index("Individual")
+                .squeeze()
+                .sort_index()
+                .astype("str")
+                .pipe(
+                    lambda df: df.drop(index="Results") if not keep_results else df
+                )
+            )
+        return None
 
 
 class CleanUpRawPlayedData:
@@ -260,11 +277,10 @@ class CleanUpRawChampionsData:
         champions_headers = ["East", "West", "Stanley Cup"]
         for conference in champions_headers:
             data[conference] = data.apply(
-                lambda row,
-                conf=conference: self._select_conference_team(
+                lambda row, conf=conference: self._select_conference_team(
                     row[self._champions_headers()], conf
                 ),
-                axis=1
+                axis=1,
             )
         return data[champions_headers]
 
@@ -276,7 +292,7 @@ class CleanUpRawChampionsData:
                 raw_data[duration_header]
                 .str[0]
                 .astype("Int64")
-                .set_axis(raw_data['Individual'])
+                .set_axis(raw_data["Individual"])
             )
         else:
             duration = pd.Series([None] * len(data)).astype("Int64")

@@ -9,7 +9,7 @@ from deepwellcup.processing.files import SelectionsFile
 from deepwellcup.processing.ingestion import (
     CleanUpRawChampionsData,
     CleanUpRawPlayedData,
-    Ingestion
+    Ingestion,
 )
 from deepwellcup.processing.utils import SelectionRound
 
@@ -115,7 +115,7 @@ def fixture_raw_data(selection_round: SelectionRound) -> pd.DataFrame:
                     2: "Los Angeles Kings",
                 },
             }
-        )
+        ),
     }
     return all_rounds[selection_round]
 
@@ -181,7 +181,7 @@ def fixture_selections(selection_round: SelectionRound) -> pd.DataFrame:
                     "Results": None,
                 },
             }
-        )
+        ),
     }
     selections = all_rounds[selection_round]
     selections["Duration"] = selections["Duration"].astype("Int64")
@@ -190,7 +190,7 @@ def fixture_selections(selection_round: SelectionRound) -> pd.DataFrame:
 
 def test_raw_contents():
     """Test for raw_contents."""
-    content = 'read'
+    content = "read"
     a_file = build_file(2006, 1, content)
     ing = Ingestion(a_file)
     assert ing.raw_contents == content
@@ -239,3 +239,25 @@ def test_champions_selections(raw_data, selections):
     """Test for Champions round selections."""
     cdata = CleanUpRawChampionsData(2016, raw_data)
     assert cdata.selections().equals(selections)
+
+
+def test_overtime_selections():
+    """Test for overtime_selections."""
+    raw_contents = pd.DataFrame(
+        {
+            "Individual": {
+                0: "Alita D",
+                1: "David D",
+                2: "Results",
+            },
+            "How many overtime games will occur this round?": {
+                0: 1,
+                1: "More than 3",
+                2: 2,
+            },
+        }
+    )
+    file = build_file(2006, 3, raw_contents)
+    ing = Ingestion(file)
+    expected = pd.Series({"Alita D": "1", "David D": "More than 3"})
+    assert ing.overtime_selections().equals(expected)
