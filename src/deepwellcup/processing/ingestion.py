@@ -105,6 +105,22 @@ class Ingestion:
             )
         return None
 
+    def favourite_team(self) -> pd.Series | None:
+        """Return favourite team preferences."""
+        if "Favourite team:" in self.raw_contents.columns:
+            return (
+                self.raw_contents
+                .rename(columns={"Favourite team:": "Favourite team"})[
+                    ["Individual", "Favourite team"]
+                ]
+                .set_index("Individual")
+                .drop(index="Results")
+                .squeeze()
+                .sort_index()
+                .astype("str")
+            )
+        return None
+
 
 class CleanUpRawPlayedData:
     """Class for cleaning up the raw Played round data table."""

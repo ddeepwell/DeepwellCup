@@ -261,3 +261,30 @@ def test_overtime_selections():
     ing = Ingestion(file)
     expected = pd.Series({"Alita D": "1", "David D": "More than 3"})
     assert ing.overtime_selections().equals(expected)
+
+
+def test_favourite_team():
+    """Test for favourite_team."""
+    raw_contents = pd.DataFrame(
+        {
+            "Individual": {
+                0: "Brian M",
+                1: "David D",
+                2: "Results",
+            },
+            "Favourite team:": {
+                0: "Toronto Maple Leafs",
+                1: "Vancouver Canucks",
+                2: "",
+            },
+        }
+    )
+    file = build_file(2006, 3, raw_contents)
+    ing = Ingestion(file)
+    expected = pd.Series(
+        {
+            "Brian M": "Toronto Maple Leafs",
+            "David D": "Vancouver Canucks"
+        }
+    )
+    assert ing.favourite_team().equals(expected)
