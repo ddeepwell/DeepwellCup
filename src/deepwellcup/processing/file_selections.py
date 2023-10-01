@@ -9,7 +9,7 @@ from .files import SelectionsFile
 from .utils import RoundInfo, SelectionRound
 
 
-class Ingestion:
+class FileSelections:
     """Class for processing raw data files"""
 
     def __init__(self, selections_file: SelectionsFile):

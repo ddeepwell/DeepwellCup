@@ -1,4 +1,4 @@
-"""Tests for Ingestion class"""
+"""Tests for FileSelections class"""
 from dataclasses import dataclass
 import typing
 
@@ -6,10 +6,10 @@ import pytest
 import pandas as pd
 
 from deepwellcup.processing.files import SelectionsFile
-from deepwellcup.processing.ingestion import (
+from deepwellcup.processing.file_selections import (
     CleanUpRawChampionsData,
     CleanUpRawPlayedData,
-    Ingestion,
+    FileSelections,
 )
 from deepwellcup.processing.utils import SelectionRound
 
@@ -192,24 +192,24 @@ def test_raw_contents():
     """Test for raw_contents."""
     content = "read"
     a_file = build_file(2006, 1, content)
-    ing = Ingestion(a_file)
-    assert ing.raw_contents == content
+    fs = FileSelections(a_file)
+    assert fs.raw_contents == content
 
 
 @pytest.mark.parametrize("selection_round", [3])
 def test_individuals(raw_data, selection_round):
     """Test for individuals."""
     round_3_file = build_file(2006, selection_round, raw_data)
-    ing = Ingestion(round_3_file)
-    assert ing.individuals() == ["Alita D", "David D"]
+    fs = FileSelections(round_3_file)
+    assert fs.individuals() == ["Alita D", "David D"]
 
 
 @pytest.mark.parametrize("selection_round", [3])
 def test_monikers(raw_data, selection_round):
     """Test for monikers."""
     round_3_file = build_file(2006, selection_round, raw_data)
-    ing = Ingestion(round_3_file)
-    assert ing.monikers() == {"Alita D": "", "David D": "Nazzy"}
+    fs = FileSelections(round_3_file)
+    assert fs.monikers() == {"Alita D": "", "David D": "Nazzy"}
 
 
 @pytest.mark.parametrize(
@@ -223,8 +223,8 @@ def test_monikers(raw_data, selection_round):
 def test_conference_series(selection_round, conference_series, raw_data):
     """Test for conference_series."""
     selection_file = build_file(2006, selection_round, raw_data)
-    ing = Ingestion(selection_file)
-    assert ing.conference_series() == conference_series
+    fs = FileSelections(selection_file)
+    assert fs.conference_series() == conference_series
 
 
 @pytest.mark.parametrize("selection_round", [3, 4])
@@ -258,9 +258,9 @@ def test_overtime_selections():
         }
     )
     file = build_file(2006, 3, raw_contents)
-    ing = Ingestion(file)
+    fs = FileSelections(file)
     expected = pd.Series({"Alita D": "1", "David D": "More than 3"})
-    assert ing.overtime_selections().equals(expected)
+    assert fs.overtime_selections().equals(expected)
 
 
 def test_favourite_team():
@@ -280,14 +280,14 @@ def test_favourite_team():
         }
     )
     file = build_file(2006, 3, raw_contents)
-    ing = Ingestion(file)
+    fs = FileSelections(file)
     expected = pd.Series(
         {
             "Brian M": "Toronto Maple Leafs",
             "David D": "Vancouver Canucks"
         }
     )
-    assert ing.favourite_team().equals(expected)
+    assert fs.favourite_team().equals(expected)
 
 
 def test_cheering_team():
@@ -307,11 +307,11 @@ def test_cheering_team():
         }
     )
     file = build_file(2006, 3, raw_contents)
-    ing = Ingestion(file)
+    fs = FileSelections(file)
     expected = pd.Series(
         {
             "Alita D": "Toronto Maple Leafs",
             "Mark D": "Montreal Canadiens"
         }
     )
-    assert ing.cheering_team().equals(expected)
+    assert fs.cheering_team().equals(expected)
