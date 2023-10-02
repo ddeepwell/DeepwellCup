@@ -197,7 +197,7 @@ class Insert:
         """Find which individuals are not in the db and add them"""
 
         existing_individuals = [
-            " ".join(individual).strip() for individual in db.get_individuals()
+            utils.merge_name(individual) for individual in db.get_individuals()
         ]
         new_individuals = sorted(list(set(individuals) - set(existing_individuals)))
         for individual in new_individuals:

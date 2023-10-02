@@ -11,7 +11,7 @@ ConferenceRound = typing.Literal["Q", 1, 2, 3]
 SeriesLength = typing.Literal[3, 4, 5, 6, 7]
 
 
-def split_name(name):
+def split_name(name: str) -> tuple[str, str]:
     """From a single string return the first and last name"""
     if " " in name:
         first_name, last_name = name.split(" ")
@@ -19,6 +19,13 @@ def split_name(name):
         first_name = name
         last_name = ""
     return first_name, last_name
+
+
+def merge_name(individual: list[str]) -> str:
+    """Join the first and last name."""
+    if len(individual) != 2:
+        raise ValueError("Individual must have two strings")
+    return " ".join(individual).strip()
 
 
 @dataclass(frozen=True)

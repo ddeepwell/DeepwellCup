@@ -1,6 +1,7 @@
 """Tests for utils"""
-import pytest
 from contextlib import nullcontext as does_not_raise
+
+import pytest
 
 from deepwellcup.processing import utils
 
@@ -12,9 +13,21 @@ from deepwellcup.processing import utils
         ("David", ("David", "")),
     ],
 )
-def test_split_name_with_last_name(name, expected_name):
+def test_split_name(name, expected_name):
     """Test for split_name"""
     assert expected_name == utils.split_name(name)
+
+
+@pytest.mark.parametrize(
+    "name, expected_name",
+    [
+        (("David", "D"), "David D",),
+        (("David", ""), "David"),
+    ],
+)
+def test_merge_name(name, expected_name):
+    """Test for merge_name"""
+    assert expected_name == utils.merge_name(name)
 
 
 @pytest.mark.parametrize(
