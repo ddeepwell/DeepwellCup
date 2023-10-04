@@ -80,7 +80,6 @@ class Insert:
         series = self.round_selections.series
 
         with self.database as db:
-            self.add_missing_individuals(individuals, db)
             if self.round_selections.monikers:
                 self.add_monikers(db)
             if self.round_selections.preferences_selected:

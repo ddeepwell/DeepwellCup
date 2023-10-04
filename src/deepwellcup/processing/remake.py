@@ -1,8 +1,13 @@
 """Remake everything."""
 import argparse
 from pathlib import Path
-from .playoff_round import PlayoffRound
+
 from . import utils
+from .database_new import DataBase
+from .files import SelectionsFile
+from .file_selections import FileSelections
+from .insert_new import InsertSelections
+from .playoff_round import PlayoffRound
 from .utils import DataStores
 
 
@@ -13,6 +18,25 @@ def multi_year_remake(
     """Remake the database, figures and tables."""
     for year in _parse_year_inputs(years):
         for rnd in utils.YearInfo(year).played_rounds:
+            # Insert data
+            selections = FileSelections(
+                SelectionsFile(
+                    year=year,
+                    selection_round=rnd,
+                    directory=datastores.raw_data_directory
+                )
+            )
+            if isinstance(datastores.database, Path):
+                database = datastores.database
+            else:
+                raise ValueError("The database must be a Path object.")
+            insert = InsertSelections(
+                selections=selections,
+                database=DataBase(database),
+            )
+            insert.update_selections()
+
+            # Insert data the old way and create tables and plots
             current_round = PlayoffRound(
                 year=year,
                 playoff_round=rnd,

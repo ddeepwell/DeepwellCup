@@ -14,11 +14,21 @@ SeriesLength = typing.Literal[3, 4, 5, 6, 7]
 def split_name(name: str) -> tuple[str, str]:
     """From a single string return the first and last name"""
     if " " in name:
-        first_name, last_name = name.split(" ")
+        firstname, lastname = name.split(" ")
     else:
-        first_name = name
-        last_name = ""
-    return first_name, last_name
+        firstname = name
+        lastname = ""
+    return firstname, lastname
+
+
+def first_name(name: str) -> str:
+    """Return the first name."""
+    return split_name(name)[0]
+
+
+def last_name(name: str) -> str:
+    """Return the last name."""
+    return split_name(name)[-1]
 
 
 def merge_name(individual: list[str]) -> str:
@@ -77,4 +87,4 @@ class DataStores(typing.NamedTuple):
     """Data storage locations."""
 
     raw_data_directory: Path | None
-    database: str | sqlite3.Connection | None
+    database: str | sqlite3.Connection | None | Path

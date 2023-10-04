@@ -1,9 +1,11 @@
 """Init"""
 from . import files
 from .database import DataBaseOperations
+from .database_new import DataBase
 from . import dirs
 from .file_selections import FileSelections
 from .insert import Insert
+from .insert_new import InsertSelections
 from .latex import Latex
 from . import io
 from . import nhl_teams
@@ -20,12 +22,14 @@ from .update_selections import update_selections
 from . import utils
 
 __all__ = [
+    "DataBase",
     "DataBaseOperations",
     "files",
     "dirs",
     "IndividualScoring",
     "FileSelections",
     "Insert",
+    "InsertSelections",
     "io",
     "Latex",
     "multi_year_remake",
