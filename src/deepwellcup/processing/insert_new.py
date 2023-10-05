@@ -1,6 +1,7 @@
 """Insert selections into the database."""
 from .database_new import DataBase
 from .file_selections import FileSelections
+from .utils import RoundInfo
 
 
 class InsertSelections:
@@ -28,6 +29,7 @@ class InsertSelections:
         """Add all selection round information."""
         with self.database:
             self.add_new_individuals()
+            self.add_monikers()
 
     def add_new_individuals(self) -> None:
         """Add new individuals."""
@@ -37,3 +39,13 @@ class InsertSelections:
             )
         )
         self.database.add_individuals(new_individuals)
+
+    def add_monikers(self) -> None:
+        """Add monikers."""
+        monikers = self.selections.monikers()
+        if monikers:
+            round_info = RoundInfo(
+                year=self.selections.year,
+                selection_round=self.selections.selection_round,
+            )
+            self.database.add_monikers(round_info, monikers)

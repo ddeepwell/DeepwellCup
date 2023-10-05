@@ -5,13 +5,26 @@ import warnings
 import typing
 
 from . import dirs, io, utils
+from .utils import PlayedRound, RoundInfo
 
 
-T = typing.TypeVar('T')
+Monikers = dict[str, str]
 
 
-class DuplicateEntry(Exception):
+class DuplicateEntryError(Exception):
     """Exception for duplicate database data."""
+
+
+class MissingIndividual(Exception):
+    """Exception of missing individual."""
+
+
+class PlayedRoundError(Exception):
+    """Exception for invalid played round."""
+
+
+class YearError(Exception):
+    """Exception for invalid year."""
 
 
 class DataBase:
@@ -80,10 +93,10 @@ class DataBase:
 
     def get_individuals(self) -> list[str]:
         """Return individuals."""
-        return list(self.get_individuals_with_id())
+        return list(self.get_individuals_with_ids())
 
-    def get_individuals_with_id(self) -> dict[str, int]:
-        """Return individuals with ID."""
+    def get_individuals_with_ids(self) -> dict[str, int]:
+        """Return individuals with IDs."""
         individuals_and_ids = (
             self.fetch("SELECT IndividualID, FirstName, LastName FROM Individuals")
         )
@@ -93,18 +106,67 @@ class DataBase:
             }
         return {}
 
+    def get_ids_with_individuals(self) -> dict[int, str]:
+        """Return IDs with individuals."""
+        return {id: name for name, id in self.get_individuals_with_ids().items()}
+
     def add_individuals(self, individuals: list[str]) -> None:
         """Add individuals."""
         for individual in individuals:
             _check_length_of_last_name(utils.last_name(individual))
         existing_individuals = self.get_individuals()
         if set(individuals).intersection(existing_individuals):
-            raise DuplicateEntry("Individuals are already in the database.")
+            raise DuplicateEntryError("Individuals are already in the database.")
         new_individuals = [utils.split_name(individual) for individual in individuals]
         self.commit(
             "INSERT INTO Individuals(FirstName, LastName) VALUES (?,?)",
             new_individuals,
         )
+
+    def add_monikers(self, round_info: RoundInfo, monikers: Monikers) -> None:
+        """Add monikers."""
+        individuals_with_ids = self.get_individuals_with_ids()
+        missing_individuals = set(monikers) - set(individuals_with_ids)
+        if missing_individuals:
+            raise MissingIndividual(f"{missing_individuals} are not in the database.")
+        series_data = [
+            (
+                round_info.year,
+                round_info.selection_round,
+                individuals_with_ids[individual],
+                moniker
+            )
+            for individual, moniker in monikers.items()
+        ]
+        self.commit(
+            "INSERT INTO Monikers VALUES (?,?,?,?)",
+            series_data,
+        )
+
+    def get_monikers(self, round_info: RoundInfo) -> Monikers:
+        """Return the moniker for played round."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.selection_round)
+        monikers = self.fetch(
+            "SELECT IndividualID, Moniker "
+            f"FROM Monikers WHERE Year={round_info.year} AND Round={round_info.selection_round}"
+        )
+        if monikers:
+            return {self.get_ids_with_individuals()[int(id)]: moniker for id, moniker in monikers}
+        return {}
+
+
+def check_year(year: int) -> None:
+    """Check if the year is valid."""
+    if year < 2006:
+        raise YearError(f"The year, {year}, is invalid. It must be >= 2006.")
+
+
+def check_played_round(year: int, played_round: PlayedRound) -> None:
+    """Check for valid played round"""
+    played_rounds = utils.YearInfo(year).played_rounds
+    if played_round not in played_rounds:
+        raise PlayedRoundError(f"The played round must be one of {played_rounds}.")
 
 
 def txt_files_in_dir(path: Path) -> list[Path]:

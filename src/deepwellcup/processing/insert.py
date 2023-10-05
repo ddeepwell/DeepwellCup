@@ -80,8 +80,6 @@ class Insert:
         series = self.round_selections.series
 
         with self.database as db:
-            if self.round_selections.monikers:
-                self.add_monikers(db)
             if self.round_selections.preferences_selected:
                 self.add_preferences(db)
 
@@ -201,13 +199,6 @@ class Insert:
         new_individuals = sorted(list(set(individuals) - set(existing_individuals)))
         for individual in new_individuals:
             self.database.add_new_individual(*utils.split_name(individual))
-
-    def add_monikers(self, db):
-        """Add monikers to the database"""
-        for individual, moniker in self.round_selections.monikers.items():
-            db.add_moniker_in_series(
-                self.year, self.playoff_round, *utils.split_name(individual), moniker
-            )
 
     def add_preferences(self, db):
         """Add team preferences to the database"""
