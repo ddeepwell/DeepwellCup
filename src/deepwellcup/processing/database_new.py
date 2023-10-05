@@ -132,7 +132,7 @@ class DataBase:
         series_data = [
             (
                 round_info.year,
-                round_info.selection_round,
+                round_info.played_round,
                 individuals_with_ids[individual],
                 moniker
             )
@@ -146,10 +146,10 @@ class DataBase:
     def get_monikers(self, round_info: RoundInfo) -> Monikers:
         """Return the moniker for played round."""
         check_year(round_info.year)
-        check_played_round(round_info.year, round_info.selection_round)
+        check_played_round(round_info.year, round_info.played_round)
         monikers = self.fetch(
             "SELECT IndividualID, Moniker "
-            f"FROM Monikers WHERE Year={round_info.year} AND Round={round_info.selection_round}"
+            f"FROM Monikers WHERE Year={round_info.year} AND Round={round_info.played_round}"
         )
         if monikers:
             return {self.get_ids_with_individuals()[int(id)]: moniker for id, moniker in monikers}

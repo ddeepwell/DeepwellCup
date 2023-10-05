@@ -4,6 +4,7 @@ from contextlib import nullcontext as does_not_raise
 import pytest
 
 from deepwellcup.processing import utils
+from deepwellcup.processing.utils import PlayedRound, SelectionRound
 
 
 @pytest.mark.parametrize(
@@ -13,7 +14,7 @@ from deepwellcup.processing import utils
         ("David", ("David", "")),
     ],
 )
-def test_split_name(name, expected_name):
+def test_split_name(name: str, expected_name: tuple[str, str]):
     """Test for split_name"""
     assert expected_name == utils.split_name(name)
 
@@ -25,7 +26,7 @@ def test_split_name(name, expected_name):
         (("David", ""), "David"),
     ],
 )
-def test_merge_name(name, expected_name):
+def test_merge_name(name: tuple[str, str], expected_name: str):
     """Test for merge_name"""
     assert expected_name == utils.merge_name(name)
 
@@ -37,7 +38,7 @@ def test_merge_name(name, expected_name):
         (2020, ("Q", 1, 2, 3, 4, "Champions")),
     ],
 )
-def test_selection_rounds(year, rounds):
+def test_selection_rounds(year: int, rounds: tuple[SelectionRound, ...]):
     """Test for selection_rounds"""
     a_round = utils.YearInfo(year)
     assert a_round.selection_rounds == rounds
@@ -50,7 +51,7 @@ def test_selection_rounds(year, rounds):
         (2020, ("Q", 1, 2, 3, 4)),
     ],
 )
-def test_played_rounds(year, rounds):
+def test_played_rounds(year: int, rounds: PlayedRound):
     """Test for played_rounds"""
     a_round = utils.YearInfo(year)
     assert a_round.played_rounds == rounds
@@ -63,22 +64,24 @@ def test_played_rounds(year, rounds):
         (2020, ("Q", 1, 2, 3)),
     ],
 )
-def test_conference_rounds(year, rounds):
+def test_conference_rounds(year: int, rounds: PlayedRound):
     """Test for conference_rounds"""
     a_round = utils.YearInfo(year)
     assert a_round.conference_rounds == rounds
 
 
 @pytest.mark.parametrize(
-    "year, selection_round, durations, expectation",
+    "year, played_round, durations, expectation",
     [
         (2006, 1, (4, 5, 6, 7), does_not_raise()),
         (2006, "Q", (), pytest.raises(ValueError)),
         (2020, "Q", (3, 4, 5), does_not_raise()),
     ],
 )
-def test_series_duration_options(year, selection_round, durations, expectation):
+def test_series_duration_options(
+    year: int, played_round: PlayedRound, durations: tuple[int, ...], expectation
+):
     """Test for series_duration_options"""
     with expectation:
-        a_round = utils.RoundInfo(selection_round=selection_round, year=year)
+        a_round = utils.RoundInfo(played_round=played_round, year=year)
         assert a_round.series_duration_options == durations

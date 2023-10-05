@@ -70,13 +70,13 @@ class YearInfo:
 class RoundInfo:
     """Settings for a playoff round."""
 
-    selection_round: SelectionRound
+    played_round: PlayedRound
     year: int
 
     @property
     def series_duration_options(self) -> tuple[SeriesLength, ...]:
         """List of possible number of games in a series."""
-        if self.selection_round == "Q":
+        if self.played_round == "Q":
             if self.year != 2020:
                 raise ValueError('Only 2020 has round "Q"')
             return (3, 4, 5)

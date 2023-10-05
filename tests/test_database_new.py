@@ -35,7 +35,7 @@ def test_add_individuals_error(tmp_path):
 def test_monikers(tmp_path):
     """Test for add and get monikers."""
     database = DataBase(tmp_path / 'monikers.db')
-    round_info = RoundInfo(year=2010, selection_round=1)
+    round_info = RoundInfo(year=2010, played_round=1)
     monikers = {"David D": "Nazzy", "Brian M": ""}
     with database as db:
         db.add_individuals(list(monikers))

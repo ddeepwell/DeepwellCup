@@ -42,10 +42,13 @@ class InsertSelections:
 
     def add_monikers(self) -> None:
         """Add monikers."""
+        selection_round = self.selections.selection_round
+        if selection_round == "Champions":
+            return None
         monikers = self.selections.monikers()
         if monikers:
             round_info = RoundInfo(
                 year=self.selections.year,
-                selection_round=self.selections.selection_round,
+                played_round=selection_round,
             )
             self.database.add_monikers(round_info, monikers)

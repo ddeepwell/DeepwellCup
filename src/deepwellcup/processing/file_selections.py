@@ -6,7 +6,7 @@ import pandas as pd
 
 from . import nhl_teams
 from .files import SelectionsFile
-from .utils import RoundInfo, SelectionRound
+from .utils import PlayedRound, RoundInfo, SelectionRound
 
 
 class FileSelections:
@@ -66,10 +66,10 @@ class FileSelections:
             for conf in nhl_teams.conferences(self.selection_round, self.year)
         }
 
-    def _played_round_selections(self) -> pd.DataFrame:
+    def _played_round_selections(self, played_round: PlayedRound) -> pd.DataFrame:
         """Return the playoff round selections."""
         return CleanUpRawPlayedData(
-            self.year, self.selection_round, self.raw_contents
+            self.year, played_round, self.raw_contents
         ).selections()
 
     def _champions_selections(self) -> pd.DataFrame:
@@ -78,10 +78,11 @@ class FileSelections:
 
     def selections(self, keep_results: bool = False) -> pd.DataFrame:
         """Return the selections for the round."""
-        if self.selection_round == "Champions":
+        selection_round = self.selection_round
+        if selection_round == "Champions":
             selections = self._champions_selections()
         else:
-            selections = self._played_round_selections()
+            selections = self._played_round_selections(selection_round)
         return selections.pipe(
             lambda df: df.drop(index="Results") if not keep_results else df
         )
@@ -141,19 +142,19 @@ class CleanUpRawPlayedData:
 
     def __init__(
         self,
-        year,
-        selection_round,
-        raw_data,
+        year: int,
+        played_round: PlayedRound,
+        raw_data: pd.DataFrame,
     ):
         self.year = year
-        self.selection_round = selection_round
+        self.played_round = played_round
         self.raw_data = raw_data
 
     def _get_conference(self, series: str) -> str:
         """The conference for the teams in the series."""
         return (
             "None"
-            if _series_is_in_conference(series[:3], "", self.year, self.selection_round)
+            if _series_is_in_conference(series[:3], "", self.year, self.played_round)
             else nhl_teams.conference(series[:3], self.year)
         )
 
@@ -224,7 +225,7 @@ class CleanUpRawPlayedData:
             data["Duration"]
             .apply(
                 _convert_duration_to_int,
-                args=(self.year, self.selection_round),
+                args=(self.year, self.played_round),
             )
             .astype("Int64")
         )
@@ -367,11 +368,11 @@ def _series_is_in_conference(
 def _convert_duration_to_int(
     duration: str,
     year: int,
-    selection_round: SelectionRound,
+    played_round: PlayedRound,
 ) -> int | None:
     """Convert a duration string into an int or None."""
     str_options = [
-        str(opt) for opt in RoundInfo(selection_round, year).series_duration_options
+        str(opt) for opt in RoundInfo(played_round, year).series_duration_options
     ]
     selection = duration[0]
     if selection not in str_options:
