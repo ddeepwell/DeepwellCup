@@ -38,23 +38,23 @@ class FileSelections:
             name for name in self.raw_contents["Individual"] if name != "Results"
         )
 
-    def monikers(self) -> dict[str, str] | None:
+    def monikers(self) -> dict[str, str]:
         """Extract monikers."""
-        if "Moniker" in self.raw_contents.columns:
-            return (
-                self.raw_contents[["Individual", "Moniker"]]
-                .set_index("Individual")
-                .drop(labels="Results", axis="index")
-                .squeeze()
-                .sort_index()
-                .to_dict()
-            )
-        return None
+        if "Moniker" not in self.raw_contents.columns:
+            return {}
+        return (
+            self.raw_contents[["Individual", "Moniker"]]
+            .set_index("Individual")
+            .drop(labels="Results", axis="index")
+            .squeeze()
+            .sort_index()
+            .to_dict()
+        )
 
-    def conference_series(self) -> dict[str, list[str]] | None:
+    def conference_series(self) -> dict[str, list[str]]:
         """Return the series in each conference."""
         if self.selection_round == "Champions":
-            return None
+            return {}
         return {
             conf: [
                 a_series
@@ -87,26 +87,26 @@ class FileSelections:
             lambda df: df.drop(index="Results") if not keep_results else df
         )
 
-    def overtime_selections(self, keep_results: bool = False) -> pd.Series | None:
+    def overtime_selections(self, keep_results: bool = False) -> pd.Series:
         """Return the overtime selections."""
         overtime_header = "How many overtime games will occur this round?"
-        if overtime_header in self.raw_contents.columns:
-            return (
-                self.raw_contents
-                .rename(columns={overtime_header: "Overtime"})[
-                    ["Individual", "Overtime"]
-                ]
-                .set_index("Individual")
-                .squeeze()
-                .sort_index()
-                .astype("str")
-                .pipe(
-                    lambda df: df.drop(index="Results") if not keep_results else df
-                )
+        if overtime_header not in self.raw_contents.columns:
+            return pd.Series()
+        return (
+            self.raw_contents
+            .rename(columns={overtime_header: "Overtime"})[
+                ["Individual", "Overtime"]
+            ]
+            .set_index("Individual")
+            .squeeze()
+            .sort_index()
+            .astype("str")
+            .pipe(
+                lambda df: df.drop(index="Results") if not keep_results else df
             )
-        return None
+        )
 
-    def _preferences(self, category) -> pd.Series | None:
+    def _preferences(self, category) -> pd.Series:
         """Return team preferences."""
         if category == "Favourite":
             old_column_name = "Favourite team:"
@@ -114,25 +114,25 @@ class FileSelections:
         elif category == "Cheering":
             old_column_name = "Current team cheering for:"
             new_column_name = "Cheering team"
-        if old_column_name in self.raw_contents.columns:
-            return (
-                self.raw_contents
-                .rename(columns={old_column_name: new_column_name})[
-                    ["Individual", new_column_name]
-                ]
-                .set_index("Individual")
-                .drop(index="Results")
-                .squeeze()
-                .sort_index()
-                .astype("str")
-            )
-        return None
+        if old_column_name not in self.raw_contents.columns:
+            return pd.Series()
+        return (
+            self.raw_contents
+            .rename(columns={old_column_name: new_column_name})[
+                ["Individual", new_column_name]
+            ]
+            .set_index("Individual")
+            .drop(index="Results")
+            .squeeze()
+            .sort_index()
+            .astype("str")
+        )
 
-    def favourite_team(self) -> pd.Series | None:
+    def favourite_team(self) -> pd.Series:
         """Return favourite team preferences."""
         return self._preferences("Favourite")
 
-    def cheering_team(self) -> pd.Series | None:
+    def cheering_team(self) -> pd.Series:
         """Return the team being cheered for."""
         return self._preferences("Cheering")
 

@@ -193,7 +193,7 @@ def test_monikers(raw_data, selection_round):
     [
         (3, {"East": ["CAR-BUF"], "West": ["ANA-EDM"]}),
         (4, {"None": ["PIT-NSH"]}),
-        ("Champions", None),
+        ("Champions", {}),
     ],
 )
 def test_conference_series(selection_round, conference_series, raw_data):
