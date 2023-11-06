@@ -461,7 +461,9 @@ class DataBase:
                 "East": [row[1] for row in champions],
                 "West": [row[2] for row in champions],
                 "Stanley Cup": [row[3] for row in champions],
-                "Duration": [int(row[4]) for row in champions],
+                "Duration": [
+                    int(row[4]) if row[4] is not None else None for row in champions
+                ],
             }
         ).astype({"Duration": "Int64"}).set_index("Individual")
         df.attrs = {

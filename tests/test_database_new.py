@@ -209,11 +209,11 @@ def test_champions_selections(tmp_path):
     round_info = RoundInfo(year=2011, played_round="Champions")
     champions = pd.DataFrame(
         {
-            "Individual": ["Kyle L"],
-            "East": ["Boston Bruins"],
-            "West": ["Dallas Stars"],
-            "Stanley Cup": ["New York Islanders"],
-            "Duration": [1],
+            "Individual": ["Kyle L", "David D"],
+            "East": ["Boston Bruins", "Pittsburgh Penguins"],
+            "West": ["Dallas Stars", "Vancouver Canucks"],
+            "Stanley Cup": ["New York Islanders", "Vancouver Canucks"],
+            "Duration": [1, pd.NA],
         },
     ).astype({"Duration": "Int64"}).set_index("Individual")
     champions.attrs = {
@@ -221,7 +221,7 @@ def test_champions_selections(tmp_path):
         "Year": round_info.year,
     }
     with database as db:
-        db.add_individuals(["Kyle L"])
+        db.add_individuals(["Kyle L", "David D"])
         db.add_champions_selections(champions)
         received = db.get_champions_selections(round_info.year)
     assert received.equals(champions)
