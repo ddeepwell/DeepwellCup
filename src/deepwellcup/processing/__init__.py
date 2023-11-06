@@ -10,6 +10,7 @@ from . import io
 from . import nhl_teams
 from .playoff_round import PlayoffRound
 from .plots import Plots
+from .points import RoundPoints
 from .remake import multi_year_remake
 from .results import Results
 from .scores import Points, IndividualScoring
@@ -53,6 +54,7 @@ __all__ = [
     "Points",
     "Results",
     "RoundData",
+    "RoundPoints",
     "Selections",
     "update_results",
     "update_selections",
