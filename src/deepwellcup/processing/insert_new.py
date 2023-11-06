@@ -32,6 +32,8 @@ class InsertSelections:
             self.add_monikers()
             self.add_preferences()
             self.add_series()
+            if self.selections.selection_round == 1:
+                self.add_champions_selections()
 
     def add_new_individuals(self) -> None:
         """Add new individuals."""
@@ -92,3 +94,7 @@ class InsertSelections:
         )
         series = self.selections.series()
         self.database.add_series(round_info, series)
+
+    def add_champions_selections(self) -> None:
+        """Add champions selections."""
+        self.database.add_champions_selections(self.selections.selections())

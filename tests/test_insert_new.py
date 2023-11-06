@@ -170,3 +170,42 @@ def test_add_series():
         },
     ).set_index(["Conference", "Series Number"])
     assert series.equals(expected)
+
+
+def test_add_champions_selections():
+    """Test for champions_selections."""
+    class IndividualsDataBase(UnitDataBase):  # pylint: disable=C0115
+        def __init__(self):
+            self.individuals = []
+            self.selections = []
+
+        def add_champions_selections(self, selections) -> None:  # pylint: disable=C0116
+            self.selections = selections
+
+        def get_champions_selections(self):  # pylint: disable=C0116
+            return self.selections
+
+    year = 2019
+    selections = pd.DataFrame(
+        {
+            "Individual": ["Kyle L"],
+            "East": ["Boston Bruins"],
+            "West": ["Dallas Stars"],
+            "Stanley Cup": ["New York Islanders"],
+            "Duration": [1],
+        },
+    ).astype({"Duration": "Int64"}).set_index("Individual")
+    selections.attrs = {
+        "Selection Round": "Champions",
+        "Year": year,
+    }
+
+    class TempFileSelections:  # pylint: disable=C0115
+        def selections(self):  # pylint: disable=C0116
+            return selections
+    database = IndividualsDataBase()
+    insert = InsertSelections(TempFileSelections(), database)
+    with insert.database:
+        insert.add_champions_selections()
+    returned = database.get_champions_selections()
+    assert returned.equals(selections)

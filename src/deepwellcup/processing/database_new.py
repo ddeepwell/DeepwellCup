@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 
 from . import dirs, io, utils
-from .utils import PlayedRound, RoundInfo
+from .utils import PlayedRound, RoundInfo, SelectionRound
 
 
 Monikers = dict[str, str]
@@ -24,6 +24,10 @@ class MissingIndividual(Exception):
 
 class PlayedRoundError(Exception):
     """Exception for invalid played round."""
+
+
+class ChampionsRoundError(Exception):
+    """Exception for invalid Champions round."""
 
 
 class YearError(Exception):
@@ -280,6 +284,53 @@ class DataBase:
             ]
         return all_series.set_index(["Conference", "Series Number"])
 
+    def add_champions_selections(self, selections: pd.DataFrame) -> None:
+        """Add the Champions round selections."""
+        individual_ids = self.get_individuals_with_ids()
+        stanley_cup_data = [
+            (
+                individual_ids[name],
+                selections.attrs["Year"],
+                *tuple(selections.loc[name].values[:-1]),
+                _convert_Int64_to_int(selections.loc[name]['Duration'])
+                )
+            for name in selections.index
+        ]
+        self.commit(
+            "INSERT INTO StanleyCupSelections VALUES (?,?,?,?,?,?)", stanley_cup_data
+        )
+
+    def get_champions_selections(self, round_info: RoundInfo) -> pd.DataFrame:
+        """Return the series information for a played round."""
+        check_year(round_info.year)
+        check_champions_round(round_info.played_round)
+        champions = self.fetch(
+            "SELECT IndividualID, East, West, [Stanley Cup], Duration "
+            f"FROM StanleyCupSelections WHERE Year={round_info.year}"
+        )
+        if not champions:
+            return pd.DataFrame()
+        ids_with_individuals = self.get_ids_with_individuals()
+        df = pd.DataFrame(
+            {
+                "Individual": [ids_with_individuals[int(row[0])] for row in champions],
+                "East": [row[1] for row in champions],
+                "West": [row[2] for row in champions],
+                "Stanley Cup": [row[3] for row in champions],
+                "Duration": [int(row[4]) for row in champions],
+            }
+        ).astype({"Duration": "Int64"}).set_index("Individual")
+        df.attrs = {
+            "Selection Round": round_info.played_round,
+            "Year": round_info.year,
+        }
+        return df
+
+
+def _convert_Int64_to_int(duration) -> int | None:
+    """Convert Int64 to int type."""
+    return int(duration) if not isinstance(duration, type(pd.NA)) else None
+
 
 def check_year(year: int) -> None:
     """Check if the year is valid."""
@@ -288,10 +339,16 @@ def check_year(year: int) -> None:
 
 
 def check_played_round(year: int, played_round: PlayedRound) -> None:
-    """Check for valid played round"""
+    """Check for valid played round."""
     played_rounds = utils.YearInfo(year).played_rounds
     if played_round not in played_rounds:
         raise PlayedRoundError(f"The played round must be one of {played_rounds}.")
+
+
+def check_champions_round(selection_round: SelectionRound) -> None:
+    """Check for valid Champions round."""
+    if selection_round != "Champions":
+        raise PlayedRoundError("The selection round must be 'Champions'.")
 
 
 def check_conference(year: int, played_round: PlayedRound, conference: str) -> None:

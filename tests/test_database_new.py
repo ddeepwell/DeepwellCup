@@ -79,6 +79,30 @@ def test_series(tmp_path):
     assert received.equals(series)
 
 
+def test_champions_selections(tmp_path):
+    """Test for add and get champions selections."""
+    database = DataBase(tmp_path / 'champions_selections.db')
+    round_info = RoundInfo(year=2011, played_round="Champions")
+    champions = pd.DataFrame(
+        {
+            "Individual": ["Kyle L"],
+            "East": ["Boston Bruins"],
+            "West": ["Dallas Stars"],
+            "Stanley Cup": ["New York Islanders"],
+            "Duration": [1],
+        },
+    ).astype({"Duration": "Int64"}).set_index("Individual")
+    champions.attrs = {
+        "Selection Round": round_info.played_round,
+        "Year": round_info.year,
+    }
+    with database as db:
+        db.add_individuals(["Kyle L"])
+        db.add_champions_selections(champions)
+        received = db.get_champions_selections(round_info)
+    assert received.equals(champions)
+
+
 def test_check_year():
     """Test for check_year."""
     check_year(2009)
