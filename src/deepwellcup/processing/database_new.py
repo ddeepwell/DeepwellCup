@@ -9,6 +9,7 @@ import numpy as np
 
 from . import dirs, io, utils
 from .utils import PlayedRound, RoundInfo
+from .nhl_teams import create_series_name
 
 
 Monikers = dict[str, str]
@@ -244,7 +245,7 @@ class DataBase:
             + tuple(
                 map(
                     lambda x: int(x) if isinstance(x, np.int64)
-                    else x, series_no_index.loc[index]
+                    else x, series_no_index.loc[index].drop('Name')
                 )
             )
             for index in series_no_index.index
@@ -260,29 +261,43 @@ class DataBase:
         """Return the series information for a played round."""
         check_year(round_info.year)
         check_played_round(round_info.year, round_info.played_round)
-        series = self.fetch(
+        series = pd.read_sql_query(
             "SELECT Conference, SeriesNumber, "
             "TeamHigherSeed, TeamLowerSeed, PlayerHigherSeed, PlayerLowerSeed "
+            f"FROM Series WHERE Year={round_info.year} "
+            f"AND Round={round_info.played_round}", self._conn
+        ).rename(columns={
+                "SeriesNumber": "Series Number",
+                "TeamHigherSeed": "Higher Seed",
+                "TeamLowerSeed": "Lower Seed",
+                "PlayerHigherSeed": "Player on Higher Seed",
+                'PlayerLowerSeed': "Player on Lower Seed",
+            }
+        )
+        series.insert(2, "Name", list(map(
+            create_series_name, series["Higher Seed"], series["Lower Seed"]
+        )))
+        return series.set_index(["Conference", "Series Number"])
+
+    def get_series_ids(self, round_info: RoundInfo) -> dict[tuple[str, str], int]:
+        """Return the series information with IDs for a played round."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        series = self.fetch(
+            "SELECT YearRoundSeriesID, Conference, TeamHigherSeed, TeamLowerSeed "
             f"FROM Series WHERE Year={round_info.year} "
             f"AND Round={round_info.played_round}"
         )
         if not series:
-            return pd.DataFrame()
-        all_series = pd.DataFrame(
-            columns=[
-                "Conference",
-                "Series Number",
-                "Higher Seed",
-                "Lower Seed",
-                "Player on Higher Seed",
-                "Player on Lower Seed",
-            ]
-        )
-        for a_series in series:
-            all_series.loc[len(all_series)] = [  # type: ignore[call-overload]
-                a_series[0], int(a_series[1]), *a_series[2:]
-            ]
-        return all_series.set_index(["Conference", "Series Number"])
+            return {}
+        return {
+            (a_series[1], create_series_name(a_series[2], a_series[3])):
+            int(a_series[0]) for a_series in series
+        }
+
+    def get_ids_with_series(self, round_info: RoundInfo) -> dict[int, tuple[str, str]]:
+        """Return IDs with series."""
+        return {id: series for series, id in self.get_series_ids(round_info).items()}
 
     def add_champions_selections(self, selections: pd.DataFrame) -> None:
         """Add the Champions round selections."""

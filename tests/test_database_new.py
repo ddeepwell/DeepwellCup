@@ -61,13 +61,14 @@ def test_preferences(tmp_path):
 
 
 def test_series(tmp_path):
-    """Test for add and get preferences."""
+    """Test for add and get series."""
     database = DataBase(tmp_path / 'series.db')
     round_info = RoundInfo(year=2010, played_round=3)
     series = pd.DataFrame(
         {
             "Conference": ["East", "West"],
             "Series Number": [1, 1],
+            "Name": ["BOS-NYI", "DAL-SJS"],
             "Higher Seed": ["Boston Bruins", "Dallas Stars"],
             "Lower Seed": ["New York Islanders", "San Jose Sharks"],
             "Player on Higher Seed": ["Brad Marchand", "Tyler Seguin"],
@@ -78,6 +79,56 @@ def test_series(tmp_path):
         db.add_series(round_info, series)
         received = db.get_series(round_info)
     assert received.equals(series)
+
+
+def test_series_ids(tmp_path):
+    """Test for add and get series IDs."""
+    database = DataBase(tmp_path / 'series_ids.db')
+    round_info = RoundInfo(year=2015, played_round=3)
+    series = pd.DataFrame(
+        {
+            "Conference": ["East", "West"],
+            "Series Number": [1, 1],
+            "Name": ["BOS-NYI", "DAL-SJS"],
+            "Higher Seed": ["Boston Bruins", "Dallas Stars"],
+            "Lower Seed": ["New York Islanders", "San Jose Sharks"],
+            "Player on Higher Seed": ["Brad Marchand", "Tyler Seguin"],
+            "Player on Lower Seed": ["Matthew Barzal", "Brent Burns"],
+        },
+    ).set_index(["Conference", "Series Number"])
+    expected = {
+        ("East", "BOS-NYI"): 1,
+        ("West", "DAL-SJS"): 2,
+    }
+    with database as db:
+        db.add_series(round_info, series)
+        received = db.get_series_ids(round_info)
+    assert received == expected
+
+
+def test_ids_with_series(tmp_path):
+    """Test for add and get IDs with series."""
+    database = DataBase(tmp_path / 'series_ids.db')
+    round_info = RoundInfo(year=2015, played_round=3)
+    series = pd.DataFrame(
+        {
+            "Conference": ["East", "West"],
+            "Series Number": [1, 1],
+            "Name": ["BOS-NYI", "DAL-SJS"],
+            "Higher Seed": ["Boston Bruins", "Dallas Stars"],
+            "Lower Seed": ["New York Islanders", "San Jose Sharks"],
+            "Player on Higher Seed": ["Brad Marchand", "Tyler Seguin"],
+            "Player on Lower Seed": ["Matthew Barzal", "Brent Burns"],
+        },
+    ).set_index(["Conference", "Series Number"])
+    expected = {
+        1: ("East", "BOS-NYI"),
+        2: ("West", "DAL-SJS"),
+    }
+    with database as db:
+        db.add_series(round_info, series)
+        received = db.get_ids_with_series(round_info)
+    assert received == expected
 
 
 def test_champions_selections(tmp_path):

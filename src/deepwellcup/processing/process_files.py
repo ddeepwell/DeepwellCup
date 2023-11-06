@@ -74,6 +74,7 @@ class FileSelections:
             columns=[
                 "Conference",
                 "Series Number",
+                "Name",
                 "Higher Seed",
                 "Lower Seed",
                 "Player on Higher Seed",
@@ -87,6 +88,7 @@ class FileSelections:
                 all_series.loc[len(all_series)] = [  # type: ignore[call-overload]
                     conference,
                     index,
+                    nhl_teams.create_series_name(higher_seed, lower_seed),
                     higher_seed,
                     lower_seed,
                     player_on_higher_seed,

@@ -245,6 +245,7 @@ def test_conference_series(selection_round, conference_series, raw_data):
                 {
                     "Conference": ["East", "West"],
                     "Series Number": [1, 1],
+                    "Name": ["BOS-NYI", "DAL-SJS"],
                     "Higher Seed": ["Boston Bruins", "Dallas Stars"],
                     "Lower Seed": ["New York Islanders", "San Jose Sharks"],
                     "Player on Higher Seed": ["Brad Marchand", "Tyler Seguin"],
