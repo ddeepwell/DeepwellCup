@@ -131,6 +131,43 @@ def test_ids_with_series(tmp_path):
     assert received == expected
 
 
+def test_round_selections(tmp_path):
+    """Test for add and get round selections."""
+    database = DataBase(tmp_path / 'champions_selections.db')
+    round_info = RoundInfo(year=2018, played_round=3)
+    series = pd.DataFrame(
+        {
+            "Conference": ["East", "West"],
+            "Series Number": [1, 1],
+            "Name": ["TBL-BOS", "WSH-PIT"],
+            "Higher Seed": ["Tampa Bay Lightning", "Washington Capitals"],
+            "Lower Seed": ["Boston Bruins", "Pittsburgh Penguins"],
+            "Player on Higher Seed": [None, None],
+            "Player on Lower Seed": [None, None],
+        },
+    ).set_index(["Conference", "Series Number"])
+    selections = pd.DataFrame(
+        {
+            "Individual": ["Kyle L", "Kyle L"],
+            "Conference": ["East", "West"],
+            "Series": ["TBL-BOS", "WSH-PIT"],
+            "Team": ["Boston Bruins", "Washington Capitals"],
+            "Duration": [6, 7],
+            "Player": [None, None],
+        },
+    ).astype({"Duration": "Int64"}).set_index(["Individual", "Conference", "Series"])
+    selections.attrs = {
+        "Selection Round": round_info.played_round,
+        "Year": round_info.year,
+    }
+    with database as db:
+        db.add_individuals(["Kyle L"])
+        db.add_series(round_info, series)
+        db.add_round_selections(selections)
+        received = db.get_round_selections(round_info)
+    assert received.equals(selections)
+
+
 def test_champions_selections(tmp_path):
     """Test for add and get champions selections."""
     database = DataBase(tmp_path / 'champions_selections.db')
@@ -158,7 +195,6 @@ def test_champions_selections(tmp_path):
 def test_champions_results(tmp_path):
     """Test for add and get champions results."""
     database = DataBase(tmp_path / 'champions_results.db')
-    # round_info = RoundInfo(year=2012, played_round="Champions")
     year = 2012
     champions = pd.Series(
         {

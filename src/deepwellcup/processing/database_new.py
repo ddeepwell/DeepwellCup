@@ -286,7 +286,7 @@ class DataBase:
         series = self.fetch(
             "SELECT YearRoundSeriesID, Conference, TeamHigherSeed, TeamLowerSeed "
             f"FROM Series WHERE Year={round_info.year} "
-            f"AND Round={round_info.played_round}"
+            f"AND Round='{round_info.played_round}'"
         )
         if not series:
             return {}
@@ -299,8 +299,90 @@ class DataBase:
         """Return IDs with series."""
         return {id: series for series, id in self.get_series_ids(round_info).items()}
 
+    def get_series_with_number(self, round_info: RoundInfo) -> dict[str, tuple[str, int]]:
+        """Return the series information with its conference number."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        series = self.fetch(
+            "SELECT SeriesNumber, Conference, TeamHigherSeed, TeamLowerSeed "
+            f"FROM Series WHERE Year={round_info.year} "
+            f"AND Round={round_info.played_round}"
+        )
+        if not series:
+            return {}
+        return {
+            create_series_name(a_series[2], a_series[3]):
+            (a_series[1], int(a_series[0])) for a_series in series
+        }
+
+    def get_number_with_series(self, round_info: RoundInfo) -> dict[tuple[str, int], str]:
+        """Return series number with series."""
+        return {
+            conference_index: series for series, conference_index
+            in self.get_series_with_number(round_info).items()
+        }
+
+    def add_round_selections(self, selections: pd.DataFrame) -> None:
+        """Add played round selections."""
+        individual_ids = self.get_individuals_with_ids()
+        series_ids = self.get_series_ids(
+            RoundInfo(
+                played_round=selections.attrs["Selection Round"],
+                year=selections.attrs["Year"],
+            )
+        )
+        data = [
+            (
+                series_ids[tuple(series)],  # type: ignore[index]
+                individual_ids[name],
+                selections["Team"][name][tuple(series)],
+                _convert_Int64_to_int(selections['Duration'][name][tuple(series)]),
+                selections["Player"][name][tuple(series)]
+                if "Player" in selections.columns else None
+            )
+            for name, *series in selections.index
+        ]
+        self.commit(
+            "INSERT INTO SeriesSelections VALUES (?,?,?,?,?)", data
+        )
+
+    def get_round_selections(self, round_info: RoundInfo) -> pd.DataFrame:
+        """Return the selections a played round."""
+        check_year(round_info.year)
+        selections = pd.read_sql_query(
+            f"""
+            SELECT Ser.Conference, Ser.SeriesNumber,
+                Ind.FirstName, Ind.LastName,
+                SS.Team, SS.Duration, SS.Player
+            FROM Individuals as Ind
+            LEFT JOIN (SeriesSelections as SS
+                Inner JOIN Series as Ser
+                ON Ser.YearRoundSeriesID = SS.YearRoundSeriesID)
+            ON Ind.IndividualID = SS.IndividualID
+            WHERE Ser.Year = {round_info.year}
+            AND Ser.Round = "{round_info.played_round}"
+            ORDER BY FirstName, LastName, Conference, SeriesNumber
+            """,
+            self._conn,
+        )
+        selections["Individual"] = [
+            utils.merge_name(list(name))
+            for name in zip(selections["FirstName"], selections["LastName"])
+        ]
+        number_with_series = self.get_number_with_series(round_info)
+        selections["Series"] = [
+            number_with_series[tuple(index)]  # type: ignore[index]
+            for index in selections[["Conference", "SeriesNumber"]].values
+        ]
+
+        return (
+            selections.set_index(["Individual", "Conference", "Series"])
+            .drop(["FirstName", "LastName", "SeriesNumber"], axis="columns")
+            .astype({"Duration": "Int64"})
+        )
+
     def add_champions_selections(self, selections: pd.DataFrame) -> None:
-        """Add the Champions round selections."""
+        """Add the champions round selections."""
         individual_ids = self.get_individuals_with_ids()
         stanley_cup_data = [
             (
@@ -316,7 +398,7 @@ class DataBase:
         )
 
     def get_champions_selections(self, year: int) -> pd.DataFrame:
-        """Return the series information for a played round."""
+        """Return the champions round selections."""
         check_year(year)
         champions = self.fetch(
             "SELECT IndividualID, East, West, [Stanley Cup], Duration "
@@ -354,7 +436,7 @@ class DataBase:
         )
 
     def get_champions_results(self, year: int) -> pd.Series:
-        """Return the series information for a played round."""
+        """Return the champions round results."""
         check_year(year)
         champions = self.fetch(
             "SELECT East, West, [Stanley Cup], Duration "

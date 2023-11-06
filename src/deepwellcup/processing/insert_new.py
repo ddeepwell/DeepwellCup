@@ -32,7 +32,8 @@ class InsertSelections:
                 self.add_new_individuals()
                 self.add_monikers()
                 self.add_preferences()
-                # self.add_series()
+                self.add_series()
+                self.add_round_selections()
             else:
                 self.add_new_individuals()
                 self.add_champions_selections()
@@ -104,8 +105,18 @@ class InsertSelections:
         series = self.selections.series()
         self.database.add_series(round_info, series)
 
+    def add_round_selections(self) -> None:
+        """Add round selections."""
+        selection_round = self.selections.selection_round
+        if selection_round == "Champions":
+            return
+        self.database.add_round_selections(self.selections.selections())
+
     def add_champions_selections(self) -> None:
         """Add champions selections."""
+        selection_round = self.selections.selection_round
+        if selection_round != "Champions":
+            return
         self.database.add_champions_selections(self.selections.selections())
 
 
