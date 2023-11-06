@@ -14,12 +14,22 @@ from .remake import multi_year_remake
 from .results import Results
 from .scores import Points, IndividualScoring
 from .selections import Selections
+from .round_data import (
+    ChampionsResults,
+    ChampionsSelections,
+    OtherPoints,
+    PlayedResults,
+    PlayedSelections,
+    RoundData,
+)
 from .series_results import print_series_results
 from .update_results import update_results
 from .update_selections import update_selections
 from . import utils
 
 __all__ = [
+    "ChampionsResults",
+    "ChampionsSelections",
     "DataBase",
     "DataBaseOperations",
     "files",
@@ -34,11 +44,15 @@ __all__ = [
     "Latex",
     "multi_year_remake",
     "nhl_teams",
+    "OtherPoints",
+    "PlayedResults",
+    "PlayedSelections",
     "PlayoffRound",
     "Plots",
     "print_series_results",
     "Points",
     "Results",
+    "RoundData",
     "Selections",
     "update_results",
     "update_selections",
