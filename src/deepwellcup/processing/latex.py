@@ -7,7 +7,7 @@ from sympy.utilities.lambdify import lambdify
 from jinja2 import Environment, FileSystemLoader
 from . import dirs, utils
 from .selections import Selections
-from .scores import IndividualScoring
+from .points import PointSystems
 from .nhl_teams import (
     shorten_team_name as stn,
     lengthen_team_name as ltn,
@@ -39,7 +39,7 @@ class Latex:
             )
         else:
             self._champions_selections = None
-        self._system = IndividualScoring(self.year).scoring_system()
+        self._system = PointSystems().system(self.year)
 
     @property
     def year(self):
