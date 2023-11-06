@@ -1,9 +1,7 @@
 """Test for Insert."""
 import pandas as pd
 
-from utils_for_tests import build_file
 from deepwellcup.processing.database_new import Monikers
-from deepwellcup.processing.file_selections import FileSelections
 from deepwellcup.processing.insert_new import InsertSelections
 from deepwellcup.processing.utils import RoundInfo
 
@@ -22,7 +20,13 @@ class UnitDataBase:
 
 def test_add_new_individuals():
     """Test for add_new_individuals."""
-    class IndividualsDataBase(UnitDataBase):  # pylint: disable=C0115
+    individuals = ["Alita D", "David D"]
+
+    class TempFileSelections:  # pylint: disable=C0115
+        def individuals(self):  # pylint: disable=C0116
+            return individuals
+
+    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
         def __init__(self):
             self.individuals = ["David D"]
 
@@ -32,18 +36,33 @@ def test_add_new_individuals():
         def add_individuals(self, individuals: list[str]) -> None:  # pylint: disable=C0116
             self.individuals += individuals
 
-    content = {"Individual": ["Alita D", "David D"]}
-    selections = FileSelections(build_file(2006, 1, content))
-    database = IndividualsDataBase()
-    insert = InsertSelections(selections, database)
+    database = TempDataBase()
+    insert = InsertSelections(TempFileSelections(), database)
     with insert.database:
         insert.add_new_individuals()
-    assert database.get_individuals() == ["Alita D", "David D"]
+    assert database.get_individuals() == individuals
 
 
 def test_add_monikers():
     """Test for add_monikers."""
-    class IndividualsDataBase(UnitDataBase):  # pylint: disable=C0115
+    monikers = {"Brian M": "", "David D": "Nazzy"}
+
+    class TempFileSelections:  # pylint: disable=C0115
+        @property
+        def year(self):  # pylint: disable=C0116
+            return 2006
+
+        @property
+        def selection_round(self):  # pylint: disable=C0116
+            return 1
+
+        def individuals(self):  # pylint: disable=C0116
+            return list(monikers)
+
+        def monikers(self):  # pylint: disable=C0116
+            return monikers
+
+    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
         def __init__(self):
             self.individuals = []
             self.monikers = []
@@ -60,24 +79,48 @@ def test_add_monikers():
         def get_monikers(self) -> Monikers:  # pylint: disable=C0116
             return self.monikers
 
-    content = pd.DataFrame(
-        {
-            "Individual": ["David D", "Brian M", "Results"],
-            "Moniker": ["Nazzy", "", ""]
-        }
-    )
-    selections = FileSelections(build_file(2006, 1, content))
-    database = IndividualsDataBase()
-    insert = InsertSelections(selections, database)
+    database = TempDataBase()
+    insert = InsertSelections(TempFileSelections(), database)
     with insert.database:
         insert.add_new_individuals()
         insert.add_monikers()
-    assert database.get_monikers() == {"Brian M": "", "David D": "Nazzy"}
+    assert database.get_monikers() == monikers
 
 
 def test_add_preferences():
     """Test for add_preferences."""
-    class IndividualsDataBase(UnitDataBase):  # pylint: disable=C0115
+    favourite_team = pd.Series(
+        {
+            "Brian M": "Toronto Maple Leafs",
+            "David D": "Vancouver Canucks",
+        }
+    )
+    cheering_team = pd.Series(
+        {
+            "Brian M": "",
+            "David D": "Calgary Flames",
+        }
+    )
+
+    class TempFileSelections:  # pylint: disable=C0115
+        def individuals(self):  # pylint: disable=C0116
+            return ["Brian M", "David D"]
+
+        @property
+        def year(self):  # pylint: disable=C0116
+            return 2006
+
+        @property
+        def selection_round(self):  # pylint: disable=C0116
+            return 1
+
+        def favourite_team(self):  # pylint: disable=C0116
+            return favourite_team
+
+        def cheering_team(self):  # pylint: disable=C0116
+            return cheering_team
+
+    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
         def __init__(self):
             self.individuals = []
             self.favourite_team = []
@@ -101,41 +144,42 @@ def test_add_preferences():
         def get_preferences(self) -> tuple[pd.Series, pd.Series]:  # pylint: disable=C0116
             return self.favourite_team, self.cheering_team
 
-    content = pd.DataFrame(
-        {
-            "Individual": ["David D", "Brian M", "Results"],
-            "Favourite team:": ["Vancouver Canucks", "Toronto Maple Leafs", ""],
-            "Current team cheering for:": ["Calgary Flames", "", ""],
-        }
-    )
-    selections = FileSelections(build_file(2006, 1, content))
-    database = IndividualsDataBase()
-    insert = InsertSelections(selections, database)
+    database = TempDataBase()
+    insert = InsertSelections(TempFileSelections(), database)
     with insert.database:
         insert.add_new_individuals()
         insert.add_preferences()
-    favourite_team, cheering_team = database.get_preferences()
-    assert favourite_team.equals(
-        pd.Series(
-            {
-                "Brian M": "Toronto Maple Leafs",
-                "David D": "Vancouver Canucks",
-            }
-        )
-    )
-    assert cheering_team.equals(
-        pd.Series(
-            {
-                "Brian M": "",
-                "David D": "Calgary Flames",
-            }
-        )
-    )
+    returned_favourite, returned_cheering = database.get_preferences()
+    assert returned_favourite.equals(favourite_team)
+    assert returned_cheering.equals(cheering_team)
 
 
 def test_add_series():
     """Test for add_series."""
-    class IndividualsDataBase(UnitDataBase):  # pylint: disable=C0115
+    series = pd.DataFrame(
+        {
+            "Conference": ["None"],
+            "Series Number": [1],
+            "Higher Seed": ["Vancouver Canucks"],
+            "Lower Seed": ["Toronto Maple Leafs"],
+            "Player on Higher Seed": [""],
+            "Player on Lower Seed": [""],
+        },
+    ).set_index(["Conference", "Series Number"])
+
+    class TempFileSelections:  # pylint: disable=C0115
+        @property
+        def year(self):  # pylint: disable=C0116
+            return 2006
+
+        @property
+        def selection_round(self):  # pylint: disable=C0116
+            return 4
+
+        def series(self):  # pylint: disable=C0116
+            return series
+
+    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
         def __init__(self):
             self.individuals = []
             self.series = []
@@ -146,46 +190,15 @@ def test_add_series():
         def get_series(self):  # pylint: disable=C0116
             return self.series
 
-    content = pd.DataFrame(
-        {
-            "Individual": ["David D", "Brian M", "Results"],
-            "VAN-TOR": ["Vancouver Canucks", "Toronto Maple Leafs", ""],
-            "VAN-TOR series length:": ["5", "6", "7"],
-        }
-    )
-    selections = FileSelections(build_file(2006, 4, content))
-    database = IndividualsDataBase()
-    insert = InsertSelections(selections, database)
+    database = TempDataBase()
+    insert = InsertSelections(TempFileSelections(), database)
     with insert.database:
         insert.add_series()
-    series = database.get_series()
-    expected = pd.DataFrame(
-        {
-            "Conference": ["None"],
-            "Series Number": [1],
-            "Higher Seed": ["Vancouver Canucks"],
-            "Lower Seed": ["Toronto Maple Leafs"],
-            "Player on Higher Seed": [""],
-            "Player on Lower Seed": [""],
-        },
-    ).set_index(["Conference", "Series Number"])
-    assert series.equals(expected)
+    assert database.get_series().equals(series)
 
 
 def test_add_champions_selections():
     """Test for champions_selections."""
-    class IndividualsDataBase(UnitDataBase):  # pylint: disable=C0115
-        def __init__(self):
-            self.individuals = []
-            self.selections = []
-
-        def add_champions_selections(self, selections) -> None:  # pylint: disable=C0116
-            self.selections = selections
-
-        def get_champions_selections(self):  # pylint: disable=C0116
-            return self.selections
-
-    year = 2019
     selections = pd.DataFrame(
         {
             "Individual": ["Kyle L"],
@@ -197,15 +210,26 @@ def test_add_champions_selections():
     ).astype({"Duration": "Int64"}).set_index("Individual")
     selections.attrs = {
         "Selection Round": "Champions",
-        "Year": year,
+        "Year": 2019,
     }
 
     class TempFileSelections:  # pylint: disable=C0115
         def selections(self):  # pylint: disable=C0116
             return selections
-    database = IndividualsDataBase()
+
+    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
+        def __init__(self):
+            self.individuals = []
+            self.selections = []
+
+        def add_champions_selections(self, selections) -> None:  # pylint: disable=C0116
+            self.selections = selections
+
+        def get_champions_selections(self):  # pylint: disable=C0116
+            return self.selections
+
+    database = TempDataBase()
     insert = InsertSelections(TempFileSelections(), database)
     with insert.database:
         insert.add_champions_selections()
-    returned = database.get_champions_selections()
-    assert returned.equals(selections)
+    assert database.get_champions_selections().equals(selections)

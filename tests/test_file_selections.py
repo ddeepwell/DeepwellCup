@@ -1,14 +1,37 @@
 """Tests for FileSelections class"""
+import typing
+from dataclasses import dataclass
+
 import pytest
 import pandas as pd
 
-from utils_for_tests import build_file
 from deepwellcup.processing.file_selections import (
     CleanUpRawChampionsData,
     CleanUpRawPlayedData,
     FileSelections,
 )
 from deepwellcup.processing.utils import SelectionRound
+
+
+def build_file(
+    input_year: int,
+    input_round: SelectionRound,
+    contents: typing.Any,
+):
+    """Return the champions round selections file dataclass."""
+
+    @dataclass
+    class file:
+        """Class docstring."""
+
+        year: int = input_year
+        selection_round: SelectionRound = input_round
+
+        def read(self) -> str:
+            """Read contents."""
+            return contents
+
+    return file()
 
 
 @pytest.fixture(name="raw_data")
