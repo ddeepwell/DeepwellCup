@@ -5,10 +5,11 @@ from dataclasses import dataclass
 import pytest
 import pandas as pd
 
-from deepwellcup.processing.file_selections import (
+from deepwellcup.processing.process_files import (
     CleanUpRawChampionsData,
     CleanUpRawPlayedData,
     FileSelections,
+    FileResults,
 )
 from deepwellcup.processing.utils import SelectionRound
 
@@ -40,79 +41,39 @@ def fixture_raw_data(selection_round: SelectionRound) -> pd.DataFrame:
     all_rounds = {
         3: pd.DataFrame(
             {
-                "Individual": {
-                    0: "Alita D",
-                    1: "David D",
-                    2: "Results",
-                },
-                "Moniker": {
-                    0: "",
-                    1: "Nazzy",
-                    2: "",
-                },
-                "ANA-EDM": {
-                    0: "Edmonton Oilers",
-                    1: "Edmonton Oilers",
-                    2: "Anaheim Ducks",
-                },
-                "ANA-EDM series length:": {
-                    0: "6 Games",
-                    1: "6 Games",
-                    2: "6 Games",
-                },
-                "CAR-BUF": {
-                    0: "Carolina Hurricanes",
-                    1: "Buffalo Sabres",
-                    2: "Buffalo Sabres",
-                },
-                "CAR-BUF series length:": {
-                    0: "7 Games",
-                    1: "7 Games",
-                    2: "7 Games",
-                },
+                "Individual": ["Alita D", "David D", "Results"],
+                "Moniker": ["", "Nazzy", ""],
+                "ANA-EDM": ["Edmonton Oilers", "Edmonton Oilers", "Anaheim Ducks"],
+                "ANA-EDM series length:": ["6 Games", "6 Games", "6 Games"],
+                "CAR-BUF": ["Carolina Hurricanes", "Buffalo Sabres", "Buffalo Sabres"],
+                "CAR-BUF series length:": ["7 Games", "7 Games", "7 Games"],
             }
         ),
         4: pd.DataFrame(
             {
-                "PIT-NSH": {
-                    0: "Pittsburgh Penguins",
-                    1: "Pittsburgh Penguins",
-                    2: "",
-                },
-                "PIT-NSH series length:": {
-                    0: "6 Games",
-                    1: "- Games",
-                    2: "5 Games",
-                },
-                "Individual": {
-                    0: "Results",
-                    1: "Alita D",
-                    2: "David D",
-                },
+                "Individual": ["Alita D", "David D", "Results"],
+                "PIT-NSH": ["Pittsburgh Penguins", "", "Pittsburgh Penguins"],
+                "PIT-NSH series length:": ["- Games", "5 Games", "6 Games"],
             }
         ),
         "Champions": pd.DataFrame(
             {
-                "Individual": {
-                    0: "Alita D",
-                    1: "Andre D",
-                    2: "Results",
-                },
-                "Who will win the Western Conference?": {
-                    0: "Vancouver Canucks",
-                    1: "Vancouver Canucks",
-                    2: "Los Angeles Kings",
-                },
-                "Who will win the Eastern Conference?": {
-                    0: "New York Rangers",
-                    1: "New York Rangers",
-                    2: "New Jersey Devils",
-                },
-                "Who will win the Stanley Cup?": {
-                    0: "Vancouver Canucks",
-                    1: "Vancouver Canucks",
-                    2: "Los Angeles Kings",
-                },
+                "Individual": ["Alita D", "Andre D", "Results"],
+                "Who will win the Western Conference?": [
+                    "Vancouver Canucks",
+                    "Vancouver Canucks",
+                    "Los Angeles Kings",
+                ],
+                "Who will win the Eastern Conference?": [
+                    "New York Rangers",
+                    "New York Rangers",
+                    "New Jersey Devils",
+                ],
+                "Who will win the Stanley Cup?": [
+                    "Vancouver Canucks",
+                    "Vancouver Canucks",
+                    "Los Angeles Kings",
+                ],
             }
         ),
     }
@@ -185,6 +146,38 @@ def fixture_selections(selection_round: SelectionRound) -> pd.DataFrame:
     selections = all_rounds[selection_round]
     selections["Duration"] = selections["Duration"].astype("Int64")
     return selections
+
+
+@pytest.fixture(name="results")
+def fixture_results(selection_round: SelectionRound) -> pd.DataFrame | pd.Series:
+    """Return the results."""
+    all_rounds = {
+        3: pd.DataFrame(
+            {
+                "Conference": ["East", "West"],
+                "Series": ["CAR-BUF", "ANA-EDM"],
+                "Team": ["Buffalo Sabres", "Anaheim Ducks"],
+                "Duration": [7, 6],
+            }
+        ).astype({"Duration": "Int64"}).set_index(["Conference", "Series"]),
+        4: pd.DataFrame(
+            {
+                "Conference": ["None"],
+                "Series": ["PIT-NSH"],
+                "Team": ["Pittsburgh Penguins"],
+                "Duration": [6],
+            }
+        ).astype({"Duration": "Int64"}).set_index(["Conference", "Series"]),
+        "Champions": pd.Series(
+            {
+                "East": "New Jersey Devils",
+                "West": "Los Angeles Kings",
+                "Stanley Cup": "Los Angeles Kings",
+                "Duration": pd.NA,
+            }
+        ).rename("Results"),
+    }
+    return all_rounds[selection_round]  # type: ignore[return-value]
 
 
 def test_raw_contents():
@@ -359,3 +352,30 @@ def test_cheering_team():
         }
     )
     assert fs.cheering_team().equals(expected)
+
+
+@pytest.mark.parametrize("selection_round", [3, 4, "Champions"])
+def test_results(selection_round, raw_data, results):
+    """Test for Played rounds results."""
+    a_file = build_file(2019, selection_round, raw_data)
+    assert FileResults(a_file).results().equals(results)
+
+
+def test_overtime_results():
+    """Test for overtime_results."""
+    raw_contents = pd.DataFrame(
+        {
+            "Individual": {
+                0: "Alita D",
+                1: "David D",
+                2: "Results",
+            },
+            "How many overtime games will occur this round?": {
+                0: 1,
+                1: "More than 3",
+                2: 2,
+            },
+        }
+    )
+    file = build_file(2006, 3, raw_contents)
+    assert FileResults(file).overtime_results() == "2"

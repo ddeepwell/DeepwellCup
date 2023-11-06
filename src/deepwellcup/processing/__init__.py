@@ -3,7 +3,7 @@ from . import files
 from .database import DataBaseOperations
 from .database_new import DataBase
 from . import dirs
-from .file_selections import FileSelections
+from .process_files import FileSelections, FileResults
 from .insert import Insert
 from .insert_new import InsertSelections
 from .latex import Latex
@@ -28,6 +28,7 @@ __all__ = [
     "dirs",
     "IndividualScoring",
     "FileSelections",
+    "FileResults",
     "Insert",
     "InsertSelections",
     "io",

@@ -1,6 +1,6 @@
 """Insert selections into the database."""
 from .database_new import DataBase
-from .file_selections import FileSelections
+from .process_files import FileSelections
 from .utils import RoundInfo
 
 

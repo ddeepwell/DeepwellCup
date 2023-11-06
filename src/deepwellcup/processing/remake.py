@@ -5,7 +5,7 @@ from pathlib import Path
 from . import utils
 from .database_new import DataBase
 from .files import SelectionsFile
-from .file_selections import FileSelections
+from .process_files import FileSelections
 from .insert_new import InsertSelections
 from .playoff_round import PlayoffRound
 from .utils import DataStores

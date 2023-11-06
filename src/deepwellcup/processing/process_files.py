@@ -1,4 +1,4 @@
-"""Read participant round selection data from the data files."""
+"""Process round data from the data files."""
 import re
 import math
 
@@ -10,7 +10,7 @@ from .utils import Conference, PlayedRound, RoundInfo, SelectionRound
 
 
 class FileSelections:
-    """Class for processing raw data files"""
+    """Class for processing raw data files."""
 
     def __init__(self, selections_file: SelectionsFile):
         self._year = selections_file.year
@@ -127,10 +127,10 @@ class FileSelections:
         )
         return player_on_higher_seed, player_on_lower_seed
 
-    def _played_round_selections(self, played_round: PlayedRound) -> pd.DataFrame:
+    def _played_round_selections(self) -> pd.DataFrame:
         """Return the playoff round selections."""
         return CleanUpRawPlayedData(
-            self.year, played_round, self.raw_contents
+            self.year, self.selection_round, self.raw_contents  # type: ignore[arg-type]
         ).selections()
 
     def _champions_selections(self) -> pd.DataFrame:
@@ -143,7 +143,7 @@ class FileSelections:
         if selection_round == "Champions":
             selections = self._champions_selections()
         else:
-            selections = self._played_round_selections(selection_round)
+            selections = self._played_round_selections()
         return selections.pipe(
             lambda df: df.drop(index="Results") if not keep_results else df
         )
@@ -196,6 +196,54 @@ class FileSelections:
     def cheering_team(self) -> pd.Series:
         """Return the team being cheered for."""
         return self._preferences("Cheering")
+
+
+class FileResults:
+    """Class for results from data files."""
+
+    def __init__(self, selections_file: SelectionsFile):
+        self._year = selections_file.year
+        self._selection_round = selections_file.selection_round
+        self._process_files = FileSelections(selections_file)
+
+    @property
+    def year(self) -> int:
+        """Return the year."""
+        return self._year
+
+    @property
+    def selection_round(self) -> SelectionRound:
+        """Return the selection round."""
+        return self._selection_round
+
+    def results(self) -> pd.DataFrame | pd.Series:
+        """Return the results for the round."""
+        selection_round = self.selection_round
+        if selection_round == "Champions":
+            return self._champions_results()
+        return self._played_round_results()
+
+    def _played_round_results(self) -> pd.DataFrame:
+        """Return the results for a played round."""
+        return (
+            self._process_files
+            .selections(keep_results=True)
+            .loc[["Results"]]
+            .reset_index(level=["Individual"], drop=True)
+            .rename_axis(columns="Results")
+        )
+
+    def _champions_results(self) -> pd.Series:
+        """Return the results for the champions round."""
+        return (
+            self._process_files
+            .selections(keep_results=True)
+            .loc["Results"]
+        )
+
+    def overtime_results(self) -> str:
+        """Return the overtime results."""
+        return self._process_files.overtime_selections(keep_results=True)["Results"]
 
 
 class CleanUpRawPlayedData:
