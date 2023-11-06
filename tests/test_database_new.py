@@ -59,6 +59,26 @@ def test_preferences(tmp_path):
     assert received_cheering.equals(cheering_team)
 
 
+def test_series(tmp_path):
+    """Test for add and get preferences."""
+    database = DataBase(tmp_path / 'series.db')
+    round_info = RoundInfo(year=2010, played_round=3)
+    series = pd.DataFrame(
+        {
+            "Conference": ["East", "West"],
+            "Series Number": [1, 1],
+            "Higher Seed": ["Boston Bruins", "Dallas Stars"],
+            "Lower Seed": ["New York Islanders", "San Jose Sharks"],
+            "Player on Higher Seed": ["Brad Marchand", "Tyler Seguin"],
+            "Player on Lower Seed": ["Matthew Barzal", "Brent Burns"],
+        },
+    ).set_index(["Conference", "Series Number"])
+    with database as db:
+        db.add_series(round_info, series)
+        received = db.get_series(round_info)
+    assert received.equals(series)
+
+
 def test_check_year():
     """Test for check_year."""
     check_year(2009)

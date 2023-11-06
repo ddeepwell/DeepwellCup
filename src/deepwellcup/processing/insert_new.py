@@ -31,6 +31,7 @@ class InsertSelections:
             self.add_new_individuals()
             self.add_monikers()
             self.add_preferences()
+            self.add_series()
 
     def add_new_individuals(self) -> None:
         """Add new individuals."""
@@ -79,3 +80,15 @@ class InsertSelections:
             favourite_team,
             cheering_team,
         )
+
+    def add_series(self) -> None:
+        """Add series."""
+        selection_round = self.selections.selection_round
+        if selection_round == "Champions":
+            return
+        round_info = RoundInfo(
+            year=self.selections.year,
+            played_round=selection_round,
+        )
+        series = self.selections.series()
+        self.database.add_series(round_info, series)

@@ -5,6 +5,7 @@ import warnings
 import typing
 
 import pandas as pd
+import numpy as np
 
 from . import dirs, io, utils
 from .utils import PlayedRound, RoundInfo
@@ -31,6 +32,10 @@ class YearError(Exception):
 
 class MismatchError(Exception):
     """Exception for mismatched objects."""
+
+
+class ConferenceError(Exception):
+    """Exception for incorrect conference."""
 
 
 class DataBase:
@@ -215,6 +220,66 @@ class DataBase:
         )
         return favourite_team, cheering_team
 
+    def add_series(
+        self,
+        round_info: RoundInfo,
+        series: pd.DataFrame,
+    ) -> None:
+        """Add series information."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        series_no_index = series.reset_index()
+        for conference in series_no_index["Conference"]:
+            check_conference(
+                round_info.year,
+                round_info.played_round,
+                conference
+            )
+        series_data = [
+            tuple([round_info.year, round_info.played_round])
+            + tuple(
+                map(
+                    lambda x: int(x) if isinstance(x, np.int64)
+                    else x, series_no_index.loc[index]
+                )
+            )
+            for index in series_no_index.index
+        ]
+        self.commit(
+            "INSERT INTO Series("
+            "Year, Round, Conference, SeriesNumber, "
+            "TeamHigherSeed, TeamLowerSeed, PlayerHigherSeed, PlayerLowerSeed) "
+            "VALUES (?,?,?,?,?,?,?,?)", series_data
+        )
+
+    def get_series(self, round_info: RoundInfo) -> pd.DataFrame:
+        """Return the series information for a played round."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        series = self.fetch(
+            "SELECT Conference, SeriesNumber, "
+            "TeamHigherSeed, TeamLowerSeed, PlayerHigherSeed, PlayerLowerSeed "
+            f"FROM Series WHERE Year={round_info.year} "
+            f"AND Round={round_info.played_round}"
+        )
+        if not series:
+            return pd.DataFrame()
+        all_series = pd.DataFrame(
+            columns=[
+                "Conference",
+                "Series Number",
+                "Higher Seed",
+                "Lower Seed",
+                "Player on Higher Seed",
+                "Player on Lower Seed",
+            ]
+        )
+        for a_series in series:
+            all_series.loc[len(all_series)] = [  # type: ignore[call-overload]
+                a_series[0], int(a_series[1]), *a_series[2:]
+            ]
+        return all_series.set_index(["Conference", "Series Number"])
+
 
 def check_year(year: int) -> None:
     """Check if the year is valid."""
@@ -227,6 +292,24 @@ def check_played_round(year: int, played_round: PlayedRound) -> None:
     played_rounds = utils.YearInfo(year).played_rounds
     if played_round not in played_rounds:
         raise PlayedRoundError(f"The played round must be one of {played_rounds}.")
+
+
+def check_conference(year: int, played_round: PlayedRound, conference: str) -> None:
+    """Check for valid conference."""
+    if played_round == 4 and conference != "None":
+        raise ConferenceError("The conference in the 4th round must be 'None'")
+    if year == 2021:
+        if conference != "None":
+            raise ConferenceError("The conference must be 'None' in 2021")
+        return
+    if (
+        played_round in utils.YearInfo(year).conference_rounds
+        and conference not in ["East", "West"]
+    ):
+        raise ValueError(
+            f"The submitted conference ({conference}) is invalid. "
+            'It must be either "East" or "West"'
+        )
 
 
 def txt_files_in_dir(path: Path) -> list[Path]:

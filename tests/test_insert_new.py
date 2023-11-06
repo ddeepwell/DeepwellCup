@@ -131,3 +131,42 @@ def test_add_preferences():
             }
         )
     )
+
+
+def test_add_series():
+    """Test for add_series."""
+    class IndividualsDataBase(UnitDataBase):  # pylint: disable=C0115
+        def __init__(self):
+            self.individuals = []
+            self.series = []
+
+        def add_series(self, round_info, series) -> None:  # pylint: disable=C0116
+            self.series = series
+
+        def get_series(self):  # pylint: disable=C0116
+            return self.series
+
+    content = pd.DataFrame(
+        {
+            "Individual": ["David D", "Brian M", "Results"],
+            "VAN-TOR": ["Vancouver Canucks", "Toronto Maple Leafs", ""],
+            "VAN-TOR series length:": ["5", "6", "7"],
+        }
+    )
+    selections = FileSelections(build_file(2006, 4, content))
+    database = IndividualsDataBase()
+    insert = InsertSelections(selections, database)
+    with insert.database:
+        insert.add_series()
+    series = database.get_series()
+    expected = pd.DataFrame(
+        {
+            "Conference": ["None"],
+            "Series Number": [1],
+            "Higher Seed": ["Vancouver Canucks"],
+            "Lower Seed": ["Toronto Maple Leafs"],
+            "Player on Higher Seed": [""],
+            "Player on Lower Seed": [""],
+        },
+    ).set_index(["Conference", "Series Number"])
+    assert series.equals(expected)
