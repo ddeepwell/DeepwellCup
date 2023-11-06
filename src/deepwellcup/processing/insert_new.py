@@ -33,8 +33,9 @@ class InsertSelections:
                 self.add_monikers()
                 self.add_preferences()
                 # self.add_series()
-            # else:
-            #     self.add_champions_selections()
+            else:
+                self.add_new_individuals()
+                self.add_champions_selections()
 
     def _selection_round_is_played_round(self) -> bool:
         """Check if selection round is a played round."""

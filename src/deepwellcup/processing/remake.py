@@ -5,10 +5,10 @@ from pathlib import Path
 from . import utils
 from .database_new import DataBase
 from .files import SelectionsFile
-from .process_files import FileSelections
-from .insert_new import InsertSelections
+from .process_files import FileResults, FileSelections
+from .insert_new import InsertResults, InsertSelections
 from .playoff_round import PlayoffRound
-from .utils import DataStores
+from .utils import DataStores, SelectionRound
 
 
 def multi_year_remake(
@@ -18,23 +18,11 @@ def multi_year_remake(
     """Remake the database, figures and tables."""
     for year in _parse_year_inputs(years):
         for rnd in utils.YearInfo(year).played_rounds:
-            # Insert data
-            selections = FileSelections(
-                SelectionsFile(
-                    year=year,
-                    selection_round=rnd,
-                    directory=datastores.raw_data_directory
-                )
-            )
-            if isinstance(datastores.database, Path):
-                database = datastores.database
-            else:
-                raise ValueError("The database must be a Path object.")
-            insert = InsertSelections(
-                selections=selections,
-                database=DataBase(database),
-            )
-            insert.update_selections()
+            if rnd == 1:
+                _insert_selections(year, "Champions", datastores)
+            _insert_selections(year, rnd, datastores)
+            if rnd == 4:
+                _insert_results(year, "Champions", datastores)
 
             # Insert data the old way and create tables and plots
             current_round = PlayoffRound(
@@ -49,21 +37,61 @@ def multi_year_remake(
             current_round.make_standings_chart()
 
 
+def _insert_selections(
+    year: int,
+    selection_round: SelectionRound,
+    datastores: DataStores
+) -> None:
+    """Insert selections."""
+    selections = FileSelections(
+        SelectionsFile(
+            year=year,
+            selection_round=selection_round,
+            directory=datastores.raw_data_directory
+        )
+    )
+    insert = InsertSelections(
+        selections=selections,
+        database=DataBase(datastores.database),
+    )
+    insert.update_selections()
+
+
+def _insert_results(
+    year: int,
+    selection_round: SelectionRound,
+    datastores: DataStores
+) -> None:
+    """Insert results."""
+    results = FileResults(
+        SelectionsFile(
+            year=year,
+            selection_round=selection_round,
+            directory=datastores.raw_data_directory
+        )
+    )
+    insert = InsertResults(
+        results=results,
+        database=DataBase(datastores.database),
+    )
+    insert.update_results()
+
+
 def _parse_year_inputs(input_years: int | list[int]) -> list:
     """Return the list of years to remake from:
     1) the final year (ie, start from the beginning)
     2) the first and final years"""
     very_first_year = 2006
     if isinstance(input_years, int):
-        return range(very_first_year, input_years + 1)
+        return list(range(very_first_year, input_years + 1))
     num_years = len(input_years)
     if num_years not in [1, 2]:
         raise ValueError(
             f"The years argument must be of length 1 or 2. It was {len(input_years)}"
         )
     if num_years == 1:
-        return range(very_first_year, input_years[0] + 1)
-    return range(input_years[0], input_years[1] + 1)
+        return list(range(very_first_year, input_years[0] + 1))
+    return list(range(input_years[0], input_years[1] + 1))
 
 
 def main() -> None:

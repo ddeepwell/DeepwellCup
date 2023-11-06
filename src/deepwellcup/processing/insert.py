@@ -122,25 +122,6 @@ class Insert:
                         self.round_selections.selections_overtime[individual],
                     )
 
-        if self.playoff_round == 1:
-            self.insert_champions_selections()
-
-    def insert_champions_selections(self):
-        """Insert selections for the champions round into the database"""
-
-        selections = self.champions_selections.selections
-        stanley_cup_selections = [
-            [
-                *utils.split_name(individual),
-                *self._convert_to_int(selections.loc[individual].tolist()),
-            ]
-            for individual in self.champions_selections.individuals
-        ]
-
-        with self.database as db:
-            self.add_missing_individuals(self.champions_selections.individuals, db)
-            db.add_stanley_cup_selection_for_everyone(self.year, stanley_cup_selections)
-
     def insert_results(self):
         """Insert the results of a playoff round into the database"""
 
@@ -164,14 +145,6 @@ class Insert:
                 db.add_overtime_results(
                     self.year, self.playoff_round, self.results.results_overtime
                 )
-
-        if self.playoff_round == 4:
-            champions_list = self._convert_to_none(
-                self._champions_results.results.tolist()
-            )
-
-            with self.database as db:
-                db.add_stanley_cup_results(self.year, *champions_list)
 
     def insert_other_points(self):
         """Insert points which are outside the regular scope of the selections"""
