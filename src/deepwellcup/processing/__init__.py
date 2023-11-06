@@ -4,8 +4,7 @@ from .database import DataBaseOperations
 from .database_new import DataBase
 from . import dirs
 from .process_files import FileSelections, FileResults
-from .insert import Insert
-from .insert_new import InsertResults, InsertSelections
+from .insert_new import InsertOtherPoints, InsertResults, InsertSelections
 from .latex import Latex
 from . import io
 from . import nhl_teams
@@ -29,7 +28,7 @@ __all__ = [
     "IndividualScoring",
     "FileSelections",
     "FileResults",
-    "Insert",
+    "InsertOtherPoints",
     "InsertResults",
     "InsertSelections",
     "io",

@@ -1,6 +1,5 @@
 """Hold all data for a playoff round in a year"""
 from .scores import Points
-from .insert import Insert
 from .latex import Latex
 from .plots import Plots
 from .utils import DataStores
@@ -85,24 +84,6 @@ class PlayoffRound:
     def _results_in_database(self):
         """Are selections in the database"""
         return self._results.in_database
-
-    def _get_insert(self):
-        """Get the insert class"""
-        if self._insert is None:
-            self._insert = Insert(
-                self.year,
-                self.playoff_round,
-                datastores=self._datastores,
-            )
-        return self._insert
-
-    def add_other_points_to_database(self):
-        """Add other points into the database"""
-        if self.playoff_round == "Champions":
-            print("There are no other points to add to database in the Champions round")
-        else:
-            insert = self._get_insert()
-            insert.insert_other_points()
 
     def _get_plots(self, playoff_round):
         """Get the plots class"""

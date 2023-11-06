@@ -3,7 +3,11 @@ import numpy as np
 import pandas as pd
 
 from deepwellcup.processing.database_new import Monikers
-from deepwellcup.processing.insert_new import InsertResults, InsertSelections
+from deepwellcup.processing.insert_new import (
+    InsertOtherPoints,
+    InsertResults,
+    InsertSelections,
+)
 from deepwellcup.processing.utils import RoundInfo
 
 
@@ -424,3 +428,43 @@ def test_add_overtime_results():
     insert = InsertResults(TempFile(), database)
     with insert.database:
         insert.add_overtime_results()
+
+
+def test_add_other_points():
+    """Test for other_poitns."""
+    round_info = RoundInfo(played_round=1, year=2015)
+    other_points = (
+        pd.Series({'Harry L': 50})
+        .rename("Other Points")
+        .rename_axis("Individuals")
+    )
+    other_points.attrs = {
+        "Selection Round": round_info.played_round,
+        "Year": round_info.year,
+    }
+
+    class TempFile:  # pylint: disable=C0115
+        @property
+        def played_round(self):  # pylint: disable=C0116
+            return round_info.played_round
+
+        @property
+        def year(self):  # pylint: disable=C0116
+            return round_info.year
+
+        def points(self):  # pylint: disable=C0116
+            return other_points
+
+    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
+        def __init__(self):
+            self.other_points = []
+
+        def add_other_points(  # pylint: disable=C0116
+            self, other_points
+        ) -> None:
+            self.other_points = other_points
+
+    database = TempDataBase()
+    insert = InsertOtherPoints(TempFile(), database)
+    with insert.database:
+        insert.add_other_points()

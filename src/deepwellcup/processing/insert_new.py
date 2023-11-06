@@ -1,6 +1,6 @@
 """Insert selections into the database."""
 from .database_new import DataBase
-from .process_files import FileResults, FileSelections
+from .process_files import FileOtherPoints, FileResults, FileSelections
 from .utils import RoundInfo, SelectionRound, YearInfo
 
 
@@ -178,6 +178,37 @@ class InsertResults:
             return
         round_info = RoundInfo(year=self.results.year, played_round=selection_round)
         self.database.add_overtime_results(round_info, results)
+
+
+class InsertOtherPoints:
+    "Insert other points into the database."
+
+    def __init__(
+        self,
+        other_points: FileOtherPoints,
+        database: DataBase,
+    ):
+        self._other_points = other_points
+        self._database = database
+
+    @property
+    def other_points(self) -> FileOtherPoints:
+        """Return the file other points"""
+        return self._other_points
+
+    @property
+    def database(self) -> DataBase:
+        """Return the database"""
+        return self._database
+
+    def update_other_points(self) -> None:
+        """Add other points."""
+        with self.database:
+            self.add_other_points()
+
+    def add_other_points(self):
+        """Add other points."""
+        self.database.add_other_points(self.other_points.points())
 
 
 def _selection_round_is_played_round(selection_round: SelectionRound, year: int) -> bool:

@@ -4,11 +4,11 @@ from pathlib import Path
 
 from . import utils
 from .database_new import DataBase
-from .files import SelectionsFile
-from .process_files import FileResults, FileSelections
-from .insert_new import InsertResults, InsertSelections
+from .files import OtherPointsFile, SelectionsFile
+from .process_files import FileOtherPoints, FileResults, FileSelections
+from .insert_new import InsertOtherPoints, InsertResults, InsertSelections
 from .playoff_round import PlayoffRound
-from .utils import DataStores, SelectionRound
+from .utils import DataStores, PlayedRound, SelectionRound
 
 
 def multi_year_remake(
@@ -18,24 +18,36 @@ def multi_year_remake(
     """Remake the database, figures and tables."""
     for year in _parse_year_inputs(years):
         print(f"Starting {year} ... ", end='')
-        for rnd in utils.YearInfo(year).played_rounds:
-            _insert_selections(year, rnd, datastores)
-            _insert_results(year, rnd, datastores)
-            if rnd == 1:
-                _insert_selections(year, "Champions", datastores)
-            if rnd == 4:
-                _insert_results(year, "Champions", datastores)
-
-            # Insert data the old way and create tables and plots
-            current_round = PlayoffRound(
-                year=year,
-                playoff_round=rnd,
-                datastores=datastores,
-            )
-            current_round.add_other_points_to_database()
-            current_round.make_latex_table()
-            current_round.make_standings_chart()
+        for played_round in utils.YearInfo(year).played_rounds:
+            _insert_data(year, played_round, datastores)
+            _make_tables_and_plots(year, played_round, datastores)
         print("Finished")
+
+
+def _insert_data(
+    year: int, played_round: PlayedRound, datastores: DataStores
+) -> None:
+    """Insert data."""
+    _insert_selections(year, played_round, datastores)
+    _insert_results(year, played_round, datastores)
+    _insert_other_points(year, played_round, datastores)
+    if played_round == 1:
+        _insert_selections(year, "Champions", datastores)
+    if played_round == 4:
+        _insert_results(year, "Champions", datastores)
+
+
+def _make_tables_and_plots(
+    year: int, played_round: PlayedRound, datastores: DataStores
+) -> None:
+    """Make tables and plots."""
+    current_round = PlayoffRound(
+        year=year,
+        playoff_round=played_round,
+        datastores=datastores,
+    )
+    current_round.make_latex_table()
+    current_round.make_standings_chart()
 
 
 def _insert_selections(
@@ -76,6 +88,26 @@ def _insert_results(
         database=DataBase(datastores.database),
     )
     insert.update_results()
+
+
+def _insert_other_points(
+    year: int,
+    played_round: PlayedRound,
+    datastores: DataStores
+) -> None:
+    """Insert other points."""
+    other_points_file = OtherPointsFile(
+            year=year,
+            played_round=played_round,
+            directory=datastores.raw_data_directory
+        )
+    if other_points_file.file.exists():
+        other_points = FileOtherPoints(other_points_file)
+        insert = InsertOtherPoints(
+            other_points=other_points,
+            database=DataBase(datastores.database),
+        )
+        insert.update_other_points()
 
 
 def _parse_year_inputs(input_years: int | list[int]) -> list:

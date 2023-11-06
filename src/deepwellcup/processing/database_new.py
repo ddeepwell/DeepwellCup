@@ -570,6 +570,51 @@ class DataBase:
             return ""
         return str(results[0][0])
 
+    def add_other_points(self, other_points: pd.Series) -> None:
+        """Add other points."""
+        check_year(other_points.attrs["Year"])
+        individual_ids = self.get_individuals_with_ids()
+        points_data = [
+            (
+                other_points.attrs["Year"],
+                other_points.attrs["Selection Round"],
+                individual_ids[str(individual)],
+                points,
+            )
+            for individual, points in other_points.items()
+        ]
+        self.commit(
+            "INSERT INTO OtherPoints VALUES (?,?,?,?)", points_data
+        )
+
+    def get_other_points(self, round_info: RoundInfo) -> pd.Series:
+        """Return the other points."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        selections = pd.read_sql_query(
+            f"""
+            SELECT Ind.FirstName, Ind.LastName, OP.Points
+            FROM (Individuals as Ind
+                Inner JOIN OtherPoints as OP
+                ON OP.IndividualID = Ind.IndividualID)
+            WHERE OP.Year = {round_info.year}
+            AND OP.Round = "{round_info.played_round}"
+            """,
+            self._conn,
+        )
+        if selections.empty:
+            return pd.Series()
+        selections["Individual"] = [
+            utils.merge_name(list(name))
+            for name in zip(selections["FirstName"], selections["LastName"])
+        ]
+        return (
+            selections.drop(["FirstName", "LastName"], axis="columns")
+            .set_index("Individual")
+            .squeeze(axis="columns")
+            .sort_index()
+        )
+
 
 def _convert_Int64_to_int(duration) -> int | None:
     """Convert Int64 to int type."""

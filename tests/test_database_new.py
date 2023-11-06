@@ -281,6 +281,26 @@ def test_overtime_results(tmp_path):
     assert received == result
 
 
+def test_other_points(tmp_path):
+    """Test add and get overtime results."""
+    database = DataBase(tmp_path / 'other_points.db')
+    round_info = RoundInfo(year=2021, played_round=1)
+    other_points = (
+        pd.Series({'Harry L': 50})
+        .rename("Other Points")
+        .rename_axis("Individuals")
+    )
+    other_points.attrs = {
+        "Selection Round": round_info.played_round,
+        "Year": round_info.year,
+    }
+    with database as db:
+        db.add_individuals(["Harry L"])
+        db.add_other_points(other_points)
+        received = db.get_other_points(round_info)
+    assert received.equals(other_points)
+
+
 def test_check_year():
     """Test for check_year."""
     check_year(2009)
