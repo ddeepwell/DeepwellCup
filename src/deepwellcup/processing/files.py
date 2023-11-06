@@ -8,7 +8,7 @@ from . import dirs
 from .utils import PlayedRound, SelectionRound
 
 
-@dataclass
+@dataclass(frozen=True)
 class SelectionsFile:
     """Class for the file of selections and results.
 
@@ -53,7 +53,7 @@ class SelectionsFile:
         return contents.rename(columns={"Name:": "Individual"})
 
 
-@dataclass
+@dataclass(frozen=True)
 class OtherPointsFile:
     """Class for the file of other points.
 

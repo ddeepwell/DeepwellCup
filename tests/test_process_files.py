@@ -21,7 +21,7 @@ def build_file(
 ):
     """Return the champions round selections file dataclass."""
 
-    @dataclass
+    @dataclass(frozen=True)
     class file:
         """Class docstring."""
 
