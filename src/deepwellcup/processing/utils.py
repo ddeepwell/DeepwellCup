@@ -9,6 +9,7 @@ SelectionRound = typing.Literal["Q", TypicalRound, "Champions"]
 PlayedRound = typing.Literal["Q", TypicalRound]
 ConferenceRound = typing.Literal["Q", 1, 2, 3]
 SeriesLength = typing.Literal[3, 4, 5, 6, 7]
+Conference = typing.Literal["East", "West", "None"]
 
 
 def split_name(name: str) -> tuple[str, str]:
@@ -81,6 +82,16 @@ class RoundInfo:
                 raise ValueError('Only 2020 has round "Q"')
             return (3, 4, 5)
         return (4, 5, 6, 7)
+
+
+class SeriesInfo(typing.NamedTuple):
+    """Information about a played series."""
+    conference: Conference
+    series_number: int
+    higher_seeded_team: str
+    lower_seeded_team: str
+    player_on_higher_seed: str = ""
+    player_on_lower_seed: str = ""
 
 
 class DataStores(typing.NamedTuple):
