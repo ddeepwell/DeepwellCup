@@ -21,6 +21,7 @@ def multi_year_remake(
             if rnd == 1:
                 _insert_selections(year, "Champions", datastores)
             _insert_selections(year, rnd, datastores)
+            _insert_results(year, rnd, datastores)
             if rnd == 4:
                 _insert_results(year, "Champions", datastores)
 

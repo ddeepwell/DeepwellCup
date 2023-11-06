@@ -1,7 +1,7 @@
 """Insert selections into the database."""
 from .database_new import DataBase
 from .process_files import FileResults, FileSelections
-from .utils import RoundInfo, YearInfo
+from .utils import RoundInfo, SelectionRound, YearInfo
 
 
 class InsertSelections:
@@ -28,7 +28,9 @@ class InsertSelections:
     def update_selections(self) -> None:
         """Add all selections."""
         with self.database:
-            if self._selection_round_is_played_round():
+            if _selection_round_is_played_round(
+                self.selections.selection_round, self.selections.year
+            ):
                 self.add_new_individuals()
                 self.add_monikers()
                 self.add_preferences()
@@ -37,13 +39,6 @@ class InsertSelections:
             else:
                 self.add_new_individuals()
                 self.add_champions_selections()
-
-    def _selection_round_is_played_round(self) -> bool:
-        """Check if selection round is a played round."""
-        return (
-            self.selections.selection_round
-            in YearInfo(self.selections.year).played_rounds
-        )
 
     def add_new_individuals(self) -> None:
         """Add new individuals."""
@@ -144,11 +139,28 @@ class InsertResults:
     def update_results(self) -> None:
         """Add all results."""
         with self.database:
-            if self.results.selection_round == 4:
+            if _selection_round_is_played_round(
+                self.results.selection_round, self.results.year
+            ):
+                self.add_round_results()
+            else:
                 self.add_champions_results()
+
+    def add_round_results(self) -> None:
+        """Add round results."""
+        self.database.add_round_results(
+            self.results.results()  # type: ignore[arg-type]
+        )
 
     def add_champions_results(self) -> None:
         """Add champions results."""
         self.database.add_champions_results(
             self.results.results()  # type: ignore[arg-type]
         )
+
+
+def _selection_round_is_played_round(selection_round: SelectionRound, year: int) -> bool:
+    """Check if selection round is a played round."""
+    return (
+        selection_round in YearInfo(year).played_rounds
+    )

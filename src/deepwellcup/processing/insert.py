@@ -87,22 +87,6 @@ class Insert:
 
     def insert_results(self):
         """Insert the results of a playoff round into the database"""
-
-        results = self.results.results
-        series = self.round_selections.series
-
-        for conference in set(results.index.get_level_values(0)):
-            series_pair_list = series[conference]
-            processed_results = [
-                self._convert_to_int(results.loc[conference, series_pair].to_list())
-                for series_pair in series_pair_list
-            ]
-
-            with self.database as db:
-                db.add_series_results_for_conference(
-                    self.year, self.playoff_round, conference, processed_results
-                )
-
         if self.round_selections.overtime_selected:
             with self.database as db:
                 db.add_overtime_results(

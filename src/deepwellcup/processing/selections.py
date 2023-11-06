@@ -162,7 +162,8 @@ class Selections:
                     # )
                     self._load_overtime_selections_from_file()
                     if self._selections_overtime is not None:
-                        self._selections_overtime.drop(labels="Results", inplace=True)
+                        if not keep_results:
+                            self._selections_overtime.drop(labels="Results", inplace=True)
                     # Remove the three lines above and uncomment those above that
                     # once overtime selections have been added to the new insert/database classes
                     self._preferences = db.get_all_round_preferences(

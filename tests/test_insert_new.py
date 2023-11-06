@@ -235,7 +235,41 @@ def test_add_round_selections():
     insert = InsertSelections(TempFileSelections(), database)
     with insert.database:
         insert.add_round_selections()
-    # assert database.get_round_selections().equals(selections)
+
+
+def test_add_round_results():
+    """Test for add_round_results."""
+    round_info = RoundInfo(played_round=3, year=2023)
+    results = pd.DataFrame(
+        {
+            "Conference": ["East", "West"],
+            "Series": ["TBL-BOS", "WSH-PIT"],
+            "Team": ["Boston Bruins", "Washington Capitals"],
+            "Duration": [6, 7],
+            "Player": [None, None],
+        },
+    ).astype({"Duration": "Int64"}).set_index(["Conference", "Series"])
+    results.attrs = {
+        "Selection Round": round_info.played_round,
+        "Year": round_info.year,
+    }
+
+    class TempFileResults:  # pylint: disable=C0115
+
+        def results(self):  # pylint: disable=C0116
+            return results
+
+    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
+        def __init__(self):
+            self.selections = []
+
+        def add_round_results(self, selections) -> None:  # pylint: disable=C0116
+            self.selections = selections
+
+    database = TempDataBase()
+    insert = InsertResults(TempFileResults(), database)
+    with insert.database:
+        insert.add_round_results()
 
 
 def test_add_champions_selections():

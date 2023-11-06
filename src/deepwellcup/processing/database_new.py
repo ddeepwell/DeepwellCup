@@ -347,7 +347,7 @@ class DataBase:
         )
 
     def get_round_selections(self, round_info: RoundInfo) -> pd.DataFrame:
-        """Return the selections a played round."""
+        """Return the selections of a played round."""
         check_year(round_info.year)
         selections = pd.read_sql_query(
             f"""
@@ -374,10 +374,58 @@ class DataBase:
             number_with_series[tuple(index)]  # type: ignore[index]
             for index in selections[["Conference", "SeriesNumber"]].values
         ]
-
         return (
             selections.set_index(["Individual", "Conference", "Series"])
             .drop(["FirstName", "LastName", "SeriesNumber"], axis="columns")
+            .astype({"Duration": "Int64"})
+        )
+
+    def add_round_results(self, results: pd.DataFrame) -> None:
+        """Add played round results."""
+        series_ids = self.get_series_ids(
+            RoundInfo(
+                played_round=results.attrs["Selection Round"],
+                year=results.attrs["Year"],
+            )
+        )
+        data = [
+            (
+                series_ids[index],  # type: ignore[index]
+                results["Team"][index],
+                _convert_Int64_to_int(results['Duration'][index]),
+                results["Player"][index]
+                if "Player" in results.columns else None
+            )
+            for index in results.index
+        ]
+        self.commit(
+            "INSERT INTO SeriesResults VALUES (?,?,?,?)", data
+        )
+
+    def get_round_results(self, round_info: RoundInfo) -> pd.DataFrame:
+        """Return the results of a played round."""
+        check_year(round_info.year)
+        results = pd.read_sql_query(
+            f"""
+            SELECT Ser.Conference, Ser.TeamHigherSeed, Ser.TeamLowerSeed,
+                SR.Team, SR.Duration, SR.Player
+            FROM (SeriesResults as SR
+                Inner JOIN Series as Ser
+                ON Ser.YearRoundSeriesID = SR.YearRoundSeriesID)
+            WHERE Ser.Year = {round_info.year}
+            AND Ser.Round = "{round_info.played_round}"
+            ORDER BY Conference, TeamHigherSeed, TeamLowerSeed
+            """,
+            self._conn,
+        )
+        results["Series"] = [
+            create_series_name(higher_seed, lower_seed)
+            for higher_seed, lower_seed
+            in zip(results["TeamHigherSeed"], results["TeamLowerSeed"])
+        ]
+        return (
+            results.set_index(["Conference", "Series"])
+            .drop(["TeamHigherSeed", "TeamLowerSeed"], axis="columns")
             .astype({"Duration": "Int64"})
         )
 
