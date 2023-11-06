@@ -96,11 +96,6 @@ class PlayoffRound:
             )
         return self._insert
 
-    def add_selections_to_database(self):
-        """Add all selections into the database"""
-        insert = self._get_insert()
-        insert.insert_round_selections()
-
     def add_other_points_to_database(self):
         """Add other points into the database"""
         if self.playoff_round == "Champions":

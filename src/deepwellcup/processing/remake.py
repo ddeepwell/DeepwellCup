@@ -31,7 +31,6 @@ def multi_year_remake(
                 playoff_round=rnd,
                 datastores=datastores,
             )
-            current_round.add_selections_to_database()
             current_round.add_other_points_to_database()
             current_round.add_results_to_database()
             current_round.make_latex_table()

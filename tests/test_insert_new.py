@@ -348,3 +348,38 @@ def test_add_champions_results():
     with insert.database:
         insert.add_champions_results()
     assert database.get_champions_results().equals(results)
+
+
+def test_add_overtime_selections():
+    """Test for overtime_selections."""
+    round_info = RoundInfo(played_round=3, year=2019)
+    selections = pd.Series(
+        {
+            "Brian M": "3",
+            "Jackson L": "More than 3",
+        },
+    ).rename("Overtime").rename_axis("Individual")
+    selections.attrs = {
+        "Selection Round": round_info.played_round,
+        "Year": round_info.year,
+    }
+
+    class TempFileSelections:  # pylint: disable=C0115
+        @property
+        def selection_round(self):  # pylint: disable=C0116
+            return round_info.played_round
+
+        def overtime_selections(self):  # pylint: disable=C0116
+            return selections
+
+    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
+        def __init__(self):
+            self.selections = []
+
+        def add_overtime_selections(self, selections) -> None:  # pylint: disable=C0116
+            self.selections = selections
+
+    database = TempDataBase()
+    insert = InsertSelections(TempFileSelections(), database)
+    with insert.database:
+        insert.add_overtime_selections()

@@ -155,7 +155,7 @@ class FileSelections:
         overtime_header = "How many overtime games will occur this round?"
         if overtime_header not in self.raw_contents.columns:
             return pd.Series()
-        return (
+        overtime_data = (
             self.raw_contents
             .rename(columns={overtime_header: "Overtime"})[
                 ["Individual", "Overtime"]
@@ -168,6 +168,8 @@ class FileSelections:
                 lambda df: df.drop(index="Results") if not keep_results else df
             )
         )
+        _update_metadata(overtime_data, self.year, selection_round=self.selection_round)
+        return overtime_data
 
     def _preferences(self, category) -> pd.Series:
         """Return team preferences."""

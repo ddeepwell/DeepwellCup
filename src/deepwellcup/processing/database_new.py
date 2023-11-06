@@ -506,6 +506,51 @@ class DataBase:
         }
         return ser
 
+    def add_overtime_selections(self, selections: pd.Series) -> None:
+        """Add overtime selections."""
+        individual_ids = self.get_individuals_with_ids()
+        data = [
+            (
+                individual_ids[str(individual)],
+                selections.attrs["Year"],
+                selections.attrs["Selection Round"],
+                selection,
+            )
+            for individual, selection in selections.items()
+        ]
+        self.commit(
+            "INSERT INTO OvertimeSelections VALUES (?,?,?,?)", data
+        )
+
+    def get_overtime_selections(self, round_info: RoundInfo) -> pd.Series:
+        """Return the list of overtime selections in a pandas dataframe"""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        selections = pd.read_sql_query(
+            f"""
+            SELECT Ind.FirstName, Ind.LastName, OT.Overtime
+            FROM (Individuals as Ind
+                Inner JOIN OvertimeSelections as OT
+                ON OT.IndividualID = Ind.IndividualID)
+            WHERE OT.Year = {round_info.year}
+            AND OT.Round = "{round_info.played_round}"
+            """,
+            self._conn,
+        )
+        if selections.empty:
+            return pd.Series()
+        selections["Individual"] = [
+            utils.merge_name(list(name))
+            for name in zip(selections["FirstName"], selections["LastName"])
+        ]
+        return (
+            selections.drop(["FirstName", "LastName"], axis="columns")
+            .set_index("Individual")
+            .squeeze()
+            .sort_index()
+            .astype("str")
+        )
+
 
 def _convert_Int64_to_int(duration) -> int | None:
     """Convert Int64 to int type."""

@@ -249,6 +249,27 @@ def test_champions_results(tmp_path):
     assert received.equals(champions)
 
 
+def test_overtime_selections(tmp_path):
+    """Test add and get overtime selections."""
+    database = DataBase(tmp_path / 'selections.db')
+    round_info = RoundInfo(year=2019, played_round=3)
+    selections = pd.Series(
+        {
+            "Brian M": "3",
+            "Jackson L": "More than 3",
+        },
+    ).rename("Overtime").rename_axis("Individual")
+    selections.attrs = {
+        "Selection Round": round_info.played_round,
+        "Year": round_info.year,
+    }
+    with database as db:
+        db.add_individuals(["Brian M", "Jackson L"])
+        db.add_overtime_selections(selections)
+        received = db.get_overtime_selections(round_info)
+    assert received.equals(selections)
+
+
 def test_check_year():
     """Test for check_year."""
     check_year(2009)

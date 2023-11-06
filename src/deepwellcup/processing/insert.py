@@ -5,7 +5,6 @@ from .other_points import OtherPoints
 from .results import Results
 from .selections import Selections
 from .database import DataBaseOperations
-from .nhl_teams import lengthen_team_name as ltn
 from . import utils
 from .utils import DataStores
 
@@ -70,20 +69,6 @@ class Insert:
     def other_points(self):
         """Return the other points for the playoff round"""
         return self._other_points
-
-    def insert_round_selections(self):
-        """Insert selections for a given round into the database"""
-        # shorten variables
-        individuals = self.round_selections.individuals
-        with self.database as db:
-            if self.round_selections.overtime_selected:
-                for individual in individuals:
-                    db.add_overtime_selections(
-                        self.year,
-                        self.playoff_round,
-                        *utils.split_name(individual),
-                        self.round_selections.selections_overtime[individual],
-                    )
 
     def insert_results(self):
         """Insert the results of a playoff round into the database"""

@@ -36,6 +36,7 @@ class InsertSelections:
                 self.add_preferences()
                 self.add_series()
                 self.add_round_selections()
+                self.add_overtime_selections()
             else:
                 self.add_new_individuals()
                 self.add_champions_selections()
@@ -113,6 +114,13 @@ class InsertSelections:
         if selection_round != "Champions":
             return
         self.database.add_champions_selections(self.selections.selections())
+
+    def add_overtime_selections(self) -> None:
+        """Add overtime selections."""
+        selection_round = self.selections.selection_round
+        if selection_round == "Champions":
+            return
+        self.database.add_overtime_selections(self.selections.overtime_selections())
 
 
 class InsertResults:
