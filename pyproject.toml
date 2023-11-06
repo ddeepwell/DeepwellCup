@@ -11,13 +11,13 @@ authors = [
 ]
 description = "Manage and analyze the Deepwell Cup"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
-  "jinja2>=3.1.2",
+  "jinja2==3.1.2",
   "matplotlib==3.5.1",
-  "numpy>=1.22.3",
-  "pandas>=1.5.2",
-  "sympy>=1.11.1",
+  "numpy==1.26.0",
+  "pandas==2.1.1",
+  "sympy==1.12",
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -26,19 +26,18 @@ classifiers = [
 ]
 
 [tool.pytest.ini_options]
-minversion = "6.0"
 testpaths = [
     "tests",
 ]
 
 [project.optional-dependencies]
 dev = [
-  "mypy>=1.5",
-  "pylint>=2.17",
-  "pytest>=7.4",
-  "flake8>=6.0",
-  "pandas-stubs>=2.0",
-  "black>=23.9",
+  "black==23.9.1",
+  "flake8==6.1.0",
+  "mypy==1.5.1",
+  "pandas-stubs==2.1.1.230928",
+  "pylint==3.0.0",
+  "pytest==7.4.2",
 ]
 
 [tool.setuptools.packages.find]

@@ -266,8 +266,8 @@ class Latex:
 
         def a_selection(individual):
             series_selections = self._selections.loc[:, :, series]
-            team = stn(series_selections["Team"][individual][0])
-            duration = series_selections["Duration"][individual][0]
+            team = stn(series_selections["Team"][individual].iloc[0])
+            duration = series_selections["Duration"][individual].iloc[0]
             duration = duration if not isna(duration) else ""
             return f"& \\mr{{{team}}} & \\mr{{{duration}}}"
 
@@ -300,7 +300,7 @@ class Latex:
         def a_selection(index, individual):
             selections = self._selections
             player = shorten_player_name(
-                selections["Player"][individual, :, series_name][0]
+                selections["Player"][individual, :, series_name].iloc[0]
             )
             if index % 2:
                 return f"& \\mcl{{{player}}} "
