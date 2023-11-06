@@ -17,7 +17,7 @@ def multi_year_remake(
 ) -> None:
     """Remake the database, figures and tables."""
     for year in _parse_year_inputs(years):
-        print(f"Starting {year} ... ", end='')
+        print(f"Starting {year} ... ", end='', flush=True)
         for played_round in utils.YearInfo(year).played_rounds:
             _insert_data(year, played_round, datastores)
             _make_tables_and_plots(year, played_round, datastores)
