@@ -203,6 +203,49 @@ def test_conference_series(selection_round, conference_series, raw_data):
     assert fs.conference_series() == conference_series
 
 
+@pytest.mark.parametrize(
+    "selection_round, raw_data, expected",
+    [
+        (
+            3,
+            pd.DataFrame(
+                {
+                    "Individual": ["Alita D", "David D", "Results"],
+                    "DAL-SJS": ["Edmonton Oilers", "Edmonton Oilers", "Anaheim Ducks"],
+                    "DAL-SJS series length:": ["6 Games", "6 Games", "6 Games"],
+                    "DAL-SJS Who will score more points?": [
+                        "Tyler Seguin", "Brent Burns", "Brent Burns",
+                    ],
+                    "BOS-NYI": [
+                        "Boston Bruinds", "New York Islanders", "New York Islanders",
+                    ],
+                    "BOS-NYI series length:": ["7 Games", "7 Games", "7 Games"],
+                    "BOS-NYI Who will score more points?": [
+                        "Brad Marchand", "Matthew Barzal", "Matthew Barzal",
+                    ],
+                }
+            ),
+            pd.DataFrame(
+                {
+                    "Conference": ["East", "West"],
+                    "Series Number": [1, 1],
+                    "Higher Seed": ["Boston Bruins", "Dallas Stars"],
+                    "Lower Seed": ["New York Islanders", "San Jose Sharks"],
+                    "Player on Higher Seed": ["Brad Marchand", "Tyler Seguin"],
+                    "Player on Lower Seed": ["Matthew Barzal", "Brent Burns"],
+                },
+            ).set_index(["Conference", "Series Number"])
+        ),
+        ("Champions", pd.DataFrame(), pd.DataFrame()),
+    ],
+)
+def test_series(selection_round, raw_data, expected):
+    """Test for series."""
+    selection_file = build_file(2006, selection_round, raw_data)
+    fs = FileSelections(selection_file)
+    assert fs.series().equals(expected)
+
+
 @pytest.mark.parametrize("selection_round", [3, 4])
 def test_played_selections(selection_round, raw_data, selections):
     """Test for Played rounds selections."""

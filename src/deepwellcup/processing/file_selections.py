@@ -6,7 +6,7 @@ import pandas as pd
 
 from . import nhl_teams
 from .files import SelectionsFile
-from .utils import PlayedRound, RoundInfo, SelectionRound
+from .utils import Conference, PlayedRound, RoundInfo, SelectionRound
 
 
 class FileSelections:
@@ -51,7 +51,7 @@ class FileSelections:
             .to_dict()
         )
 
-    def conference_series(self) -> dict[str, list[str]]:
+    def conference_series(self) -> dict[Conference, list[str]]:
         """Return the series in each conference."""
         if self.selection_round == "Champions":
             return {}
@@ -65,6 +65,67 @@ class FileSelections:
             ]
             for conf in nhl_teams.conferences(self.selection_round, self.year)
         }
+
+    def series(self) -> pd.DataFrame:
+        """Return information about the series."""
+        if self.selection_round == "Champions":
+            return pd.DataFrame()
+        all_series = pd.DataFrame(
+            columns=[
+                "Conference",
+                "Series Number",
+                "Higher Seed",
+                "Lower Seed",
+                "Player on Higher Seed",
+                "Player on Lower Seed",
+            ]
+        )
+        for conference, series_list in self.conference_series().items():
+            for index, series in enumerate(series_list, start=1):
+                higher_seed, lower_seed = self._get_team_seedings(series)
+                player_on_higher_seed, player_on_lower_seed = self._get_player_seedings(series)
+                all_series.loc[len(all_series)] = [  # type: ignore[call-overload]
+                    conference,
+                    index,
+                    higher_seed,
+                    lower_seed,
+                    player_on_higher_seed,
+                    player_on_lower_seed,
+                ]
+        return all_series.set_index(["Conference", "Series Number"])
+
+    def _get_team_seedings(self, series: str) -> tuple[str, str]:
+        """Split a series string into higher and lower seeds."""
+        seeds = [
+            nhl_teams.lengthen_team_name(team)
+            for team in series.split("-", maxsplit=2)
+        ]
+        if len(seeds) == 2:
+            return tuple(seeds)  # type: ignore[return-value]
+        if len(seeds) == 3:
+            return (seeds[0], f"{seeds[1]},{seeds[2]}")
+        raise NotImplementedError("Should not reach this point.")
+
+    def _get_player_seedings(self, series) -> tuple[str, str]:
+        """Return the players on the higher and lower seeds."""
+        selections = self.selections()
+        higher_seed, _ = self._get_team_seedings(series)
+        if "Player" not in selections.columns:
+            return "", ""
+        players_in_series = list(
+            set(selections.loc[:, :, series]["Player"].values)  # type: ignore[index]
+        )
+        player_on_higher_seed = (
+            players_in_series[0]
+            if nhl_teams.team_of_player(players_in_series[0]) == higher_seed
+            else players_in_series[1]
+        )
+        player_on_lower_seed = (
+            players_in_series[0]
+            if players_in_series[0] != player_on_higher_seed
+            else players_in_series[1]
+        )
+        return player_on_higher_seed, player_on_lower_seed
 
     def _played_round_selections(self, played_round: PlayedRound) -> pd.DataFrame:
         """Return the playoff round selections."""
