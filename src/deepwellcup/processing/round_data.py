@@ -26,7 +26,9 @@ class RoundData:
         else:
             RoundSelections = PlayedSelections
             RoundResults = PlayedResults
-        self.selections = RoundSelections(self.year, self.selection_round, self.database)
+        self.selections = RoundSelections(
+            self.year, self.selection_round, self.database
+        )
         self.results = RoundResults(self.year, self.selection_round, self.database)
         self.other_points = OtherPoints(2006, self.selection_round, self.database)
 
@@ -38,6 +40,12 @@ class BaseRound(ABC):
     year: int
     selection_round: SelectionRound
     database: DataBase
+
+
+@dataclass
+class BasePlayedRound(BaseRound):
+    """Selections, results, and other points in a played round."""
+
     _round_info: RoundInfo = field(init=False)
 
     def __post_init__(self) -> None:
@@ -48,7 +56,7 @@ class BaseRound(ABC):
 
 
 @dataclass
-class PlayedSelections(BaseRound):
+class PlayedSelections(BasePlayedRound):
     """All selections for a played round."""
 
     @property
@@ -76,7 +84,7 @@ class ChampionsSelections(BaseRound):
 
 
 @dataclass
-class PlayedResults(BaseRound):
+class PlayedResults(BasePlayedRound):
     """All results for a played round."""
 
     @property
@@ -104,7 +112,7 @@ class ChampionsResults(BaseRound):
 
 
 @dataclass
-class OtherPoints(BaseRound):
+class OtherPoints(BasePlayedRound):
     """Other points for a played round."""
 
     @property
