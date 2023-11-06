@@ -104,11 +104,6 @@ class PlayoffRound:
             insert = self._get_insert()
             insert.insert_other_points()
 
-    def add_results_to_database(self):
-        """Add all selections into the database"""
-        insert = self._get_insert()
-        insert.insert_results()
-
     def _get_plots(self, playoff_round):
         """Get the plots class"""
         if self._plots is None or self._plots.max_round != playoff_round:

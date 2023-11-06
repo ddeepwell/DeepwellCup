@@ -53,10 +53,8 @@ class InsertSelections:
     def add_monikers(self) -> None:
         """Add monikers."""
         selection_round = self.selections.selection_round
-        if selection_round == "Champions":
-            return
         monikers = self.selections.monikers()
-        if not monikers:
+        if selection_round == "Champions" or not monikers:
             return
         round_info = RoundInfo(
             year=self.selections.year,
@@ -68,11 +66,11 @@ class InsertSelections:
     def add_preferences(self) -> None:
         """Add preferences."""
         selection_round = self.selections.selection_round
-        if selection_round == "Champions":
-            return
         favourite_team = self.selections.favourite_team()
         cheering_team = self.selections.cheering_team()
-        if favourite_team.empty and cheering_team.empty:
+        if selection_round == "Champions" or (
+            favourite_team.empty and cheering_team.empty
+        ):
             return
         if (
             (favourite_team.empty and not cheering_team.empty)
@@ -118,9 +116,10 @@ class InsertSelections:
     def add_overtime_selections(self) -> None:
         """Add overtime selections."""
         selection_round = self.selections.selection_round
-        if selection_round == "Champions":
+        selections = self.selections.overtime_selections()
+        if selection_round == "Champions" or selections.empty:
             return
-        self.database.add_overtime_selections(self.selections.overtime_selections())
+        self.database.add_overtime_selections(selections)
 
 
 class InsertResults:
@@ -151,20 +150,34 @@ class InsertResults:
                 self.results.selection_round, self.results.year
             ):
                 self.add_round_results()
+                self.add_overtime_results()
             else:
                 self.add_champions_results()
 
     def add_round_results(self) -> None:
         """Add round results."""
+        if self.results.selection_round == "Champions":
+            return
         self.database.add_round_results(
             self.results.results()  # type: ignore[arg-type]
         )
 
     def add_champions_results(self) -> None:
         """Add champions results."""
+        if self.results.selection_round != "Champions":
+            return
         self.database.add_champions_results(
             self.results.results()  # type: ignore[arg-type]
         )
+
+    def add_overtime_results(self) -> None:
+        """Add overtime results."""
+        selection_round = self.results.selection_round
+        results = self.results.overtime_results()
+        if selection_round == "Champions" or not results:
+            return
+        round_info = RoundInfo(year=self.results.year, played_round=selection_round)
+        self.database.add_overtime_results(round_info, results)
 
 
 def _selection_round_is_played_round(selection_round: SelectionRound, year: int) -> bool:

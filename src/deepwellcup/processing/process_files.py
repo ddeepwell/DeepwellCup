@@ -247,7 +247,8 @@ class FileResults:
 
     def overtime_results(self) -> str:
         """Return the overtime results."""
-        return self._process_files.overtime_selections(keep_results=True)["Results"]
+        selections = self._process_files.overtime_selections(keep_results=True)
+        return (selections["Results"] if "Results" in selections.index else "")
 
 
 class CleanUpRawPlayedData:

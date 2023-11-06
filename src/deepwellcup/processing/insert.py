@@ -70,14 +70,6 @@ class Insert:
         """Return the other points for the playoff round"""
         return self._other_points
 
-    def insert_results(self):
-        """Insert the results of a playoff round into the database"""
-        if self.round_selections.overtime_selected:
-            with self.database as db:
-                db.add_overtime_results(
-                    self.year, self.playoff_round, self.results.results_overtime
-                )
-
     def insert_other_points(self):
         """Insert points which are outside the regular scope of the selections"""
 

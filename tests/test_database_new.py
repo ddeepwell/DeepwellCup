@@ -270,6 +270,17 @@ def test_overtime_selections(tmp_path):
     assert received.equals(selections)
 
 
+def test_overtime_results(tmp_path):
+    """Test add and get overtime results."""
+    database = DataBase(tmp_path / 'results.db')
+    round_info = RoundInfo(year=2019, played_round=3)
+    result = "1"
+    with database as db:
+        db.add_overtime_results(round_info=round_info, result=result)
+        received = db.get_overtime_results(round_info)
+    assert received == result
+
+
 def test_check_year():
     """Test for check_year."""
     check_year(2009)

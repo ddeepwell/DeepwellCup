@@ -255,6 +255,9 @@ def test_add_round_results():
     }
 
     class TempFileResults:  # pylint: disable=C0115
+        @property
+        def selection_round(self):  # pylint: disable=C0116
+            return round_info.played_round
 
         def results(self):  # pylint: disable=C0116
             return results
@@ -330,6 +333,10 @@ def test_add_champions_results():
     }
 
     class TempFileResults:  # pylint: disable=C0115
+        @property
+        def selection_round(self):  # pylint: disable=C0116
+            return "Champions"
+
         def results(self):  # pylint: disable=C0116
             return results
 
@@ -383,3 +390,37 @@ def test_add_overtime_selections():
     insert = InsertSelections(TempFileSelections(), database)
     with insert.database:
         insert.add_overtime_selections()
+
+
+def test_add_overtime_results():
+    """Test for overtime_results."""
+    round_info = RoundInfo(played_round=3, year=2019)
+    results = "3"
+
+    class TempFile:  # pylint: disable=C0115
+        @property
+        def selection_round(self):  # pylint: disable=C0116
+            return round_info.played_round
+
+        @property
+        def year(self):  # pylint: disable=C0116
+            return round_info.year
+
+        def overtime_results(self):  # pylint: disable=C0116
+            return results
+
+    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
+        def __init__(self):
+            self.round_info = []
+            self.results = []
+
+        def add_overtime_results(  # pylint: disable=C0116
+            self, round_info, results
+        ) -> None:
+            self.round_info = round_info
+            self.results = results
+
+    database = TempDataBase()
+    insert = InsertResults(TempFile(), database)
+    with insert.database:
+        insert.add_overtime_results()

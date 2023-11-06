@@ -17,11 +17,12 @@ def multi_year_remake(
 ) -> None:
     """Remake the database, figures and tables."""
     for year in _parse_year_inputs(years):
+        print(f"Starting {year} ... ", end='')
         for rnd in utils.YearInfo(year).played_rounds:
-            if rnd == 1:
-                _insert_selections(year, "Champions", datastores)
             _insert_selections(year, rnd, datastores)
             _insert_results(year, rnd, datastores)
+            if rnd == 1:
+                _insert_selections(year, "Champions", datastores)
             if rnd == 4:
                 _insert_results(year, "Champions", datastores)
 
@@ -32,9 +33,9 @@ def multi_year_remake(
                 datastores=datastores,
             )
             current_round.add_other_points_to_database()
-            current_round.add_results_to_database()
             current_round.make_latex_table()
             current_round.make_standings_chart()
+        print("Finished")
 
 
 def _insert_selections(

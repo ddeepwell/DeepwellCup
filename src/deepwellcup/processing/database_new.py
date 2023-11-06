@@ -523,7 +523,7 @@ class DataBase:
         )
 
     def get_overtime_selections(self, round_info: RoundInfo) -> pd.Series:
-        """Return the list of overtime selections in a pandas dataframe"""
+        """Return the overtime selections."""
         check_year(round_info.year)
         check_played_round(round_info.year, round_info.played_round)
         selections = pd.read_sql_query(
@@ -550,6 +550,25 @@ class DataBase:
             .sort_index()
             .astype("str")
         )
+
+    def add_overtime_results(self, round_info: RoundInfo, result: str) -> None:
+        """Add overtime results."""
+        data = [(round_info.year, round_info.played_round, result)]
+        self.commit("INSERT INTO OvertimeResults VALUES (?,?,?)", data)
+
+    def get_overtime_results(self, round_info: RoundInfo) -> str:
+        """Return the overtime selections in a pandas dataframe"""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        results = self.fetch(
+            f"""
+            SELECT Overtime FROM OvertimeResults
+            WHERE Year = {round_info.year} AND Round = "{round_info.played_round}"
+            """
+        )
+        if not results:
+            return ""
+        return str(results[0][0])
 
 
 def _convert_Int64_to_int(duration) -> int | None:

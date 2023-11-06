@@ -69,15 +69,7 @@ class Results:
         if self.in_database:
             if self.playoff_round in utils.YearInfo(self.year).played_rounds:
                 self._results = self._load_playoff_round_results_from_database()
-                # self._results_overtime = self._load_overtime_results_from_database()
-                self._results_overtime = (
-                    self._selections.selections_overtime["Results"]
-                    if self.playoff_round != "Champions"
-                    and self._selections.selections_overtime is not None
-                    else None
-                )
-                # Remove the six lines above and uncomment those above that
-                # once overtime results have been added to the new insert/database classes
+                self._results_overtime = self._load_overtime_results_from_database()
             elif self.playoff_round == "Champions":
                 self._results = self._load_champions_results_from_database()
         else:
