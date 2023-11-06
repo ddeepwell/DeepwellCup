@@ -267,3 +267,12 @@ def team_of_player(player):
         return "San Jose Sharks"
     elif player == "Nathan MacKinnon":
         return "Colorado Avalanche"
+
+
+def create_series_name(higher_seed: str, lower_seed: str) -> str:
+    """Create series name."""
+    if "," in lower_seed:
+        short_lower_seed = "-".join(map(shorten_team_name, lower_seed.split(',')))
+    else:
+        short_lower_seed = shorten_team_name(lower_seed)
+    return "-".join([shorten_team_name(higher_seed), short_lower_seed])
