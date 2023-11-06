@@ -1,6 +1,7 @@
 """Tests for database."""
 from pytest import raises
 import pandas as pd
+import numpy as np
 
 from deepwellcup.processing.database_new import (
     check_played_round,
@@ -99,7 +100,30 @@ def test_champions_selections(tmp_path):
     with database as db:
         db.add_individuals(["Kyle L"])
         db.add_champions_selections(champions)
-        received = db.get_champions_selections(round_info)
+        received = db.get_champions_selections(round_info.year)
+    assert received.equals(champions)
+
+
+def test_champions_results(tmp_path):
+    """Test for add and get champions results."""
+    database = DataBase(tmp_path / 'champions_results.db')
+    # round_info = RoundInfo(year=2012, played_round="Champions")
+    year = 2012
+    champions = pd.Series(
+        {
+            "East": "Boston Bruins",
+            "West": "Dallas Stars",
+            "Stanley Cup": "New York Islanders",
+            "Duration": np.int64(5),
+        },
+    )
+    champions.attrs = {
+        "Selection Round": "Champions",
+        "Year": year,
+    }
+    with database as db:
+        db.add_champions_results(champions)
+        received = db.get_champions_results(year)
     assert received.equals(champions)
 
 

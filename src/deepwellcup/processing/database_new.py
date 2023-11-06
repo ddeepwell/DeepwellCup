@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 
 from . import dirs, io, utils
-from .utils import PlayedRound, RoundInfo, SelectionRound
+from .utils import PlayedRound, RoundInfo
 
 
 Monikers = dict[str, str]
@@ -300,13 +300,12 @@ class DataBase:
             "INSERT INTO StanleyCupSelections VALUES (?,?,?,?,?,?)", stanley_cup_data
         )
 
-    def get_champions_selections(self, round_info: RoundInfo) -> pd.DataFrame:
+    def get_champions_selections(self, year: int) -> pd.DataFrame:
         """Return the series information for a played round."""
-        check_year(round_info.year)
-        check_champions_round(round_info.played_round)
+        check_year(year)
         champions = self.fetch(
             "SELECT IndividualID, East, West, [Stanley Cup], Duration "
-            f"FROM StanleyCupSelections WHERE Year={round_info.year}"
+            f"FROM StanleyCupSelections WHERE Year={year}"
         )
         if not champions:
             return pd.DataFrame()
@@ -321,10 +320,46 @@ class DataBase:
             }
         ).astype({"Duration": "Int64"}).set_index("Individual")
         df.attrs = {
-            "Selection Round": round_info.played_round,
-            "Year": round_info.year,
+            "Selection Round": "Champions",
+            "Year": year,
         }
         return df
+
+    def add_champions_results(self, results: pd.Series) -> None:
+        """Add the Champions round results."""
+        stanley_cup_data = [
+            (
+                results.attrs["Year"],
+                *tuple(results.values[:-1]),
+                _convert_Int64_to_int(results['Duration'])
+            )
+        ]
+        self.commit(
+            "INSERT INTO StanleyCupResults VALUES (?,?,?,?,?)", stanley_cup_data
+        )
+
+    def get_champions_results(self, year: int) -> pd.Series:
+        """Return the series information for a played round."""
+        check_year(year)
+        champions = self.fetch(
+            "SELECT East, West, [Stanley Cup], Duration "
+            f"FROM StanleyCupResults WHERE Year={year}"
+        )
+        if not champions:
+            return pd.Series()
+        ser = pd.Series(
+            {
+                "East": champions[0][0],
+                "West": champions[0][1],
+                "Stanley Cup": champions[0][2],
+                "Duration": np.int64(champions[0][3]),
+            }
+        )
+        ser.attrs = {
+            "Selection Round": "Champions",
+            "Year": year,
+        }
+        return ser
 
 
 def _convert_Int64_to_int(duration) -> int | None:
@@ -343,12 +378,6 @@ def check_played_round(year: int, played_round: PlayedRound) -> None:
     played_rounds = utils.YearInfo(year).played_rounds
     if played_round not in played_rounds:
         raise PlayedRoundError(f"The played round must be one of {played_rounds}.")
-
-
-def check_champions_round(selection_round: SelectionRound) -> None:
-    """Check for valid Champions round."""
-    if selection_round != "Champions":
-        raise PlayedRoundError("The selection round must be 'Champions'.")
 
 
 def check_conference(year: int, played_round: PlayedRound, conference: str) -> None:

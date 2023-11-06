@@ -1,8 +1,9 @@
 """Test for Insert."""
+import numpy as np
 import pandas as pd
 
 from deepwellcup.processing.database_new import Monikers
-from deepwellcup.processing.insert_new import InsertSelections
+from deepwellcup.processing.insert_new import InsertResults, InsertSelections
 from deepwellcup.processing.utils import RoundInfo
 
 
@@ -73,7 +74,7 @@ def test_add_monikers():
         def get_individuals(self) -> list[str]:  # pylint: disable=C0116
             return sorted(self.individuals)
 
-        def add_monikers(self, round_info: RoundInfo, monikers: Monikers) -> None:  # pylint: disable=C0116
+        def add_monikers(self, round_info: RoundInfo, monikers: Monikers) -> None:  # pylint: disable=C0116,W0613
             self.monikers = monikers
 
         def get_monikers(self) -> Monikers:  # pylint: disable=C0116
@@ -132,9 +133,9 @@ def test_add_preferences():
         def get_individuals(self) -> list[str]:  # pylint: disable=C0116
             return sorted(self.individuals)
 
-        def add_preferences(
+        def add_preferences(  # pylint: disable=C0116
             self,
-            round_info: RoundInfo,
+            round_info: RoundInfo,  # pylint: disable=W0613
             favourite_team: pd.Series,
             cheering_team: pd.Series
         ) -> None:  # pylint: disable=C0116
@@ -184,7 +185,7 @@ def test_add_series():
             self.individuals = []
             self.series = []
 
-        def add_series(self, round_info, series) -> None:  # pylint: disable=C0116
+        def add_series(self, round_info, series) -> None:  # pylint: disable=C0116,W0613
             self.series = series
 
         def get_series(self):  # pylint: disable=C0116
@@ -233,3 +234,39 @@ def test_add_champions_selections():
     with insert.database:
         insert.add_champions_selections()
     assert database.get_champions_selections().equals(selections)
+
+
+def test_add_champions_results():
+    """Test for champions_selections."""
+    results = pd.Series(
+        {
+            "East": "Boston Bruins",
+            "West": "Dallas Stars",
+            "Stanley Cup": "New York Islanders",
+            "Duration": np.int64(7),
+        },
+    )
+    results.attrs = {
+        "Selection Round": "Champions",
+        "Year": 2019,
+    }
+
+    class TempFileResults:  # pylint: disable=C0115
+        def results(self):  # pylint: disable=C0116
+            return results
+
+    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
+        def __init__(self):
+            self.results = []
+
+        def add_champions_results(self, results) -> None:  # pylint: disable=C0116
+            self.results = results
+
+        def get_champions_results(self):  # pylint: disable=C0116
+            return self.results
+
+    database = TempDataBase()
+    insert = InsertResults(TempFileResults(), database)
+    with insert.database:
+        insert.add_champions_results()
+    assert database.get_champions_results().equals(results)

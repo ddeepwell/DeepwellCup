@@ -5,7 +5,7 @@ from .database_new import DataBase
 from . import dirs
 from .process_files import FileSelections, FileResults
 from .insert import Insert
-from .insert_new import InsertSelections
+from .insert_new import InsertResults, InsertSelections
 from .latex import Latex
 from . import io
 from . import nhl_teams
@@ -30,6 +30,7 @@ __all__ = [
     "FileSelections",
     "FileResults",
     "Insert",
+    "InsertResults",
     "InsertSelections",
     "io",
     "Latex",

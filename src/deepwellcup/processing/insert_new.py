@@ -1,6 +1,6 @@
 """Insert selections into the database."""
 from .database_new import DataBase
-from .process_files import FileSelections
+from .process_files import FileResults, FileSelections
 from .utils import RoundInfo
 
 
@@ -26,7 +26,7 @@ class InsertSelections:
         return self._database
 
     def update_selections(self) -> None:
-        """Add all selection round information."""
+        """Add all selections."""
         with self.database:
             self.add_new_individuals()
             self.add_monikers()
@@ -98,3 +98,37 @@ class InsertSelections:
     def add_champions_selections(self) -> None:
         """Add champions selections."""
         self.database.add_champions_selections(self.selections.selections())
+
+
+class InsertResults:
+    "Insert round results into the database."
+
+    def __init__(
+        self,
+        results: FileResults,
+        database: DataBase,
+    ):
+        self._results = results
+        self._database = database
+
+    @property
+    def results(self) -> FileResults:
+        """Return the file results"""
+        return self._results
+
+    @property
+    def database(self) -> DataBase:
+        """Return the database"""
+        return self._database
+
+    def update_results(self) -> None:
+        """Add all results."""
+        with self.database:
+            if self.results.selection_round == 4:
+                self.add_champions_results()
+
+    def add_champions_results(self) -> None:
+        """Add champions results."""
+        self.database.add_champions_results(
+            self.results.results()  # type: ignore[arg-type]
+        )
