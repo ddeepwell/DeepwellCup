@@ -43,9 +43,6 @@ dev = [
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[tool.pylint."messages control"]
-disable = ["C0103"]
-
 [project.scripts]
 initialize = "deepwellcup.processing.dirs:initialize_products_directory"
 products_directory = "deepwellcup.processing.dirs:print_products_path"
