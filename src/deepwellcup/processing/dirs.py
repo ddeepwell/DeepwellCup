@@ -2,6 +2,7 @@
 from pathlib import Path
 import json
 import warnings
+
 from . import files
 
 
@@ -54,9 +55,8 @@ def _make_directory(directory: Path) -> None:
 def _request_products_path() -> Path:
     """Ask the user for a path to a directory for created products"""
     products_dir = Path(
-        input("Enter a directory to store the produced tables and figures: ")
-        .strip()
-    )
+        input("Enter a directory to store the produced tables and figures: ").strip()
+    ).resolve()
     if not products_dir.exists():
         raise FileNotFoundError(f"{products_dir} doesn't exist")
     if not products_dir.is_dir():
