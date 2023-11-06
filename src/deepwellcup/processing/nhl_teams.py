@@ -1,5 +1,5 @@
 """Functions for handling NHL team names"""
-from .utils import PlayedRound
+from .utils import Conference, PlayedRound
 
 
 def shorten_team_name(team):
@@ -154,7 +154,7 @@ def lengthen_team_name(team):
     return return_val
 
 
-def conferences(playoff_round: PlayedRound, year: int) -> list[str]:
+def conferences(playoff_round: PlayedRound, year: int) -> list[Conference]:
     """Return the conferences in a playoff round."""
     if playoff_round == 4 or year == 2021:
         return ["None"]
