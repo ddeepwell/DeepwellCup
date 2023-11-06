@@ -89,12 +89,12 @@ class DataBase:
         command = io.read_file_to_string(table_file)
         cursor.execute(command)
 
-    def fetch(self, command: str) -> list[tuple[str, ...]] | None:
+    def fetch(self, command: str) -> list[tuple[str, ...]]:
         """Fetch data."""
         if self._cursor:
             return self._cursor.execute(command).fetchall()
         warnings.warn("The database has not been openned. Nothing was fetched.")
-        return None
+        return []
 
     def commit(self, command: str, data: typing.Sequence[tuple]) -> None:
         """Commit data."""
