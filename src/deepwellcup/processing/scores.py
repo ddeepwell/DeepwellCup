@@ -3,11 +3,12 @@ from pandas import Series
 from numpy import NaN, add
 from sympy import symbols
 from sympy.utilities.lambdify import lambdify
+
+from .database_new import DataBase
 from .results import Results
 from .selections import Selections
-from .other_points import OtherPoints
 from . import utils
-from .utils import DataStores
+from .utils import DataStores, RoundInfo
 
 
 class Points:
@@ -32,14 +33,8 @@ class Points:
             playoff_round,
             datastores=datastores,
         )
-        if playoff_round != "Champions":
-            self._other_points = OtherPoints(
-                year,
-                playoff_round,
-                datastores=datastores,
-            )
-        else:
-            self._other_points = None
+        self._database = DataBase(datastores.database)
+        self._round_info = RoundInfo(year=year, played_round=playoff_round)
         self._scoring = IndividualScoring(
             year,
             playoff_round,
@@ -89,11 +84,12 @@ class Points:
         return sorted(individual_list)
 
     @property
-    def other_points(self):
+    def other_points(self) -> Series:
         """Other points for the playoff round"""
-        if self.playoff_round != "Champions" and self._other_points.points is not None:
-            return self._other_points.points.sort_values(ascending=False)
-        return None
+        if self.playoff_round == "Champions":
+            return Series()
+        with self._database as db:
+            return db.get_other_points(self._round_info)
 
     @property
     def selection_points(self):
@@ -116,14 +112,14 @@ class Points:
     @property
     def total_points(self):
         """Combined points from selections and other"""
-        if self.other_points is not None:
-            return (
-                self.selection_points
-                .combine(self.other_points, add, fill_value=0)
-                .rename(self.selection_points.name)
-                .sort_values(ascending=False)
-            )
-        return self.selection_points
+        if self.other_points.empty:
+            return self.selection_points
+        return (
+            self.selection_points
+            .combine(self.other_points, add, fill_value=0)
+            .rename(self.selection_points.name)
+            .sort_values(ascending=False)
+        )
 
     # @property
     # def table(self):

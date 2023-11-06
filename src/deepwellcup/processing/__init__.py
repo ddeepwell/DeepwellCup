@@ -8,7 +8,6 @@ from .insert_new import InsertOtherPoints, InsertResults, InsertSelections
 from .latex import Latex
 from . import io
 from . import nhl_teams
-from .other_points import OtherPoints
 from .playoff_round import PlayoffRound
 from .plots import Plots
 from .remake import multi_year_remake
@@ -35,7 +34,6 @@ __all__ = [
     "Latex",
     "multi_year_remake",
     "nhl_teams",
-    "OtherPoints",
     "PlayoffRound",
     "Plots",
     "print_series_results",
