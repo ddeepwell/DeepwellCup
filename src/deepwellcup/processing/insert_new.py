@@ -1,7 +1,7 @@
 """Insert selections into the database."""
 from .database_new import DataBase
 from .process_files import FileResults, FileSelections
-from .utils import RoundInfo
+from .utils import RoundInfo, YearInfo
 
 
 class InsertSelections:
@@ -28,12 +28,20 @@ class InsertSelections:
     def update_selections(self) -> None:
         """Add all selections."""
         with self.database:
-            self.add_new_individuals()
-            self.add_monikers()
-            self.add_preferences()
-            self.add_series()
-            if self.selections.selection_round == 1:
-                self.add_champions_selections()
+            if self._selection_round_is_played_round():
+                self.add_new_individuals()
+                self.add_monikers()
+                self.add_preferences()
+                # self.add_series()
+            # else:
+            #     self.add_champions_selections()
+
+    def _selection_round_is_played_round(self) -> bool:
+        """Check if selection round is a played round."""
+        return (
+            self.selections.selection_round
+            in YearInfo(self.selections.year).played_rounds
+        )
 
     def add_new_individuals(self) -> None:
         """Add new individuals."""
