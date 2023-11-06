@@ -315,7 +315,9 @@ class CleanUpRawPlayedData:
         improved_data = self._improve_columns(conference_data)
         player_data = self._rename_player_column(improved_data)
         duration_data = self._convert_duration_to_int(player_data)
-        return self._reorganize_data(duration_data)
+        reorganized_data = self._reorganize_data(duration_data)
+        _update_metadata(reorganized_data, self.year, selection_round=self.played_round)
+        return reorganized_data
 
 
 class CleanUpRawChampionsData:
@@ -395,7 +397,9 @@ class CleanUpRawChampionsData:
         """Return the Champions round selections."""
         cleaned_data = self._initial_data_cleanup(self.raw_data)
         updated_data = self._add_new_selection_columns(cleaned_data)
-        return self._add_duration(updated_data, self.raw_data)
+        duration_data = self._add_duration(updated_data, self.raw_data)
+        _update_metadata(duration_data, self.year, selection_round="Champions")
+        return duration_data
 
 
 def _series(columns: list[str] | pd.Index) -> list[str]:
@@ -439,3 +443,15 @@ def _convert_duration_to_int(
     if selection not in str_options:
         return None
     return int(selection)
+
+
+def _update_metadata(
+    data: pd.DataFrame,
+    year: int,
+    selection_round: SelectionRound
+) -> None:
+    """Add metadata to dataframe."""
+    data.attrs = {
+        "Selection Round": selection_round,
+        "Year": year,
+    }

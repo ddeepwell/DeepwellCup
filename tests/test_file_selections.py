@@ -251,6 +251,7 @@ def test_played_selections(selection_round, raw_data, selections):
     """Test for Played rounds selections."""
     pdata = CleanUpRawPlayedData(2006, selection_round, raw_data)
     assert pdata.selections().equals(selections)
+    assert pdata.selections().attrs == {"Selection Round": selection_round, "Year": 2006}
 
 
 @pytest.mark.parametrize("selection_round", ["Champions"])
@@ -258,6 +259,7 @@ def test_champions_selections(raw_data, selections):
     """Test for Champions round selections."""
     cdata = CleanUpRawChampionsData(2016, raw_data)
     assert cdata.selections().equals(selections)
+    assert cdata.selections().attrs == {"Selection Round": "Champions", "Year": 2016}
 
 
 def test_overtime_selections():
