@@ -315,13 +315,6 @@ class DataBase:
             (a_series[1], int(a_series[0])) for a_series in series
         }
 
-    def get_number_with_series(self, round_info: RoundInfo) -> dict[tuple[str, int], str]:
-        """Return series number with series."""
-        return {
-            conference_index: series for series, conference_index
-            in self.get_series_with_number(round_info).items()
-        }
-
     def add_round_selections(self, selections: pd.DataFrame) -> None:
         """Add played round selections."""
         individual_ids = self.get_individuals_with_ids()
@@ -352,6 +345,7 @@ class DataBase:
         selections = pd.read_sql_query(
             f"""
             SELECT Ser.Conference, Ser.SeriesNumber,
+                Ser.TeamHigherSeed, Ser.TeamLowerSeed,
                 Ind.FirstName, Ind.LastName,
                 SS.Team, SS.Duration, SS.Player
             FROM Individuals as Ind
@@ -369,14 +363,23 @@ class DataBase:
             utils.merge_name(list(name))
             for name in zip(selections["FirstName"], selections["LastName"])
         ]
-        number_with_series = self.get_number_with_series(round_info)
         selections["Series"] = [
-            number_with_series[tuple(index)]  # type: ignore[index]
-            for index in selections[["Conference", "SeriesNumber"]].values
+            create_series_name(higher_seed, lower_seed)
+            for higher_seed, lower_seed
+            in zip(selections["TeamHigherSeed"], selections["TeamLowerSeed"])
         ]
         return (
             selections.set_index(["Individual", "Conference", "Series"])
-            .drop(["FirstName", "LastName", "SeriesNumber"], axis="columns")
+            .drop(
+                [
+                    "FirstName",
+                    "LastName",
+                    "SeriesNumber",
+                    "TeamHigherSeed",
+                    "TeamLowerSeed",
+                ],
+                axis="columns"
+            )
             .astype({"Duration": "Int64"})
         )
 
@@ -407,14 +410,15 @@ class DataBase:
         check_year(round_info.year)
         results = pd.read_sql_query(
             f"""
-            SELECT Ser.Conference, Ser.TeamHigherSeed, Ser.TeamLowerSeed,
+            SELECT Ser.Conference, Ser.SeriesNumber,
+                Ser.TeamHigherSeed, Ser.TeamLowerSeed,
                 SR.Team, SR.Duration, SR.Player
             FROM (SeriesResults as SR
                 Inner JOIN Series as Ser
                 ON Ser.YearRoundSeriesID = SR.YearRoundSeriesID)
             WHERE Ser.Year = {round_info.year}
             AND Ser.Round = "{round_info.played_round}"
-            ORDER BY Conference, TeamHigherSeed, TeamLowerSeed
+            ORDER BY Conference, SeriesNumber
             """,
             self._conn,
         )
@@ -425,7 +429,7 @@ class DataBase:
         ]
         return (
             results.set_index(["Conference", "Series"])
-            .drop(["TeamHigherSeed", "TeamLowerSeed"], axis="columns")
+            .drop(["TeamHigherSeed", "TeamLowerSeed", "SeriesNumber"], axis="columns")
             .astype({"Duration": "Int64"})
         )
 
