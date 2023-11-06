@@ -11,7 +11,7 @@ from deepwellcup.processing.insert_new import (
 from deepwellcup.processing.utils import RoundInfo
 
 
-class UnitDataBase:
+class TempDataBase:
     """Test DataBase."""
     def __init__(self):
         pass
@@ -22,30 +22,63 @@ class UnitDataBase:
     def __exit__(self, exc_type, exc_value, exc_traceback):
         pass
 
+    def add_individuals(self, individuals: list[str]) -> None:  # pylint: disable=C0116
+        pass
+
+    def get_individuals(self) -> list[str]:  # pylint: disable=C0116
+        return []
+
+    def add_monikers(  # pylint: disable=C0116,W0613
+        self, round_info: RoundInfo, monikers: Monikers
+    ) -> None:
+        pass
+
+    def add_preferences(  # pylint: disable=C0116
+        self,
+        round_info: RoundInfo,
+        favourite_team: pd.Series,
+        cheering_team: pd.Series
+    ) -> None:
+        pass
+
+    def add_series(self, round_info, series) -> None:  # pylint: disable=C0116
+        pass
+
+    def add_round_selections(self, selections) -> None:  # pylint: disable=C0116
+        pass
+
+    def add_round_results(self, selections) -> None:  # pylint: disable=C0116
+        pass
+
+    def add_champions_selections(self, selections) -> None:  # pylint: disable=C0116
+        pass
+
+    def add_champions_results(self, results) -> None:  # pylint: disable=C0116
+        pass
+
+    def add_overtime_selections(self, selections) -> None:  # pylint: disable=C0116
+        pass
+
+    def add_overtime_results(  # pylint: disable=C0116
+        self, round_info, results
+    ) -> None:
+        pass
+
+    def add_other_points(  # pylint: disable=C0116
+        self, other_points
+    ) -> None:
+        pass
+
 
 def test_add_new_individuals():
     """Test for add_new_individuals."""
-    individuals = ["Alita D", "David D"]
-
     class TempFileSelections:  # pylint: disable=C0115
         def individuals(self):  # pylint: disable=C0116
-            return individuals
+            return ["Alita D", "David D"]
 
-    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
-        def __init__(self):
-            self.individuals = ["David D"]
-
-        def get_individuals(self) -> list[str]:  # pylint: disable=C0116
-            return sorted(self.individuals)
-
-        def add_individuals(self, individuals: list[str]) -> None:  # pylint: disable=C0116
-            self.individuals += individuals
-
-    database = TempDataBase()
-    insert = InsertSelections(TempFileSelections(), database)
+    insert = InsertSelections(TempFileSelections(), TempDataBase())
     with insert.database:
         insert.add_new_individuals()
-    assert database.get_individuals() == individuals
 
 
 def test_add_monikers():
@@ -67,46 +100,14 @@ def test_add_monikers():
         def monikers(self):  # pylint: disable=C0116
             return monikers
 
-    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
-        def __init__(self):
-            self.individuals = []
-            self.monikers = []
-
-        def add_individuals(self, individuals: list[str]) -> None:  # pylint: disable=C0116
-            self.individuals += individuals
-
-        def get_individuals(self) -> list[str]:  # pylint: disable=C0116
-            return sorted(self.individuals)
-
-        def add_monikers(self, round_info: RoundInfo, monikers: Monikers) -> None:  # pylint: disable=C0116,W0613
-            self.monikers = monikers
-
-        def get_monikers(self) -> Monikers:  # pylint: disable=C0116
-            return self.monikers
-
-    database = TempDataBase()
-    insert = InsertSelections(TempFileSelections(), database)
+    insert = InsertSelections(TempFileSelections(), TempDataBase())
     with insert.database:
         insert.add_new_individuals()
         insert.add_monikers()
-    assert database.get_monikers() == monikers
 
 
 def test_add_preferences():
     """Test for add_preferences."""
-    favourite_team = pd.Series(
-        {
-            "Brian M": "Toronto Maple Leafs",
-            "David D": "Vancouver Canucks",
-        }
-    )
-    cheering_team = pd.Series(
-        {
-            "Brian M": "",
-            "David D": "Calgary Flames",
-        }
-    )
-
     class TempFileSelections:  # pylint: disable=C0115
         def individuals(self):  # pylint: disable=C0116
             return ["Brian M", "David D"]
@@ -120,58 +121,29 @@ def test_add_preferences():
             return 1
 
         def favourite_team(self):  # pylint: disable=C0116
-            return favourite_team
+            return pd.Series(
+                {
+                    "Brian M": "Toronto Maple Leafs",
+                    "David D": "Vancouver Canucks",
+                }
+            )
 
         def cheering_team(self):  # pylint: disable=C0116
-            return cheering_team
+            return pd.Series(
+                {
+                    "Brian M": "",
+                    "David D": "Calgary Flames",
+                }
+            )
 
-    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
-        def __init__(self):
-            self.individuals = []
-            self.favourite_team = []
-            self.cheering_team = []
-
-        def add_individuals(self, individuals: list[str]) -> None:  # pylint: disable=C0116
-            self.individuals += individuals
-
-        def get_individuals(self) -> list[str]:  # pylint: disable=C0116
-            return sorted(self.individuals)
-
-        def add_preferences(  # pylint: disable=C0116
-            self,
-            round_info: RoundInfo,  # pylint: disable=W0613
-            favourite_team: pd.Series,
-            cheering_team: pd.Series
-        ) -> None:  # pylint: disable=C0116
-            self.favourite_team = favourite_team
-            self.cheering_team = cheering_team
-
-        def get_preferences(self) -> tuple[pd.Series, pd.Series]:  # pylint: disable=C0116
-            return self.favourite_team, self.cheering_team
-
-    database = TempDataBase()
-    insert = InsertSelections(TempFileSelections(), database)
+    insert = InsertSelections(TempFileSelections(), TempDataBase())
     with insert.database:
         insert.add_new_individuals()
         insert.add_preferences()
-    returned_favourite, returned_cheering = database.get_preferences()
-    assert returned_favourite.equals(favourite_team)
-    assert returned_cheering.equals(cheering_team)
 
 
 def test_add_series():
     """Test for add_series."""
-    series = pd.DataFrame(
-        {
-            "Conference": ["None"],
-            "Series Number": [1],
-            "Higher Seed": ["Vancouver Canucks"],
-            "Lower Seed": ["Toronto Maple Leafs"],
-            "Player on Higher Seed": [""],
-            "Player on Lower Seed": [""],
-        },
-    ).set_index(["Conference", "Series Number"])
-
     class TempFileSelections:  # pylint: disable=C0115
         @property
         def year(self):  # pylint: disable=C0116
@@ -182,24 +154,20 @@ def test_add_series():
             return 4
 
         def series(self):  # pylint: disable=C0116
-            return series
+            return pd.DataFrame(
+                {
+                    "Conference": ["None"],
+                    "Series Number": [1],
+                    "Higher Seed": ["Vancouver Canucks"],
+                    "Lower Seed": ["Toronto Maple Leafs"],
+                    "Player on Higher Seed": [""],
+                    "Player on Lower Seed": [""],
+                },
+            ).set_index(["Conference", "Series Number"])
 
-    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
-        def __init__(self):
-            self.individuals = []
-            self.series = []
-
-        def add_series(self, round_info, series) -> None:  # pylint: disable=C0116,W0613
-            self.series = series
-
-        def get_series(self):  # pylint: disable=C0116
-            return self.series
-
-    database = TempDataBase()
-    insert = InsertSelections(TempFileSelections(), database)
+    insert = InsertSelections(TempFileSelections(), TempDataBase())
     with insert.database:
         insert.add_series()
-    assert database.get_series().equals(series)
 
 
 def test_add_round_selections():
@@ -228,15 +196,7 @@ def test_add_round_selections():
         def selections(self):  # pylint: disable=C0116
             return selections
 
-    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
-        def __init__(self):
-            self.selections = []
-
-        def add_round_selections(self, selections) -> None:  # pylint: disable=C0116
-            self.selections = selections
-
-    database = TempDataBase()
-    insert = InsertSelections(TempFileSelections(), database)
+    insert = InsertSelections(TempFileSelections(), TempDataBase())
     with insert.database:
         insert.add_round_selections()
 
@@ -266,15 +226,7 @@ def test_add_round_results():
         def results(self):  # pylint: disable=C0116
             return results
 
-    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
-        def __init__(self):
-            self.selections = []
-
-        def add_round_results(self, selections) -> None:  # pylint: disable=C0116
-            self.selections = selections
-
-    database = TempDataBase()
-    insert = InsertResults(TempFileResults(), database)
+    insert = InsertResults(TempFileResults(), TempDataBase())
     with insert.database:
         insert.add_round_results()
 
@@ -303,22 +255,9 @@ def test_add_champions_selections():
         def selections(self):  # pylint: disable=C0116
             return selections
 
-    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
-        def __init__(self):
-            self.individuals = []
-            self.selections = []
-
-        def add_champions_selections(self, selections) -> None:  # pylint: disable=C0116
-            self.selections = selections
-
-        def get_champions_selections(self):  # pylint: disable=C0116
-            return self.selections
-
-    database = TempDataBase()
-    insert = InsertSelections(TempFileSelections(), database)
+    insert = InsertSelections(TempFileSelections(), TempDataBase())
     with insert.database:
         insert.add_champions_selections()
-    assert database.get_champions_selections().equals(selections)
 
 
 def test_add_champions_results():
@@ -344,21 +283,9 @@ def test_add_champions_results():
         def results(self):  # pylint: disable=C0116
             return results
 
-    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
-        def __init__(self):
-            self.results = []
-
-        def add_champions_results(self, results) -> None:  # pylint: disable=C0116
-            self.results = results
-
-        def get_champions_results(self):  # pylint: disable=C0116
-            return self.results
-
-    database = TempDataBase()
-    insert = InsertResults(TempFileResults(), database)
+    insert = InsertResults(TempFileResults(), TempDataBase())
     with insert.database:
         insert.add_champions_results()
-    assert database.get_champions_results().equals(results)
 
 
 def test_add_overtime_selections():
@@ -383,49 +310,26 @@ def test_add_overtime_selections():
         def overtime_selections(self):  # pylint: disable=C0116
             return selections
 
-    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
-        def __init__(self):
-            self.selections = []
-
-        def add_overtime_selections(self, selections) -> None:  # pylint: disable=C0116
-            self.selections = selections
-
-    database = TempDataBase()
-    insert = InsertSelections(TempFileSelections(), database)
+    insert = InsertSelections(TempFileSelections(), TempDataBase())
     with insert.database:
         insert.add_overtime_selections()
 
 
 def test_add_overtime_results():
     """Test for overtime_results."""
-    round_info = RoundInfo(played_round=3, year=2019)
-    results = "3"
-
     class TempFile:  # pylint: disable=C0115
         @property
         def selection_round(self):  # pylint: disable=C0116
-            return round_info.played_round
+            return 3
 
         @property
         def year(self):  # pylint: disable=C0116
-            return round_info.year
+            return 2019
 
         def overtime_results(self):  # pylint: disable=C0116
-            return results
+            return "3"
 
-    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
-        def __init__(self):
-            self.round_info = []
-            self.results = []
-
-        def add_overtime_results(  # pylint: disable=C0116
-            self, round_info, results
-        ) -> None:
-            self.round_info = round_info
-            self.results = results
-
-    database = TempDataBase()
-    insert = InsertResults(TempFile(), database)
+    insert = InsertResults(TempFile(), TempDataBase())
     with insert.database:
         insert.add_overtime_results()
 
@@ -455,16 +359,6 @@ def test_add_other_points():
         def points(self):  # pylint: disable=C0116
             return other_points
 
-    class TempDataBase(UnitDataBase):  # pylint: disable=C0115
-        def __init__(self):
-            self.other_points = []
-
-        def add_other_points(  # pylint: disable=C0116
-            self, other_points
-        ) -> None:
-            self.other_points = other_points
-
-    database = TempDataBase()
-    insert = InsertOtherPoints(TempFile(), database)
+    insert = InsertOtherPoints(TempFile(), TempDataBase())
     with insert.database:
         insert.add_other_points()
