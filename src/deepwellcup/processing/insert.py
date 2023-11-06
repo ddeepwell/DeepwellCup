@@ -80,8 +80,6 @@ class Insert:
         series = self.round_selections.series
 
         with self.database as db:
-            if self.round_selections.preferences_selected:
-                self.add_preferences(db)
 
             for conference in sorted(set(selections.index.get_level_values(1))):
                 series_pair_list = series[conference]
@@ -199,16 +197,6 @@ class Insert:
         new_individuals = sorted(list(set(individuals) - set(existing_individuals)))
         for individual in new_individuals:
             self.database.add_new_individual(*utils.split_name(individual))
-
-    def add_preferences(self, db):
-        """Add team preferences to the database"""
-        for individual in self.round_selections.preferences.index:
-            db.add_preferences(
-                self.year,
-                self.playoff_round,
-                *utils.split_name(individual),
-                *self.round_selections.preferences.loc[individual],
-            )
 
     def _convert_to_int(self, obj):
         """Convert all instances of numpy.int64 to int"""

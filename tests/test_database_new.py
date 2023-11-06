@@ -1,5 +1,6 @@
 """Tests for database."""
 from pytest import raises
+import pandas as pd
 
 from deepwellcup.processing.database_new import (
     check_played_round,
@@ -42,6 +43,20 @@ def test_monikers(tmp_path):
         db.add_monikers(round_info, monikers)
         received = db.get_monikers(round_info)
     assert received == monikers
+
+
+def test_preferences(tmp_path):
+    """Test for add and get preferences."""
+    database = DataBase(tmp_path / 'monikers.db')
+    round_info = RoundInfo(year=2010, played_round=1)
+    favourite_team = pd.Series({"David D": "Vancouver Canucks"})
+    cheering_team = pd.Series({"David D": "Calgary Flames"})
+    with database as db:
+        db.add_individuals(list(favourite_team.index))
+        db.add_preferences(round_info, favourite_team, cheering_team)
+        received_favourite, received_cheering = db.get_preferences(round_info)
+    assert received_favourite.equals(favourite_team)
+    assert received_cheering.equals(cheering_team)
 
 
 def test_check_year():

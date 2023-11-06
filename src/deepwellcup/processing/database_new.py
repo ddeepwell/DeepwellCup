@@ -4,6 +4,8 @@ from pathlib import Path
 import warnings
 import typing
 
+import pandas as pd
+
 from . import dirs, io, utils
 from .utils import PlayedRound, RoundInfo
 
@@ -25,6 +27,10 @@ class PlayedRoundError(Exception):
 
 class YearError(Exception):
     """Exception for invalid year."""
+
+
+class MismatchError(Exception):
+    """Exception for mismatched objects."""
 
 
 class DataBase:
@@ -125,6 +131,8 @@ class DataBase:
 
     def add_monikers(self, round_info: RoundInfo, monikers: Monikers) -> None:
         """Add monikers."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
         individuals_with_ids = self.get_individuals_with_ids()
         missing_individuals = set(monikers) - set(individuals_with_ids)
         if missing_individuals:
@@ -154,6 +162,58 @@ class DataBase:
         if monikers:
             return {self.get_ids_with_individuals()[int(id)]: moniker for id, moniker in monikers}
         return {}
+
+    def add_preferences(
+        self,
+        round_info: RoundInfo,
+        favourite_team: pd.Series,
+        cheering_team: pd.Series,
+    ) -> None:
+        """Add preferences."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        if not favourite_team.index.equals(cheering_team.index):
+            raise MismatchError(
+                "Favourite team index does not match cheering team indes."
+            )
+        individuals_with_ids = self.get_individuals_with_ids()
+        series_data = [
+            (
+                round_info.year,
+                round_info.played_round,
+                individuals_with_ids[individual],
+                favourite_team[individual],
+                cheering_team[individual],
+            )
+            for individual in favourite_team.index
+        ]
+        self.commit(
+            "INSERT INTO Preferences VALUES (?,?,?,?,?)", series_data
+        )
+
+    def get_preferences(self, round_info: RoundInfo) -> tuple[pd.Series, pd.Series]:
+        """Return the preferences for played round."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        preferences = self.fetch(
+            "SELECT IndividualID, FavouriteTeam, CheeringTeam "
+            f"FROM Preferences WHERE Year={round_info.year} AND Round={round_info.played_round}"
+        )
+        if not preferences:
+            return pd.Series(), pd.Series()
+        favourite_team = pd.Series(
+            {
+                self.get_ids_with_individuals()[int(id)]: favourite_team
+                for id, favourite_team, _ in preferences
+            }
+        )
+        cheering_team = pd.Series(
+            {
+                self.get_ids_with_individuals()[int(id)]: cheering_team
+                for id, _, cheering_team in preferences
+            }
+        )
+        return favourite_team, cheering_team
 
 
 def check_year(year: int) -> None:

@@ -30,6 +30,7 @@ class InsertSelections:
         with self.database:
             self.add_new_individuals()
             self.add_monikers()
+            self.add_preferences()
 
     def add_new_individuals(self) -> None:
         """Add new individuals."""
@@ -44,11 +45,37 @@ class InsertSelections:
         """Add monikers."""
         selection_round = self.selections.selection_round
         if selection_round == "Champions":
-            return None
+            return
         monikers = self.selections.monikers()
-        if monikers:
-            round_info = RoundInfo(
-                year=self.selections.year,
-                played_round=selection_round,
-            )
-            self.database.add_monikers(round_info, monikers)
+        if not monikers:
+            return
+        round_info = RoundInfo(
+            year=self.selections.year,
+            played_round=selection_round,
+        )
+        self.database.add_monikers(round_info, monikers)
+        return
+
+    def add_preferences(self) -> None:
+        """Add preferences."""
+        selection_round = self.selections.selection_round
+        if selection_round == "Champions":
+            return
+        favourite_team = self.selections.favourite_team()
+        cheering_team = self.selections.cheering_team()
+        if favourite_team.empty and cheering_team.empty:
+            return
+        if (
+            (favourite_team.empty and not cheering_team.empty)
+            or (not favourite_team.empty and cheering_team.empty)
+        ):
+            raise Warning("Both favourite team and cheering team must be defined.")
+        round_info = RoundInfo(
+            year=self.selections.year,
+            played_round=selection_round,
+        )
+        self.database.add_preferences(
+            round_info,
+            favourite_team,
+            cheering_team,
+        )

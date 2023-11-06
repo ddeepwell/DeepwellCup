@@ -42,7 +42,7 @@ def test_add_new_individuals():
 
 
 def test_add_monikers():
-    """Test for add_new_individuals."""
+    """Test for add_monikers."""
     class IndividualsDataBase(UnitDataBase):  # pylint: disable=C0115
         def __init__(self):
             self.individuals = []
@@ -55,7 +55,7 @@ def test_add_monikers():
             return sorted(self.individuals)
 
         def add_monikers(self, round_info: RoundInfo, monikers: Monikers) -> None:  # pylint: disable=C0116
-            self.monikers = monikers  # pylint: disable=W0201
+            self.monikers = monikers
 
         def get_monikers(self) -> Monikers:  # pylint: disable=C0116
             return self.monikers
@@ -73,3 +73,61 @@ def test_add_monikers():
         insert.add_new_individuals()
         insert.add_monikers()
     assert database.get_monikers() == {"Brian M": "", "David D": "Nazzy"}
+
+
+def test_add_preferences():
+    """Test for add_preferences."""
+    class IndividualsDataBase(UnitDataBase):  # pylint: disable=C0115
+        def __init__(self):
+            self.individuals = []
+            self.favourite_team = []
+            self.cheering_team = []
+
+        def add_individuals(self, individuals: list[str]) -> None:  # pylint: disable=C0116
+            self.individuals += individuals
+
+        def get_individuals(self) -> list[str]:  # pylint: disable=C0116
+            return sorted(self.individuals)
+
+        def add_preferences(
+            self,
+            round_info: RoundInfo,
+            favourite_team: pd.Series,
+            cheering_team: pd.Series
+        ) -> None:  # pylint: disable=C0116
+            self.favourite_team = favourite_team
+            self.cheering_team = cheering_team
+
+        def get_preferences(self) -> tuple[pd.Series, pd.Series]:  # pylint: disable=C0116
+            return self.favourite_team, self.cheering_team
+
+    content = pd.DataFrame(
+        {
+            "Individual": ["David D", "Brian M", "Results"],
+            "Favourite team:": ["Vancouver Canucks", "Toronto Maple Leafs", ""],
+            "Current team cheering for:": ["Calgary Flames", "", ""],
+        }
+    )
+    selections = FileSelections(build_file(2006, 1, content))
+    database = IndividualsDataBase()
+    insert = InsertSelections(selections, database)
+    with insert.database:
+        insert.add_new_individuals()
+        insert.add_preferences()
+    favourite_team, cheering_team = database.get_preferences()
+    assert favourite_team.equals(
+        pd.Series(
+            {
+                "Brian M": "Toronto Maple Leafs",
+                "David D": "Vancouver Canucks",
+            }
+        )
+    )
+    assert cheering_team.equals(
+        pd.Series(
+            {
+                "Brian M": "",
+                "David D": "Calgary Flames",
+            }
+        )
+    )
