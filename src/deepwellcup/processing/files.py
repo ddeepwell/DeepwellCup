@@ -60,7 +60,7 @@ class OtherPointsFile:
     For a selections round in a year."""
 
     year: int
-    selection_round: SelectionRound
+    played_round: PlayedRound
     directory: None | Path = None
 
     @property
@@ -72,10 +72,24 @@ class OtherPointsFile:
 
     @property
     def file(self) -> Path:
-        """CSV file with selections and results."""
+        """CSV file with other points."""
         return (
             self._data_directory / f"{self.year} Deepwell Cup Other Points Round "
-            f"{self.selection_round}.csv"
+            f"{self.played_round}.csv"
+        )
+
+    def read(self) -> pd.DataFrame:
+        """Read the file."""
+        contents = pd.read_csv(
+            self.file,
+            sep=",",
+            converters={
+                "Name:": str.strip,
+                "Moniker": str.strip,
+            },
+        )
+        return contents.rename(
+            columns={"Name:": "Individual", "Points": "Other Points"}
         )
 
 

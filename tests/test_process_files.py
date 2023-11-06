@@ -8,6 +8,7 @@ import pandas as pd
 from deepwellcup.processing.process_files import (
     CleanUpRawChampionsData,
     CleanUpRawPlayedData,
+    FileOtherPoints,
     FileSelections,
     FileResults,
 )
@@ -360,6 +361,28 @@ def test_results(selection_round, raw_data, results):
     """Test for Played rounds results."""
     a_file = build_file(2019, selection_round, raw_data)
     assert FileResults(a_file).results().equals(results)
+
+
+def test_other_points():
+    """Test for other points."""
+    raw_data = pd.DataFrame({'Individual': ['Harry L'], 'Points': [50]})
+
+    @dataclass(frozen=True)
+    class file:
+        """Class docstring."""
+        year = 2015
+        played_round = 1
+
+        def read(self) -> str:
+            """Read contents."""
+            return raw_data
+
+    other_points = (
+        pd.Series({'Harry L': 50})
+        .rename("Other Points")
+        .rename_axis("Individuals")
+    )
+    assert FileOtherPoints(file()).points().equals(other_points)
 
 
 def test_overtime_results():

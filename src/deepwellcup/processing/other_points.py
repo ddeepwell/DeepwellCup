@@ -25,7 +25,7 @@ class OtherPoints:
             )
         self._other_points_file = files.OtherPointsFile(
             year=self.year,
-            selection_round=self.playoff_round,
+            played_round=self.playoff_round,
             directory=self._datastores.raw_data_directory,
         ).file
         self._load_other_points()

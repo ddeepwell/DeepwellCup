@@ -5,7 +5,7 @@ import math
 import pandas as pd
 
 from . import nhl_teams
-from .files import SelectionsFile
+from .files import SelectionsFile, OtherPointsFile
 from .utils import Conference, PlayedRound, RoundInfo, SelectionRound
 
 
@@ -455,6 +455,45 @@ class CleanUpRawChampionsData:
         return duration_data
 
 
+class FileOtherPoints:
+    """Class for other points file."""
+
+    def __init__(self, other_points_file: OtherPointsFile):
+        self._year = other_points_file.year
+        self._played_round = other_points_file.played_round
+        self._raw_contents = other_points_file.read()
+
+    @property
+    def year(self) -> int:
+        """Return the year."""
+        return self._year
+
+    @property
+    def played_round(self) -> PlayedRound:
+        """Return the played round."""
+        return self._played_round
+
+    @property
+    def raw_contents(self) -> pd.DataFrame:
+        """Raw file contents."""
+        return self._raw_contents
+
+    def points(self) -> pd.Series:
+        """Return the other points."""
+        other_points = (
+            self.raw_contents
+            .set_index("Individual")
+            .sort_index()
+            .squeeze("columns")
+        )
+        _update_metadata(
+            other_points,
+            self.year,
+            self.played_round
+        )
+        return other_points
+
+
 def _series(columns: list[str] | pd.Index) -> list[str]:
     """Return the series."""
     return [
@@ -499,7 +538,7 @@ def _convert_duration_to_int(
 
 
 def _update_metadata(
-    data: pd.DataFrame,
+    data: pd.DataFrame | pd.Series,
     year: int,
     selection_round: SelectionRound
 ) -> None:
