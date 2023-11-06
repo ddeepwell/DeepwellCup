@@ -167,10 +167,14 @@ class DataBase:
         check_played_round(round_info.year, round_info.played_round)
         monikers = self.fetch(
             "SELECT IndividualID, Moniker "
-            f"FROM Monikers WHERE Year={round_info.year} AND Round={round_info.played_round}"
+            f"FROM Monikers WHERE Year={round_info.year} "
+            f"AND Round={round_info.played_round}"
         )
         if monikers:
-            return {self.get_ids_with_individuals()[int(id)]: moniker for id, moniker in monikers}
+            return {
+                self.get_ids_with_individuals()[int(id)]: moniker
+                for id, moniker in monikers
+            }
         return {}
 
     def add_preferences(
@@ -207,7 +211,8 @@ class DataBase:
         check_played_round(round_info.year, round_info.played_round)
         preferences = self.fetch(
             "SELECT IndividualID, FavouriteTeam, CheeringTeam "
-            f"FROM Preferences WHERE Year={round_info.year} AND Round={round_info.played_round}"
+            f"FROM Preferences WHERE Year={round_info.year} "
+            f"AND Round={round_info.played_round}"
         )
         if not preferences:
             return pd.Series(), pd.Series()
@@ -299,7 +304,9 @@ class DataBase:
         """Return IDs with series."""
         return {id: series for series, id in self.get_series_ids(round_info).items()}
 
-    def get_series_with_number(self, round_info: RoundInfo) -> dict[str, tuple[str, int]]:
+    def get_series_with_number(
+        self, round_info: RoundInfo
+    ) -> dict[str, tuple[str, int]]:
         """Return the series information with its conference number."""
         check_year(round_info.year)
         check_played_round(round_info.year, round_info.played_round)
@@ -503,7 +510,9 @@ class DataBase:
                 "East": champions[0][0],
                 "West": champions[0][1],
                 "Stanley Cup": champions[0][2],
-                "Duration": np.int64(champions[0][3]),
+                "Duration": (
+                    np.int64(champions[0][3]) if champions[0][3] is not None else pd.NA
+                ),
             }
         )
         ser.attrs = {
@@ -622,7 +631,7 @@ class DataBase:
         )
 
 
-def _convert_Int64_to_int(duration) -> int | None:
+def _convert_Int64_to_int(duration) -> int | None:  # pylint: disable=C0103
     """Convert Int64 to int type."""
     return int(duration) if not isinstance(duration, type(pd.NA)) else None
 
