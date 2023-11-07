@@ -30,7 +30,7 @@ class RoundData:
             self.year, self.selection_round, self.database
         )
         self.results = RoundResults(self.year, self.selection_round, self.database)
-        self.other_points = OtherPoints(2006, self.selection_round, self.database)
+        self.other_points = OtherPoints(self.year, self.selection_round, self.database)
 
 
 @dataclass
