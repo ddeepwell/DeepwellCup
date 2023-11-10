@@ -18,13 +18,16 @@ from .round_data import (
 from .utils import PlayedRound, RoundInfo, SelectionRound, YearInfo
 
 
+SimpleSystem = dict[str, int]
+ComplexSystem = dict[str, int | str]
+EitherSystem = SimpleSystem | ComplexSystem
 Results = PlayedResults | ChampionsResults
 Selections = PlayedSelections | ChampionsSelections
-ChampionsMethod = Callable[[pd.DataFrame, pd.Series, dict[str, int]], pd.Series]
-PlayedMethod = Callable[[PlayedSelections, PlayedResults, dict[str, int]], pd.Series]
-IndividualChampionsMethod = Callable[[pd.Series, pd.Series, dict], int]
+ChampionsMethod = Callable[[pd.DataFrame, pd.Series, EitherSystem], pd.Series]
+PlayedMethod = Callable[[PlayedSelections, PlayedResults, EitherSystem], pd.Series]
+IndividualChampionsMethod = Callable[[pd.Series, pd.Series, EitherSystem], int]
 IndividualPlayedMethod = Callable[
-    [pd.DataFrame, pd.Series, PlayedResults, dict, RoundInfo], int
+    [pd.DataFrame, pd.Series, PlayedResults, EitherSystem, RoundInfo], int
 ]
 
 
@@ -81,9 +84,7 @@ class RoundPoints:
         )
 
 
-def _get_played_method(
-    system: dict[str, int] | dict[str, int | str]
-) -> PlayedMethod:
+def _get_played_method(system: EitherSystem) -> PlayedMethod:
     points_for_individual = (
         _points_for_individual_played_2
         if "f_correct" in system
@@ -95,7 +96,7 @@ def _get_played_method(
 def played_points(
     selections: PlayedSelections,
     results: PlayedResults,
-    system: dict[str, int],
+    system: SimpleSystem,
     points_for_individual: IndividualPlayedMethod,
 ) -> pd.Series:
     """Selections points in the played round using a paradigm."""
@@ -124,7 +125,7 @@ def _points_for_individual_played_1(
     series_selections: pd.DataFrame,
     overtime_selection: str,  # pylint: disable=W0613
     results: PlayedResults,
-    system: dict[str, int],
+    system: SimpleSystem,
     round_info: RoundInfo,
 ) -> int:
     """Return the points for an individual in playoff rounds."""
@@ -140,7 +141,7 @@ def _points_for_individual_played_1(
 def _team_and_duration_points(
     selections: pd.DataFrame,
     results: pd.DataFrame,
-    system: dict[str, int],
+    system: SimpleSystem,
     round_info: RoundInfo,
 ) -> int:
     """Return the points for selecting teams and durations."""
@@ -177,7 +178,7 @@ def _team_and_duration_points(
 
 
 def _game_7_points(
-    picked_durations: pd.Series, correct_durations: pd.Series, system: dict[str, int]
+    picked_durations: pd.Series, correct_durations: pd.Series, system: SimpleSystem
 ) -> int:
     """Return the points for correct game 7 predictions."""
     if "correct_7game_series" not in system:
@@ -190,7 +191,7 @@ def _points_for_individual_played_2(
     selections: pd.DataFrame,
     overtime_selection: str,
     results: PlayedResults,
-    system: dict[str, int | str],
+    system: ComplexSystem,
     round_info: RoundInfo,
 ) -> int:
     """Return the points for an individual in playoff rounds."""
@@ -205,7 +206,7 @@ def _points_for_individual_played_2(
 def _gradient_team_points(
     selections: pd.DataFrame,
     results: pd.DataFrame,
-    system: dict[str, int | str],
+    system: ComplexSystem,
     played_round: PlayedRound,
 ) -> tuple[int, int]:
     f_correct, f_incorrect = _get_correct_gradient_functions(played_round, system)
@@ -234,7 +235,7 @@ def _gradient_team_points(
 
 
 def _get_correct_gradient_functions(
-    played_round: PlayedRound, system: dict[str, int | str]
+    played_round: PlayedRound, system: ComplexSystem
 ) -> tuple[Callable, Callable]:
     c, p = symbols("C P")
     if played_round == "Q":
@@ -251,7 +252,7 @@ def _get_correct_gradient_functions(
 def _player_points(
     selections: pd.DataFrame,
     results: pd.DataFrame,
-    system: dict[str, int | str],
+    system: ComplexSystem,
 ):
     if "Player" not in system:
         return 0
@@ -263,7 +264,7 @@ def _player_points(
 def _overtime_points(
     selection: str,
     result: str,
-    system: dict[str, int | str],
+    system: ComplexSystem,
 ):
     if "Overtime" not in system:
         return 0
@@ -277,9 +278,7 @@ def _overtime_points(
         return system["Overtime (1 game off)"]
 
 
-def _get_champions_method(
-    system: dict[str, int] | dict[str, int | str]
-) -> ChampionsMethod:
+def _get_champions_method(system: EitherSystem) -> ChampionsMethod:
     points_for_individual = (
         _points_for_individual_champions_1
         if "stanley_cup_runnerup" in system
@@ -291,11 +290,11 @@ def _get_champions_method(
 def champions_points(
     selections: pd.DataFrame,
     results: pd.Series,
-    system: dict[str, int],
+    system: EitherSystem,
     points_for_individual: IndividualChampionsMethod,
 ) -> pd.Series:
     """Selections points in the Champions round using Champions paradigm 1."""
-    points: dict[str, int | None] = {
+    points = {
         individual: points_for_individual(selections.loc[individual], results, system)
         for individual in selections.index.get_level_values("Individual")
     }
@@ -303,7 +302,7 @@ def champions_points(
 
 
 def _points_for_individual_champions_1(
-    selections: pd.Series, results: pd.Series, system: dict[str, int]
+    selections: pd.Series, results: pd.Series, system: SimpleSystem
 ) -> int | None:
     """Return the points for an individual in the champions round."""
     winner_points = (
@@ -321,7 +320,7 @@ def _points_for_individual_champions_1(
 
 
 def _points_for_individual_champions_2(
-    selections: pd.Series, results: pd.Series, system: dict[str, int]
+    selections: pd.Series, results: pd.Series, system: SimpleSystem
 ) -> int | None:
     """Return the points for an individual in the champions round."""
     # shorten selections and results
