@@ -1,11 +1,10 @@
 """Round selections and results classes."""
 from dataclasses import dataclass, field
-from abc import ABC
 
 import pandas as pd
 
 from .database_new import DataBase
-from .utils import RoundInfo, SelectionRound
+from .utils import PlayedRound, RoundInfo, SelectionRound
 
 
 class SelectionRoundError(Exception):
@@ -21,38 +20,31 @@ class RoundData:
 
     def __post_init__(self):
         if self.selection_round == "Champions":
-            RoundSelections = ChampionsSelections
-            RoundResults = ChampionsResults
+            self.selections = ChampionsSelections(self.year, self.database)
+            self.results = ChampionsResults(self.year, self.database)
         else:
-            RoundSelections = PlayedSelections
-            RoundResults = PlayedResults
-        self.selections = RoundSelections(
-            self.year, self.selection_round, self.database
-        )
-        self.results = RoundResults(self.year, self.selection_round, self.database)
+            self.selections = PlayedSelections(
+                self.year, self.selection_round, self.database
+            )
+            self.results = PlayedResults(
+                self.year, self.selection_round, self.database
+            )
         self.other_points = OtherPoints(self.year, self.selection_round, self.database)
 
 
 @dataclass
-class BaseRound(ABC):
-    """Selections, results, and other points in a selection round."""
-
-    year: int
-    selection_round: SelectionRound
-    database: DataBase
-
-
-@dataclass
-class BasePlayedRound(BaseRound):
+class BasePlayedRound:
     """Selections, results, and other points in a played round."""
 
+    year: int
+    selection_round: PlayedRound
+    database: DataBase
     _round_info: RoundInfo = field(init=False)
 
     def __post_init__(self) -> None:
-        if self.selection_round != "Champions":
-            self._round_info = RoundInfo(
-                year=self.year, played_round=self.selection_round
-            )
+        self._round_info = RoundInfo(
+            year=self.year, played_round=self.selection_round
+        )
 
 
 @dataclass
@@ -73,17 +65,6 @@ class PlayedSelections(BasePlayedRound):
 
 
 @dataclass
-class ChampionsSelections(BaseRound):
-    """All selections for the champions round."""
-
-    @property
-    def champions(self) -> pd.DataFrame:
-        """Selections."""
-        with self.database as db:
-            return db.get_champions_selections(self.year)
-
-
-@dataclass
 class PlayedResults(BasePlayedRound):
     """All results for a played round."""
 
@@ -101,8 +82,27 @@ class PlayedResults(BasePlayedRound):
 
 
 @dataclass
-class ChampionsResults(BaseRound):
+class ChampionsSelections:
+    """All selections for the champions round."""
+
+    year: int
+    selection_round = "Champions"
+    database: DataBase
+
+    @property
+    def champions(self) -> pd.DataFrame:
+        """Selections."""
+        with self.database as db:
+            return db.get_champions_selections(self.year)
+
+
+@dataclass
+class ChampionsResults:
     """All results for the champions round."""
+
+    year: int
+    selection_round = "Champions"
+    database: DataBase
 
     @property
     def champions(self) -> pd.DataFrame:

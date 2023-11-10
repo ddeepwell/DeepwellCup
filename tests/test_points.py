@@ -4,8 +4,9 @@ from dataclasses import dataclass
 import pandas as pd
 import pytest
 
+from deepwellcup.processing.database_new import DataBase
 from deepwellcup.processing.points import RoundPoints
-from deepwellcup.processing.round_data import BasePlayedRound, BaseRound
+from deepwellcup.processing.round_data import BasePlayedRound
 
 
 class TempDataBase:  # pylint: disable=C0115,R0903
@@ -59,7 +60,11 @@ class ResultsR4(BasePlayedRound):  # pylint: disable=C0115
 
 
 @dataclass
-class SelectionsChamp(BaseRound):  # pylint: disable=C0115
+class SelectionsChamp:  # pylint: disable=C0115
+
+    year: int
+    selection_round = "Champions"
+    database: DataBase
 
     @property
     def champions(self) -> pd.DataFrame:  # pylint: disable=C0116
@@ -75,7 +80,11 @@ class SelectionsChamp(BaseRound):  # pylint: disable=C0115
 
 
 @dataclass
-class ResultsChamp(BaseRound):  # pylint: disable=C0115
+class ResultsChamp:  # pylint: disable=C0115
+
+    year: int
+    selection_round = "Champions"
+    database: DataBase
 
     @property
     def champions(self) -> pd.Series:  # pylint: disable=C0116
@@ -90,7 +99,7 @@ class ResultsChamp(BaseRound):  # pylint: disable=C0115
 
 
 @dataclass
-class OtherPointsEmpty(BaseRound):  # pylint: disable=C0115
+class OtherPointsEmpty(BasePlayedRound):  # pylint: disable=C0115
 
     @property
     def points(self):  # pylint: disable=C0116
@@ -108,7 +117,7 @@ class OtherPointsEmpty(BaseRound):  # pylint: disable=C0115
             pd.Series({"David D": 17, "Mark D": 0}).astype("Int64")
         ),
         (
-            [2007, "Champions", TempDataBase()],
+            [2007, TempDataBase()],
             SelectionsChamp,
             ResultsChamp,
             OtherPointsEmpty,
@@ -124,9 +133,13 @@ def test_selection_points(round_inputs, selections, results, other_points, expec
         def __post_init__(self):
             self.selections = selections(*round_inputs)
             self.results = results(*round_inputs)
+            if selections == SelectionsChamp:
+                round_inputs.insert(1, "Champions")
+                self.selection_round = self.selections.selection_round
+            else:
+                self.selection_round = self.selections.selection_round
             self.other_points = other_points(*round_inputs)
             self.year = self.selections.year
-            self.selection_round = self.selections.selection_round
 
     pts = RoundPoints(RoundData())
     assert pts.selection.equals(expected)
