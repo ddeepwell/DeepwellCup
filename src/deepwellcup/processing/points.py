@@ -47,18 +47,19 @@ class RoundPoints:
     @property
     def selection(self) -> pd.Series:
         """Return points for selections."""
+        system = points_system(self.year)
         if self.selection_round == "Champions":
-            calculate_champ_points = _get_champions_method(self.year)
+            calculate_champ_points = _get_champions_method(system)
             return calculate_champ_points(
                 self.round_data.selections.champions,
                 self.round_data.results.champions,
-                points_system(self.year),
+                system,
             )
-        calculate_round_points = _get_played_method(self.year)
+        calculate_round_points = _get_played_method(system)
         return calculate_round_points(
             self.round_data.selections,
             self.round_data.results,
-            points_system(self.year),
+            system,
         )
 
     @property
@@ -80,11 +81,13 @@ class RoundPoints:
         )
 
 
-def _get_played_method(year: int) -> PlayedMethod:
+def _get_played_method(
+    system: dict[str, int] | dict[str, int | str]
+) -> PlayedMethod:
     points_for_individual = (
-        _points_for_individual_played_1
-        if year < 2018
-        else _points_for_individual_played_2
+        _points_for_individual_played_2
+        if "f_correct" in system
+        else _points_for_individual_played_1
     )
     return partial(played_points, points_for_individual=points_for_individual)
 
@@ -125,13 +128,12 @@ def _points_for_individual_played_1(
     round_info: RoundInfo,
 ) -> int:
     """Return the points for an individual in playoff rounds."""
-    return (_team_and_duration_points(
+    return _team_and_duration_points(
         series_selections, results.series, system, round_info
     ) + _game_7_points(
         series_selections["Duration"],
         results.series["Duration"],
         system,
-    )
     )
 
 
@@ -275,22 +277,26 @@ def _overtime_points(
         return system["Overtime (1 game off)"]
 
 
-def _get_champions_method(year: int) -> ChampionsMethod:
-    return (
-        champions_points_paradigm_1
-        if year == 2008 or year > 2016
-        else champions_points_paradigm_1
+def _get_champions_method(
+    system: dict[str, int] | dict[str, int | str]
+) -> ChampionsMethod:
+    points_for_individual = (
+        _points_for_individual_champions_1
+        if "stanley_cup_runnerup" in system
+        else _points_for_individual_champions_2
     )
+    return partial(champions_points, points_for_individual=points_for_individual)
 
 
-def champions_points_paradigm_1(
-    selections: pd.DataFrame, results: pd.Series, system: dict[str, int]
+def champions_points(
+    selections: pd.DataFrame,
+    results: pd.Series,
+    system: dict[str, int],
+    points_for_individual: IndividualChampionsMethod,
 ) -> pd.Series:
     """Selections points in the Champions round using Champions paradigm 1."""
     points: dict[str, int | None] = {
-        individual: _points_for_individual_champions_1(
-            selections.loc[individual], results, system
-        )
+        individual: points_for_individual(selections.loc[individual], results, system)
         for individual in selections.index.get_level_values("Individual")
     }
     return _create_points_series(points, "Champions")
@@ -311,6 +317,28 @@ def _points_for_individual_champions_1(
         else 0
     )
     total_points = winner_points + runnerup_points
+    return None if total_points == 0 else total_points
+
+
+def _points_for_individual_champions_2(
+    selections: pd.Series, results: pd.Series, system: dict[str, int]
+) -> int | None:
+    """Return the points for an individual in the champions round."""
+    # shorten selections and results
+    selected_finalists = list(selections[["East", "West"]])
+    selected_champion = selections["Stanley Cup"]
+    finalists = list(results[["East", "West"]])
+    champion = results["Stanley Cup"]
+    # points for stanley cup finalists
+    finalist_points = sum(
+        system["stanley_cup_finalist"]
+        for team in selected_finalists
+        if team in finalists
+    )
+    champion_points = (
+        system["stanley_cup_winner"] if selected_champion == champion else 0
+    )
+    total_points = finalist_points + champion_points
     return None if total_points == 0 else total_points
 
 

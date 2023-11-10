@@ -100,7 +100,7 @@ class ResultsChamp:  # pylint: disable=C0115
             {
                 "East": "New York Rangers",
                 "West": "Vancouver Canucks",
-                "Stanley Cup": "Los Angeles Kings",
+                "Stanley Cup": "Vancouver Canucks",
                 "Duration": pd.NA,
             }
         )
@@ -134,11 +134,20 @@ class OtherPointsEmpty(BasePlayedRound):  # pylint: disable=C0115
             pd.Series({"David D": 9, "Mark D": 3}).astype("Int64")
         ),
         (
+            # Champions round points paradigm 1
             [2007, TempDataBase()],
             SelectionsChamp,
             ResultsChamp,
             OtherPointsEmpty,
-            pd.Series({"Mark D": 40, "David D": pd.NA}).astype("Int64")
+            pd.Series({"Mark D": 15, "David D": pd.NA}).astype("Int64")
+        ),
+        (
+            # Champions round points paradigm 2
+            [2018, TempDataBase()],
+            SelectionsChamp,
+            ResultsChamp,
+            OtherPointsEmpty,
+            pd.Series({"Mark D": 6, "David D": pd.NA}).astype("Int64")
         ),
     ]
 )
