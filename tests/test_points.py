@@ -37,6 +37,10 @@ class SelectionsR4(BasePlayedRound):  # pylint: disable=C0115
         }
         return selections
 
+    @property
+    def overtime(self) -> pd.Series:  # pylint: disable=C0116
+        return pd.Series()
+
 
 @dataclass
 class ResultsR4(BasePlayedRound):  # pylint: disable=C0115
@@ -57,6 +61,10 @@ class ResultsR4(BasePlayedRound):  # pylint: disable=C0115
             "Year": self._round_info.year,
         }
         return results
+
+    @property
+    def overtime(self) -> str:  # pylint: disable=C0116
+        return ""
 
 
 @dataclass
@@ -110,11 +118,20 @@ class OtherPointsEmpty(BasePlayedRound):  # pylint: disable=C0115
     "round_inputs, selections, results, other_points, expected",
     [
         (
+            # Played round points paradigm 1
             [2008, 4, TempDataBase()],
             SelectionsR4,
             ResultsR4,
             OtherPointsEmpty,
             pd.Series({"David D": 17, "Mark D": 0}).astype("Int64")
+        ),
+        (
+            # Played round points paradigm 2
+            [2018, 4, TempDataBase()],
+            SelectionsR4,
+            ResultsR4,
+            OtherPointsEmpty,
+            pd.Series({"David D": 9, "Mark D": 3}).astype("Int64")
         ),
         (
             [2007, TempDataBase()],

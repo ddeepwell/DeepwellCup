@@ -75,7 +75,7 @@ class PlayedResults(BasePlayedRound):
             return db.get_round_results(self._round_info)
 
     @property
-    def overtime(self) -> pd.Series:
+    def overtime(self) -> str:
         """Overtime results."""
         with self.database as db:
             return db.get_overtime_results(self._round_info)
