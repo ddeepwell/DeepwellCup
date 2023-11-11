@@ -1,5 +1,5 @@
 CREATE TABLE StanleyCupSelections (
-    IndividualID        INTEGER      REFERENCES Individuals (IndividualID) 
+    IndividualID        INTEGER      REFERENCES Individuals (IndividualID)
                                      NOT NULL,
     Year                INTEGER      NOT NULL,
     East            VARCHAR (40),

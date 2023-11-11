@@ -1,6 +1,6 @@
 CREATE TABLE SeriesResults (
     YearRoundSeriesID INTEGER      UNIQUE
-                                   REFERENCES SeriesSelections (YearRoundSeriesID) 
+                                   REFERENCES SeriesSelections (YearRoundSeriesID)
                                    PRIMARY KEY
                                    NOT NULL,
     Team            VARCHAR (40) NOT NULL,

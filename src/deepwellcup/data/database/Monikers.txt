@@ -1,7 +1,7 @@
 CREATE TABLE Monikers (
     Year              INTEGER (4)  NOT NULL,
     Round             INTEGER (1)  NOT NULL,
-    IndividualID      INTEGER      REFERENCES Individuals (IndividualID) 
+    IndividualID      INTEGER      REFERENCES Individuals (IndividualID)
                                    NOT NULL,
     Moniker    VARCHAR (20),
     PRIMARY KEY (

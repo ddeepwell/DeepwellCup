@@ -9,5 +9,5 @@ CREATE TABLE Series (
     TeamHigherSeed    VARCHAR (40) NOT NULL,
     TeamLowerSeed     VARCHAR (40) NOT NULL,
     PlayerHigherSeed  VARCHAR (40),
-    PlayerLowerSeed   VARCHAR (40) 
+    PlayerLowerSeed   VARCHAR (40)
 );

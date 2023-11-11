@@ -1,7 +1,7 @@
 CREATE TABLE SeriesSelections (
-    YearRoundSeriesID INTEGER      REFERENCES Series (YearRoundSeriesID) 
+    YearRoundSeriesID INTEGER      REFERENCES Series (YearRoundSeriesID)
                                    NOT NULL,
-    IndividualID      INTEGER      REFERENCES Individuals (IndividualID) 
+    IndividualID      INTEGER      REFERENCES Individuals (IndividualID)
                                    NOT NULL,
     Team            VARCHAR (40),
     Duration        INTEGER (1),
