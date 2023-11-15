@@ -483,17 +483,32 @@ class DataBase:
         }
         return df
 
-    def add_champions_results(self, results: pd.Series) -> None:
-        """Add the Champions round results."""
+    def add_finalists_results(self, results: pd.Series) -> None:
+        """Add the Champion round finalist results."""
         stanley_cup_data = [
             (
                 results.attrs["Year"],
-                *tuple(results.values[:-1]),
+                *list(results[["East", "West"]]),
+            )
+        ]
+        self.commit(
+            "INSERT INTO StanleyCupResults (Year, East, West) VALUES (?,?,?)",
+            stanley_cup_data
+        )
+
+    def add_stanley_cup_champion_results(self, results: pd.Series) -> None:
+        """Add the Stanley Cup Champions result."""
+        year = results.attrs["Year"]
+        stanley_cup_data = [
+            (
+                results["Stanley Cup"],
                 _convert_Int64_to_int(results['Duration'])
             )
         ]
         self.commit(
-            "INSERT INTO StanleyCupResults VALUES (?,?,?,?,?)", stanley_cup_data
+            "UPDATE StanleyCupResults "
+            f"SET 'Stanley Cup' = ?, Duration = ? WHERE Year = {year}",
+            stanley_cup_data
         )
 
     def get_champions_results(self, year: int) -> pd.Series:

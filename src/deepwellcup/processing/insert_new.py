@@ -45,7 +45,8 @@ class InsertSelections:
         """Add new individuals."""
         new_individuals = sorted(
             list(
-                set(self.selections.individuals()) - set(self.database.get_individuals())
+                set(self.selections.individuals())
+                - set(self.database.get_individuals())
             )
         )
         self.database.add_individuals(new_individuals)
@@ -72,9 +73,8 @@ class InsertSelections:
             favourite_team.empty and cheering_team.empty
         ):
             return
-        if (
-            (favourite_team.empty and not cheering_team.empty)
-            or (not favourite_team.empty and cheering_team.empty)
+        if (favourite_team.empty and not cheering_team.empty) or (
+            not favourite_team.empty and cheering_team.empty
         ):
             raise Warning("Both favourite team and cheering team must be defined.")
         round_info = RoundInfo(
@@ -151,8 +151,10 @@ class InsertResults:
             ):
                 self.add_round_results()
                 self.add_overtime_results()
+                if self.results.selection_round == 3:
+                    self.add_finalists_results()
             else:
-                self.add_champions_results()
+                self.add_stanley_cup_champion_results()
 
     def add_round_results(self) -> None:
         """Add round results."""
@@ -162,11 +164,19 @@ class InsertResults:
             self.results.results()  # type: ignore[arg-type]
         )
 
-    def add_champions_results(self) -> None:
-        """Add champions results."""
+    def add_finalists_results(self) -> None:
+        """Add champions finalist results."""
         if self.results.selection_round != "Champions":
             return
-        self.database.add_champions_results(
+        self.database.add_finalists_results(
+            self.results.results()  # type: ignore[arg-type]
+        )
+
+    def add_stanley_cup_champion_results(self) -> None:
+        """Add Stanley Cup champion result."""
+        if self.results.selection_round != "Champions":
+            return
+        self.database.add_stanley_cup_champion_results(
             self.results.results()  # type: ignore[arg-type]
         )
 
@@ -211,8 +221,8 @@ class InsertOtherPoints:
         self.database.add_other_points(self.other_points.points())
 
 
-def _selection_round_is_played_round(selection_round: SelectionRound, year: int) -> bool:
+def _selection_round_is_played_round(
+    selection_round: SelectionRound, year: int
+) -> bool:
     """Check if selection round is a played round."""
-    return (
-        selection_round in YearInfo(year).played_rounds
-    )
+    return selection_round in YearInfo(year).played_rounds

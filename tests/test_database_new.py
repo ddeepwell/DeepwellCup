@@ -227,8 +227,30 @@ def test_champions_selections(tmp_path):
     assert received.equals(champions)
 
 
-def test_champions_results(tmp_path):
-    """Test for add and get champions results."""
+def test_champions_finalists_results(tmp_path):
+    """Test for add and get champions finalist results."""
+    database = DataBase(tmp_path / 'champions_results.db')
+    year = 2012
+    champions = pd.Series(
+        {
+            "East": "Boston Bruins",
+            "West": "Dallas Stars",
+            "Stanley Cup": None,
+            "Duration": pd.NA,
+        },
+    )
+    champions.attrs = {
+        "Selection Round": "Champions",
+        "Year": year,
+    }
+    with database as db:
+        db.add_finalists_results(champions)
+        received = db.get_champions_results(year)
+    assert received.equals(champions)
+
+
+def test_champions_stanley_cup_results(tmp_path):
+    """Test for add and get the Stanley Cup champion results."""
     database = DataBase(tmp_path / 'champions_results.db')
     year = 2012
     champions = pd.Series(
@@ -244,7 +266,8 @@ def test_champions_results(tmp_path):
         "Year": year,
     }
     with database as db:
-        db.add_champions_results(champions)
+        db.add_finalists_results(champions)
+        db.add_stanley_cup_champion_results(champions)
         received = db.get_champions_results(year)
     assert received.equals(champions)
 

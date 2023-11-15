@@ -53,7 +53,10 @@ class TempDataBase:
     def add_champions_selections(self, selections) -> None:  # pylint: disable=C0116
         pass
 
-    def add_champions_results(self, results) -> None:  # pylint: disable=C0116
+    def add_finalists_results(self, results) -> None:  # pylint: disable=C0116
+        pass
+
+    def add_stanley_cup_champion_results(self, results) -> None:  # pylint: disable=C0116
         pass
 
     def add_overtime_selections(self, selections) -> None:  # pylint: disable=C0116
@@ -285,7 +288,8 @@ def test_add_champions_results():
 
     insert = InsertResults(TempFileResults(), TempDataBase())
     with insert.database:
-        insert.add_champions_results()
+        insert.add_finalists_results()
+        insert.add_stanley_cup_champion_results()
 
 
 def test_add_overtime_selections():
