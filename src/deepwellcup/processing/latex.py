@@ -1,17 +1,17 @@
 """Class for making LaTex table files"""
 import os
+
+from jinja2 import Environment, FileSystemLoader
 from numpy import array
 from pandas import isna
 from sympy import latex, symbols
 from sympy.utilities.lambdify import lambdify
-from jinja2 import Environment, FileSystemLoader
+
 from . import dirs, utils
-from .selections import Selections
+from .nhl_teams import lengthen_team_name as ltn
+from .nhl_teams import shorten_team_name as stn
 from .points_systems import points_system
-from .nhl_teams import (
-    shorten_team_name as stn,
-    lengthen_team_name as ltn,
-)
+from .selections import Selections
 from .utils import DataStores
 
 
@@ -38,7 +38,7 @@ class Latex:
                 datastores=datastores,
             )
         else:
-            self._champions_selections = None
+            self._champions_selections = None  # type: ignore
         self._system = points_system(self.year)
 
     @property
@@ -54,12 +54,7 @@ class Latex:
     @property
     def individuals(self):
         """The individuals in the playoff round"""
-        return sorted(
-            self._selections
-            .index
-            .get_level_values("Individual")
-            .unique()
-        )
+        return sorted(self._selections.index.get_level_values("Individual").unique())
 
     @property
     def _long_form(self):
@@ -349,10 +344,11 @@ class Latex:
         """Row for the overtime selections"""
         row = f"{self.blanker}          Overtime"
         for index, individual in enumerate(self.individuals):
+            ot_selection = self._round_selections.selections_overtime[individual]
             if index % 2 == 0:
-                row += f" & \\mclg{{{self._round_selections.selections_overtime[individual]}}}"
+                row += f" & \\mclg{{{ot_selection}}}"
             else:
-                row += f" & \\mcl{{{self._round_selections.selections_overtime[individual]}}}"
+                row += f" & \\mcl{{{ot_selection}}}"
         row += "\\\\\n"
         return row
 
@@ -415,15 +411,21 @@ class Latex:
             descriptor = (
                 "        Correct team (rounds 1,2,3):	"
                 f"& ${system['correct_team_rounds_123']}$\\\\\n"
-                "        Correct series length (rounds 1,2,3 - regardless of series winner):	"
+                "        Correct series length (rounds 1,2,3 -"
+                " regardless of series winner):	"
                 f"& ${system['correct_length_rounds_123']}$\\\\\n"
-                f"        Correct team (round 4):	& ${system['correct_team_rounds_4']}$\\\\\n"
-                "        Correct series length (round 4 - regardless of series winner):	"
+                f"        Correct team (round 4):	&"
+                f" ${system['correct_team_rounds_4']}$\\\\\n"
+                "        Correct series length (round 4 -"
+                " regardless of series winner):	"
                 f"& ${system['correct_length_rounds_4']}$\\\\"
             )
         elif "correct_team" in system:
-            descriptor = f"""        Correct team:	& ${system['correct_team']}$\\\\
-        Correct series length (regardless of series winner):	& ${system['correct_length']}$\\\\"""
+            descriptor = (
+                f"        Correct team:	& ${system['correct_team']}$\\\\\n"
+                "        Correct series length (regardless of series winner):	&"
+                f" ${system['correct_length']}$\\\\"
+            )
         elif "f_correct" in system:
             if self.playoff_round == "Q":
                 correct_handle = "f_correct_round_Q"
@@ -431,9 +433,9 @@ class Latex:
             else:
                 correct_handle = "f_correct"
                 incorrect_handle = "f_incorrect"
-            C, P = symbols("C P")
-            correct = latex(eval(system[correct_handle]))
-            incorrect = latex(eval(system[incorrect_handle]))
+            C, P = symbols("C P")  # pylint: disable=C0103,W0612
+            correct = latex(eval(system[correct_handle]))  # pylint: disable=W0123
+            incorrect = latex(eval(system[incorrect_handle]))  # pylint: disable=W0123
             descriptor = f"""        Let $C$ be the correct number of games\\\\
         Let $P$ be the predicted number of games\\\\
         If correct team chosen:	   & ${correct}$\\\\
@@ -566,7 +568,7 @@ class Latex:
             handle = "f_correct_round_Q"
         else:
             handle = "f_correct"
-        C, P = symbols("C P")
+        C, P = symbols("C P")  # pylint: disable=C0103
         f_correct = lambdify((C, P), system[handle], "numpy")
         return self._points_table(f_correct)
 
@@ -579,7 +581,7 @@ class Latex:
             handle = "f_incorrect_round_Q"
         else:
             handle = "f_incorrect"
-        C, P = symbols("C P")
+        C, P = symbols("C P")  # pylint: disable=C0103
         f_incorrect = lambdify((C, P), system[handle], "numpy")
         return self._points_table(f_incorrect)
 
@@ -590,7 +592,7 @@ class Latex:
                 r"""        \mccn{2}{} & \mccn{3}{Predicted}\\
         & & 3 & 4 & 5\\\cline{2-4}"""
                 + "\n"
-                + r"        \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Correct}}}"
+                + r"        \parbox[t]{2mm}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Correct}}}"  # noqa: E501, pylint: disable=C0301
                 + f" & 3 & {self._make_points_string(func, 3)}"
                 + r"\\"
                 + "\n"
@@ -603,7 +605,7 @@ class Latex:
             r"""        \mccn{2}{} & \mccn{4}{Predicted}\\
         & & 4 & 5 & 6 & 7\\\cline{2-6}"""
             + "\n"
-            + r"        \parbox[t]{2mm}{\multirow{4}{*}{\rotatebox[origin=c]{90}{Correct}}}"
+            + r"        \parbox[t]{2mm}{\multirow{4}{*}{\rotatebox[origin=c]{90}{Correct}}}"  # noqa: E501, pylint: disable=C0301
             + f" & 4 & {self._make_points_string(func, 4)}"
             + r"\\"
             + "\n"

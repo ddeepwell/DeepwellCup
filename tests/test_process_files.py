@@ -2,15 +2,15 @@
 import typing
 from dataclasses import dataclass
 
-import pytest
 import pandas as pd
+import pytest
 
 from deepwellcup.processing.process_files import (
     CleanUpRawChampionsData,
     CleanUpRawPlayedData,
     FileOtherPoints,
-    FileSelections,
     FileResults,
+    FileSelections,
 )
 from deepwellcup.processing.utils import SelectionRound
 
@@ -23,7 +23,7 @@ def build_file(
     """Return the champions round selections file dataclass."""
 
     @dataclass(frozen=True)
-    class file:
+    class File:
         """Class docstring."""
 
         year: int = input_year
@@ -33,7 +33,7 @@ def build_file(
             """Read contents."""
             return contents
 
-    return file()
+    return File()
 
 
 @pytest.fixture(name="raw_data")
@@ -160,7 +160,9 @@ def fixture_results(selection_round: SelectionRound) -> pd.DataFrame | pd.Series
                 "Team": ["Buffalo Sabres", "Anaheim Ducks"],
                 "Duration": [7, 6],
             }
-        ).astype({"Duration": "Int64"}).set_index(["Conference", "Series"]),
+        )
+        .astype({"Duration": "Int64"})
+        .set_index(["Conference", "Series"]),
         4: pd.DataFrame(
             {
                 "Conference": ["None"],
@@ -168,7 +170,9 @@ def fixture_results(selection_round: SelectionRound) -> pd.DataFrame | pd.Series
                 "Team": ["Pittsburgh Penguins"],
                 "Duration": [6],
             }
-        ).astype({"Duration": "Int64"}).set_index(["Conference", "Series"]),
+        )
+        .astype({"Duration": "Int64"})
+        .set_index(["Conference", "Series"]),
         "Champions": pd.Series(
             {
                 "East": "New Jersey Devils",
@@ -231,14 +235,20 @@ def test_conference_series(selection_round, conference_series, raw_data):
                     "DAL-SJS": ["Edmonton Oilers", "Edmonton Oilers", "Anaheim Ducks"],
                     "DAL-SJS series length:": ["6 Games", "6 Games", "6 Games"],
                     "DAL-SJS Who will score more points?": [
-                        "Tyler Seguin", "Brent Burns", "Brent Burns",
+                        "Tyler Seguin",
+                        "Brent Burns",
+                        "Brent Burns",
                     ],
                     "BOS-NYI": [
-                        "Boston Bruinds", "New York Islanders", "New York Islanders",
+                        "Boston Bruinds",
+                        "New York Islanders",
+                        "New York Islanders",
                     ],
                     "BOS-NYI series length:": ["7 Games", "7 Games", "7 Games"],
                     "BOS-NYI Who will score more points?": [
-                        "Brad Marchand", "Matthew Barzal", "Matthew Barzal",
+                        "Brad Marchand",
+                        "Matthew Barzal",
+                        "Matthew Barzal",
                     ],
                 }
             ),
@@ -252,7 +262,7 @@ def test_conference_series(selection_round, conference_series, raw_data):
                     "Player on Higher Seed": ["Brad Marchand", "Tyler Seguin"],
                     "Player on Lower Seed": ["Matthew Barzal", "Brent Burns"],
                 },
-            ).set_index(["Conference", "Series Number"])
+            ).set_index(["Conference", "Series Number"]),
         ),
         ("Champions", pd.DataFrame(), pd.DataFrame()),
     ],
@@ -269,7 +279,10 @@ def test_played_selections(selection_round, raw_data, selections):
     """Test for Played rounds selections."""
     pdata = CleanUpRawPlayedData(2006, selection_round, raw_data)
     assert pdata.selections().equals(selections)
-    assert pdata.selections().attrs == {"Selection Round": selection_round, "Year": 2006}
+    assert pdata.selections().attrs == {
+        "Selection Round": selection_round,
+        "Year": 2006,
+    }
 
 
 @pytest.mark.parametrize("selection_round", ["Champions"])
@@ -321,10 +334,7 @@ def test_favourite_team():
     file = build_file(2006, 3, raw_contents)
     fs = FileSelections(file)
     expected = pd.Series(
-        {
-            "Brian M": "Toronto Maple Leafs",
-            "David D": "Vancouver Canucks"
-        }
+        {"Brian M": "Toronto Maple Leafs", "David D": "Vancouver Canucks"}
     )
     assert fs.favourite_team().equals(expected)
 
@@ -348,10 +358,7 @@ def test_cheering_team():
     file = build_file(2006, 3, raw_contents)
     fs = FileSelections(file)
     expected = pd.Series(
-        {
-            "Alita D": "Toronto Maple Leafs",
-            "Mark D": "Montreal Canadiens"
-        }
+        {"Alita D": "Toronto Maple Leafs", "Mark D": "Montreal Canadiens"}
     )
     assert fs.cheering_team().equals(expected)
 
@@ -365,11 +372,12 @@ def test_results(selection_round, raw_data, results):
 
 def test_other_points():
     """Test for other points."""
-    raw_data = pd.DataFrame({'Individual': ['Harry L'], 'Points': [50]})
+    raw_data = pd.DataFrame({"Individual": ["Harry L"], "Points": [50]})
 
     @dataclass(frozen=True)
-    class file:
+    class File:
         """Class docstring."""
+
         year = 2015
         played_round = 1
 
@@ -378,11 +386,9 @@ def test_other_points():
             return raw_data
 
     other_points = (
-        pd.Series({'Harry L': 50})
-        .rename("Other Points")
-        .rename_axis("Individuals")
+        pd.Series({"Harry L": 50}).rename("Other Points").rename_axis("Individuals")
     )
-    assert FileOtherPoints(file()).points().equals(other_points)
+    assert FileOtherPoints(File()).points().equals(other_points)
 
 
 def test_overtime_results():

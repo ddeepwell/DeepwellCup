@@ -5,9 +5,9 @@ from pathlib import Path
 from . import utils
 from .database_new import DataBase
 from .files import OtherPointsFile, SelectionsFile
-from .process_files import FileOtherPoints, FileResults, FileSelections
 from .insert_new import InsertOtherPoints, InsertResults, InsertSelections
 from .playoff_round import PlayoffRound
+from .process_files import FileOtherPoints, FileResults, FileSelections
 from .utils import DataStores, PlayedRound, SelectionRound
 
 
@@ -17,16 +17,14 @@ def multi_year_remake(
 ) -> None:
     """Remake the database, figures and tables."""
     for year in _parse_year_inputs(years):
-        print(f"Starting {year} ... ", end='', flush=True)
+        print(f"Starting {year} ... ", end="", flush=True)
         for played_round in utils.YearInfo(year).played_rounds:
             _insert_data(year, played_round, datastores)
             _make_tables_and_plots(year, played_round, datastores)
         print("Finished")
 
 
-def _insert_data(
-    year: int, played_round: PlayedRound, datastores: DataStores
-) -> None:
+def _insert_data(year: int, played_round: PlayedRound, datastores: DataStores) -> None:
     """Insert data."""
     _insert_selections(year, played_round, datastores)
     _insert_results(year, played_round, datastores)
@@ -51,61 +49,53 @@ def _make_tables_and_plots(
 
 
 def _insert_selections(
-    year: int,
-    selection_round: SelectionRound,
-    datastores: DataStores
+    year: int, selection_round: SelectionRound, datastores: DataStores
 ) -> None:
     """Insert selections."""
     selections = FileSelections(
         SelectionsFile(
             year=year,
             selection_round=selection_round,
-            directory=datastores.raw_data_directory
+            directory=datastores.raw_data_directory,
         )
     )
     insert = InsertSelections(
         selections=selections,
-        database=DataBase(datastores.database),
+        database=DataBase(datastores.database),  # type: ignore
     )
     insert.update_selections()
 
 
 def _insert_results(
-    year: int,
-    selection_round: SelectionRound,
-    datastores: DataStores
+    year: int, selection_round: SelectionRound, datastores: DataStores
 ) -> None:
     """Insert results."""
     results = FileResults(
         SelectionsFile(
             year=year,
             selection_round=selection_round,
-            directory=datastores.raw_data_directory
+            directory=datastores.raw_data_directory,
         )
     )
     insert = InsertResults(
         results=results,
-        database=DataBase(datastores.database),
+        database=DataBase(datastores.database),  # type: ignore
     )
     insert.update_results()
 
 
 def _insert_other_points(
-    year: int,
-    played_round: PlayedRound,
-    datastores: DataStores
+    year: int, played_round: PlayedRound, datastores: DataStores
 ) -> None:
     """Insert other points."""
     other_points_file = OtherPointsFile(
-            year=year,
-            played_round=played_round,
-            directory=datastores.raw_data_directory
-        )
+        year=year, played_round=played_round, directory=datastores.raw_data_directory
+    )
     if other_points_file.file.exists():
         other_points = FileOtherPoints(other_points_file)
         insert = InsertOtherPoints(
             other_points=other_points,
-            database=DataBase(datastores.database),
+            database=DataBase(datastores.database),  # type: ignore
         )
         insert.update_other_points()
 

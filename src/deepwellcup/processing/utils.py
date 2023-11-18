@@ -1,8 +1,8 @@
 """Utility functions"""
-from pathlib import Path
 import sqlite3
 import typing
 from dataclasses import dataclass
+from pathlib import Path
 
 TypicalRound = typing.Literal[1, 2, 3, 4]
 SelectionRound = typing.Literal["Q", TypicalRound, "Champions"]
@@ -86,6 +86,7 @@ class RoundInfo:
 
 class SeriesInfo(typing.NamedTuple):
     """Information about a played series."""
+
     conference: Conference
     series_number: int
     higher_seeded_team: str

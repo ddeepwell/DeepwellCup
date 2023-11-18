@@ -1,8 +1,9 @@
 """Populate the database and make the selections table for a specific playoff round"""
 import argparse
 from pathlib import Path
-from .playoff_round import PlayoffRound
+
 from . import utils
+from .playoff_round import PlayoffRound
 from .utils import DataStores
 
 
@@ -17,8 +18,8 @@ def update_selections(
         playoff_round=playoff_round,
         datastores=datastores,
     )
-    current_round.add_selections_to_database()
-    current_round.add_other_points_to_database()
+    # current_round.add_selections_to_database()
+    # current_round.add_other_points_to_database()
     current_round.make_latex_table()
 
 
@@ -28,24 +29,14 @@ def main():
     # required arguments
     required = parser.add_argument_group("required arguments")
     required.add_argument(
-        "-y",
-        "--year",
-        type=int,
-        help="Year to update",
-        required=True
+        "-y", "--year", type=int, help="Year to update", required=True
     )
     required.add_argument(
-        "-r",
-        "--playoff_round",
-        help="Playoff round to update",
-        required=True
+        "-r", "--playoff_round", help="Playoff round to update", required=True
     )
     # optional arguments
     parser.add_argument(
-        "-d",
-        "--database",
-        type=str,
-        help="Database to import data into"
+        "-d", "--database", type=str, help="Database to import data into"
     )
     parser.add_argument(
         "-w",

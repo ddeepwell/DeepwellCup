@@ -1,13 +1,13 @@
 """Functions for calculating the points awarded to individuals within a playoff round"""
-from pandas import Series
 from numpy import NaN, add
+from pandas import Series
 from sympy import symbols
 from sympy.utilities.lambdify import lambdify
 
+from . import utils
 from .database_new import DataBase
 from .results import Results
 from .selections import Selections
-from . import utils
 from .utils import DataStores, RoundInfo
 
 
@@ -33,7 +33,7 @@ class Points:
             playoff_round,
             datastores=datastores,
         )
-        self._database = DataBase(datastores.database)
+        self._database = DataBase(datastores.database)  # type: ignore
         self._round_info = RoundInfo(year=year, played_round=playoff_round)
         self._scoring = IndividualScoring(
             year,
@@ -66,12 +66,7 @@ class Points:
     @property
     def _selection_individuals(self):
         """The individuals who made selections for the playoff round"""
-        return (
-            self.selections.selections
-            .index
-            .get_level_values("Individual")
-            .unique()
-        )
+        return self.selections.selections.index.get_level_values("Individual").unique()
 
     @property
     def individuals(self):
@@ -103,11 +98,9 @@ class Points:
             if self.playoff_round in utils.YearInfo(self.year).played_rounds
             else "Champions"
         )
-        return Series(
-            round_points,
-            index=round_points.keys(),
-            name=name
-        ).sort_values(ascending=False)
+        return Series(round_points, index=round_points.keys(), name=name).sort_values(
+            ascending=False
+        )
 
     @property
     def total_points(self):
@@ -115,8 +108,7 @@ class Points:
         if self.other_points.empty:
             return self.selection_points
         return (
-            self.selection_points
-            .combine(self.other_points, add, fill_value=0)
+            self.selection_points.combine(self.other_points, add, fill_value=0)
             .rename(self.selection_points.name)
             .sort_values(ascending=False)
         )

@@ -1,0 +1,79 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks.git
+    rev: v4.5.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-docstring-first
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+        exclude: ".*.csv"
+      - id: trailing-whitespace
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        name: "sort python imports"
+        args: [--profile=black, --force-grid-wrap=4, --multi-line=3]
+
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        name: "autoformat python files"
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.6
+    hooks:
+      - id: codespell
+        name: "check for misspelled words"
+        args: ["--ignore-words-list", "ser,tre,ot"]
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        name: "lint python files - flake8"
+
+  - repo: https://github.com/PyCQA/pylint
+    rev: v3.0.2
+    hooks:
+      - id: pylint
+        name: "lint python files - pylint"
+        additional_dependencies:
+          [
+            jinja2>=3.1,
+            matplotlib==3.5.1,
+            numpy==1.26.0,
+            pandas==2.1.1,
+            pytest>=7.4.2,
+            sympy==1.12,
+            pandas-stubs==2.1.1.230928,
+          ]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.0
+    hooks:
+      - id: mypy
+        name: "check type hints"
+        files: src
+        additional_dependencies:
+          [
+            jinja2>=3.1,
+            matplotlib==3.5.1,
+            numpy==1.26.0,
+            pandas==2.1.1,
+            sympy==1.12,
+            pandas-stubs==2.1.1.230928,
+          ]
+
+  # custom local hooks
+  - repo: local
+    hooks:
+      - id: unit-tests
+        name: "run unit tests"
+        entry: pytest
+        language: python
+        always_run: true
+        pass_filenames: false
+        verbose: true

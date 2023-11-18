@@ -14,6 +14,7 @@ class SelectionRoundError(Exception):
 @dataclass
 class RoundData:
     """Primite round class of just the selections, results, and other points."""
+
     year: int
     selection_round: SelectionRound
     database: DataBase
@@ -26,9 +27,7 @@ class RoundData:
             self.selections = PlayedSelections(
                 self.year, self.selection_round, self.database
             )
-            self.results = PlayedResults(
-                self.year, self.selection_round, self.database
-            )
+            self.results = PlayedResults(self.year, self.selection_round, self.database)
         self.other_points = OtherPoints(self.year, self.selection_round, self.database)
 
 
@@ -42,9 +41,7 @@ class BasePlayedRound:
     _round_info: RoundInfo = field(init=False)
 
     def __post_init__(self) -> None:
-        self._round_info = RoundInfo(
-            year=self.year, played_round=self.selection_round
-        )
+        self._round_info = RoundInfo(year=self.year, played_round=self.selection_round)
 
 
 @dataclass

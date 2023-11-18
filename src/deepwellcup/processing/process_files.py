@@ -1,12 +1,17 @@
 """Process round data from the data files."""
-import re
 import math
+import re
 
 import pandas as pd
 
 from . import nhl_teams
-from .files import SelectionsFile, OtherPointsFile
-from .utils import Conference, PlayedRound, RoundInfo, SelectionRound
+from .files import OtherPointsFile, SelectionsFile
+from .utils import (
+    Conference,
+    PlayedRound,
+    RoundInfo,
+    SelectionRound,
+)
 
 
 class FileSelections:
@@ -84,7 +89,9 @@ class FileSelections:
         for conference, series_list in self.conference_series().items():
             for index, series in enumerate(series_list, start=1):
                 higher_seed, lower_seed = self._get_team_seedings(series)
-                player_on_higher_seed, player_on_lower_seed = self._get_player_seedings(series)
+                player_on_higher_seed, player_on_lower_seed = self._get_player_seedings(
+                    series
+                )
                 all_series.loc[len(all_series)] = [  # type: ignore[call-overload]
                     conference,
                     index,
@@ -99,8 +106,7 @@ class FileSelections:
     def _get_team_seedings(self, series: str) -> tuple[str, str]:
         """Split a series string into higher and lower seeds."""
         seeds = [
-            nhl_teams.lengthen_team_name(team)
-            for team in series.split("-", maxsplit=2)
+            nhl_teams.lengthen_team_name(team) for team in series.split("-", maxsplit=2)
         ]
         if len(seeds) == 2:
             return tuple(seeds)  # type: ignore[return-value]
@@ -156,17 +162,14 @@ class FileSelections:
         if overtime_header not in self.raw_contents.columns:
             return pd.Series()
         overtime_data = (
-            self.raw_contents
-            .rename(columns={overtime_header: "Overtime"})[
+            self.raw_contents.rename(columns={overtime_header: "Overtime"})[
                 ["Individual", "Overtime"]
             ]
             .set_index("Individual")
             .squeeze()
             .sort_index()
             .astype("str")
-            .pipe(
-                lambda df: df.drop(index="Results") if not keep_results else df
-            )
+            .pipe(lambda df: df.drop(index="Results") if not keep_results else df)
         )
         _update_metadata(overtime_data, self.year, selection_round=self.selection_round)
         return overtime_data
@@ -182,8 +185,7 @@ class FileSelections:
         if old_column_name not in self.raw_contents.columns:
             return pd.Series()
         return (
-            self.raw_contents
-            .rename(columns={old_column_name: new_column_name})[
+            self.raw_contents.rename(columns={old_column_name: new_column_name})[
                 ["Individual", new_column_name]
             ]
             .set_index("Individual")
@@ -230,8 +232,7 @@ class FileResults:
     def _played_round_results(self) -> pd.DataFrame:
         """Return the results for a played round."""
         return (
-            self._process_files
-            .selections(keep_results=True)
+            self._process_files.selections(keep_results=True)
             .loc[["Results"]]
             .reset_index(level=["Individual"], drop=True)
             .rename_axis(columns="Results")
@@ -239,16 +240,12 @@ class FileResults:
 
     def _champions_results(self) -> pd.Series:
         """Return the results for the champions round."""
-        return (
-            self._process_files
-            .selections(keep_results=True)
-            .loc["Results"]
-        )
+        return self._process_files.selections(keep_results=True).loc["Results"]
 
     def overtime_results(self) -> str:
         """Return the overtime results."""
         selections = self._process_files.overtime_selections(keep_results=True)
-        return (selections["Results"] if "Results" in selections.index else "")
+        return selections["Results"] if "Results" in selections.index else ""
 
 
 class CleanUpRawPlayedData:
@@ -314,16 +311,13 @@ class CleanUpRawPlayedData:
             for a_series in data.index.get_level_values("Series")
         ]
         return data.set_index(
-            pd.Index(conf_index, name="Conference"),
-            append=True
+            pd.Index(conf_index, name="Conference"), append=True
         ).reorder_levels(["Individual", "Conference", "Series"])
 
     def _improve_columns(self, data: pd.DataFrame) -> pd.DataFrame:
         """Improve the columns."""
-        return (
-            data
-            .rename(columns={" series length:": "Duration"})
-            .replace(to_replace=math.nan, value=None)
+        return data.rename(columns={" series length:": "Duration"}).replace(
+            to_replace=math.nan, value=None
         )
 
     def _rename_player_column(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -356,8 +350,7 @@ class CleanUpRawPlayedData:
         """Reorganize the data."""
         selection_columns = self._selection_columns(data.columns)
         return data[selection_columns].sort_index(
-            level=["Individual", "Conference"],
-            sort_remaining=False
+            level=["Individual", "Conference"], sort_remaining=False
         )
 
     def selections(self) -> pd.DataFrame:
@@ -413,11 +406,7 @@ class CleanUpRawChampionsData:
 
     def _initial_data_cleanup(self, data: pd.DataFrame) -> pd.DataFrame:
         """Return cleaned initial data."""
-        return (
-            data
-            .set_index(["Individual"])
-            .rename_axis(columns=["Selections"])
-        )
+        return data.set_index(["Individual"]).rename_axis(columns=["Selections"])
 
     def _add_new_selection_columns(self, data: pd.DataFrame) -> pd.DataFrame:
         """Add columns of correct champions round selections."""
@@ -481,16 +470,9 @@ class FileOtherPoints:
     def points(self) -> pd.Series:
         """Return the other points."""
         other_points = (
-            self.raw_contents
-            .set_index("Individual")
-            .sort_index()
-            .squeeze("columns")
+            self.raw_contents.set_index("Individual").sort_index().squeeze("columns")
         )
-        _update_metadata(
-            other_points,
-            self.year,
-            self.played_round
-        )
+        _update_metadata(other_points, self.year, self.played_round)
         return other_points
 
 
@@ -538,9 +520,7 @@ def _convert_duration_to_int(
 
 
 def _update_metadata(
-    data: pd.DataFrame | pd.Series,
-    year: int,
-    selection_round: SelectionRound
+    data: pd.DataFrame | pd.Series, year: int, selection_round: SelectionRound
 ) -> None:
     """Add metadata to dataframe."""
     data.attrs = {

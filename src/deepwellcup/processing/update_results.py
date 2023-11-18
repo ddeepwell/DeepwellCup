@@ -2,8 +2,9 @@
 for a specific playoff round"""
 import argparse
 from pathlib import Path
-from .playoff_round import PlayoffRound
+
 from . import utils
+from .playoff_round import PlayoffRound
 from .utils import DataStores
 
 
@@ -19,8 +20,8 @@ def update_results(
         year=year,
         datastores=datastores,
     )
-    if update_database:
-        current_round.add_results_to_database()
+    # if update_database:
+    #     current_round.add_results_to_database()
     current_round.make_standings_chart()
 
 
@@ -31,10 +32,7 @@ def main_without_database():
     args = modify_and_check_arguments(args)
     datastores = DataStores(args.raw_data_directory, args.database)
     update_results(
-        args.year,
-        args.playoff_round,
-        update_database=False,
-        datastores=datastores
+        args.year, args.playoff_round, update_database=False, datastores=datastores
     )
 
 

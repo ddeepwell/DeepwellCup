@@ -2,7 +2,11 @@
 from .utils import Conference, PlayedRound
 
 
-def shorten_team_name(team):
+class InvalidPlayerError(Exception):
+    """Exception for invalid player."""
+
+
+def shorten_team_name(team):  # pylint: disable=R0912,R0915
     """Shorten the team name into its acronym"""
     if team == "Anaheim Ducks":
         return_val = "ANA"
@@ -79,7 +83,7 @@ def shorten_team_name(team):
     return return_val
 
 
-def lengthen_team_name(team):
+def lengthen_team_name(team):  # pylint: disable=R0912,R0915
     """Lengthen the team name from its acronym"""
     if team == "ANA":
         return_val = "Anaheim Ducks"
@@ -249,30 +253,31 @@ def conference(team, year):
     return conf
 
 
-def team_of_player(player):
+def team_of_player(player):  # pylint: disable=R0911,R0912,R0915
     """Return the team that a player plays for in 2019"""
     if player == "Brad Marchand":
         return "Boston Bruins"
-    elif player == "Artemi Panarin":
+    if player == "Artemi Panarin":
         return "Columbus Blue Jackets"
-    elif player == "Matthew Barzal":
+    if player == "Matthew Barzal":
         return "New York Islanders"
-    elif player == "Sebastian Aho":
+    if player == "Sebastian Aho":
         return "Carolina Hurricanes"
-    elif player == "Ryan O'Reilly":
+    if player == "Ryan O'Reilly":
         return "St Louis Blues"
-    elif player == "Tyler Seguin":
+    if player == "Tyler Seguin":
         return "Dallas Stars"
-    elif player == "Brent Burns":
+    if player == "Brent Burns":
         return "San Jose Sharks"
-    elif player == "Nathan MacKinnon":
+    if player == "Nathan MacKinnon":
         return "Colorado Avalanche"
+    raise InvalidPlayerError(f"Player {player} does not match an expected player.")
 
 
 def create_series_name(higher_seed: str, lower_seed: str) -> str:
     """Create series name."""
     if "," in lower_seed:
-        short_lower_seed = "-".join(map(shorten_team_name, lower_seed.split(',')))
+        short_lower_seed = "-".join(map(shorten_team_name, lower_seed.split(",")))
     else:
         short_lower_seed = shorten_team_name(lower_seed)
     return "-".join([shorten_team_name(higher_seed), short_lower_seed])

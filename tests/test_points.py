@@ -16,20 +16,21 @@ class TempDataBase:  # pylint: disable=C0115,R0903
 
 @dataclass
 class SelectionsR4(BasePlayedRound):  # pylint: disable=C0115
-
     @property
     def series(self) -> pd.DataFrame:  # pylint: disable=C0116
-        selections = pd.DataFrame(
-            {
-                "Individual": ["David D", "Mark D"],
-                "Conference": ["None", "None"],
-                "Series": ["LAK-BOS", "LAK-BOS"],
-                "Team": ["Los Angeles Kings", "Boston Bruins"],
-                "Duration": [5, 6],
-                "Player": [None, None],
-            }
-        ).astype({"Duration": "Int64"}).set_index(
-            ["Individual", "Conference", "Series"]
+        selections = (
+            pd.DataFrame(
+                {
+                    "Individual": ["David D", "Mark D"],
+                    "Conference": ["None", "None"],
+                    "Series": ["LAK-BOS", "LAK-BOS"],
+                    "Team": ["Los Angeles Kings", "Boston Bruins"],
+                    "Duration": [5, 6],
+                    "Player": [None, None],
+                }
+            )
+            .astype({"Duration": "Int64"})
+            .set_index(["Individual", "Conference", "Series"])
         )
         selections.attrs = {
             "Selection Round": self._round_info.played_round,
@@ -44,18 +45,21 @@ class SelectionsR4(BasePlayedRound):  # pylint: disable=C0115
 
 @dataclass
 class ResultsR4(BasePlayedRound):  # pylint: disable=C0115
-
     @property
     def series(self) -> pd.DataFrame:  # pylint: disable=C0116
-        results = pd.DataFrame(
-            {
-                "Conference": ["None"],
-                "Series": ["LAK-BOS"],
-                "Team": ["Los Angeles Kings"],
-                "Duration": [5],
-                "Player": [None],
-            }
-        ).astype({"Duration": "Int64"}).set_index(["Conference", "Series"])
+        results = (
+            pd.DataFrame(
+                {
+                    "Conference": ["None"],
+                    "Series": ["LAK-BOS"],
+                    "Team": ["Los Angeles Kings"],
+                    "Duration": [5],
+                    "Player": [None],
+                }
+            )
+            .astype({"Duration": "Int64"})
+            .set_index(["Conference", "Series"])
+        )
         results.attrs = {
             "Selection Round": self._round_info.played_round,
             "Year": self._round_info.year,
@@ -69,27 +73,29 @@ class ResultsR4(BasePlayedRound):  # pylint: disable=C0115
 
 @dataclass
 class SelectionsChamp:  # pylint: disable=C0115
-
     year: int
     selection_round = "Champions"
     database: DataBase
 
     @property
     def champions(self) -> pd.DataFrame:  # pylint: disable=C0116
-        return pd.DataFrame(
-            {
-                "Individual": ["David D", "Mark D"],
-                "East": ["Boston Bruins", "New York Rangers"],
-                "West": ["Los Angeles Kings", "Vancouver Canucks"],
-                "Stanley Cup": ["Boston Bruins", "Los Angeles Kings"],
-                "Duration": [None, None],
-            }
-        ).astype({"Duration": "Int64"}).set_index(["Individual"])
+        return (
+            pd.DataFrame(
+                {
+                    "Individual": ["David D", "Mark D"],
+                    "East": ["Boston Bruins", "New York Rangers"],
+                    "West": ["Los Angeles Kings", "Vancouver Canucks"],
+                    "Stanley Cup": ["Boston Bruins", "Los Angeles Kings"],
+                    "Duration": [None, None],
+                }
+            )
+            .astype({"Duration": "Int64"})
+            .set_index(["Individual"])
+        )
 
 
 @dataclass
 class ResultsChamp:  # pylint: disable=C0115
-
     year: int
     selection_round = "Champions"
     database: DataBase
@@ -108,7 +114,6 @@ class ResultsChamp:  # pylint: disable=C0115
 
 @dataclass
 class OtherPointsEmpty(BasePlayedRound):  # pylint: disable=C0115
-
     @property
     def points(self):  # pylint: disable=C0116
         pass
@@ -123,7 +128,7 @@ class OtherPointsEmpty(BasePlayedRound):  # pylint: disable=C0115
             SelectionsR4,
             ResultsR4,
             OtherPointsEmpty,
-            pd.Series({"David D": 17, "Mark D": 0}).astype("Int64")
+            pd.Series({"David D": 17, "Mark D": 0}).astype("Int64"),
         ),
         (
             # Played round points paradigm 2
@@ -131,7 +136,7 @@ class OtherPointsEmpty(BasePlayedRound):  # pylint: disable=C0115
             SelectionsR4,
             ResultsR4,
             OtherPointsEmpty,
-            pd.Series({"David D": 9, "Mark D": 3}).astype("Int64")
+            pd.Series({"David D": 9, "Mark D": 3}).astype("Int64"),
         ),
         (
             # Champions round points paradigm 1
@@ -139,7 +144,7 @@ class OtherPointsEmpty(BasePlayedRound):  # pylint: disable=C0115
             SelectionsChamp,
             ResultsChamp,
             OtherPointsEmpty,
-            pd.Series({"Mark D": 15, "David D": pd.NA}).astype("Int64")
+            pd.Series({"Mark D": 15, "David D": pd.NA}).astype("Int64"),
         ),
         (
             # Champions round points paradigm 2
@@ -147,9 +152,9 @@ class OtherPointsEmpty(BasePlayedRound):  # pylint: disable=C0115
             SelectionsChamp,
             ResultsChamp,
             OtherPointsEmpty,
-            pd.Series({"Mark D": 6, "David D": pd.NA}).astype("Int64")
+            pd.Series({"Mark D": 6, "David D": pd.NA}).astype("Int64"),
         ),
-    ]
+    ],
 )
 def test_selection_points(round_inputs, selections, results, other_points, expected):
     """Test for selection points."""

@@ -13,6 +13,7 @@ from deepwellcup.processing.utils import RoundInfo
 
 class TempDataBase:
     """Test DataBase."""
+
     def __init__(self):
         pass
 
@@ -34,10 +35,7 @@ class TempDataBase:
         pass
 
     def add_preferences(  # pylint: disable=C0116
-        self,
-        round_info: RoundInfo,
-        favourite_team: pd.Series,
-        cheering_team: pd.Series
+        self, round_info: RoundInfo, favourite_team: pd.Series, cheering_team: pd.Series
     ) -> None:
         pass
 
@@ -56,7 +54,9 @@ class TempDataBase:
     def add_finalists_results(self, results) -> None:  # pylint: disable=C0116
         pass
 
-    def add_stanley_cup_champion_results(self, results) -> None:  # pylint: disable=C0116
+    def add_stanley_cup_champion_results(  # pylint: disable=C0116
+        self, results
+    ) -> None:
         pass
 
     def add_overtime_selections(self, selections) -> None:  # pylint: disable=C0116
@@ -67,14 +67,13 @@ class TempDataBase:
     ) -> None:
         pass
 
-    def add_other_points(  # pylint: disable=C0116
-        self, other_points
-    ) -> None:
+    def add_other_points(self, other_points) -> None:  # pylint: disable=C0116
         pass
 
 
 def test_add_new_individuals():
     """Test for add_new_individuals."""
+
     class TempFileSelections:  # pylint: disable=C0115
         def individuals(self):  # pylint: disable=C0116
             return ["Alita D", "David D"]
@@ -111,6 +110,7 @@ def test_add_monikers():
 
 def test_add_preferences():
     """Test for add_preferences."""
+
     class TempFileSelections:  # pylint: disable=C0115
         def individuals(self):  # pylint: disable=C0116
             return ["Brian M", "David D"]
@@ -147,6 +147,7 @@ def test_add_preferences():
 
 def test_add_series():
     """Test for add_series."""
+
     class TempFileSelections:  # pylint: disable=C0115
         @property
         def year(self):  # pylint: disable=C0116
@@ -176,16 +177,20 @@ def test_add_series():
 def test_add_round_selections():
     """Test for round_selections."""
     round_info = RoundInfo(played_round=3, year=2023)
-    selections = pd.DataFrame(
-        {
-            "Individual": ["Kyle L", "Kyle L"],
-            "Conference": ["East", "West"],
-            "Series": ["TBL-BOS", "WSH-PIT"],
-            "Team": ["Boston Bruins", "Washington Capitals"],
-            "Duration": [6, 7],
-            "Player": [None, None],
-        },
-    ).astype({"Duration": "Int64"}).set_index(["Individual", "Conference", "Series"])
+    selections = (
+        pd.DataFrame(
+            {
+                "Individual": ["Kyle L", "Kyle L"],
+                "Conference": ["East", "West"],
+                "Series": ["TBL-BOS", "WSH-PIT"],
+                "Team": ["Boston Bruins", "Washington Capitals"],
+                "Duration": [6, 7],
+                "Player": [None, None],
+            },
+        )
+        .astype({"Duration": "Int64"})
+        .set_index(["Individual", "Conference", "Series"])
+    )
     selections.attrs = {
         "Selection Round": round_info.played_round,
         "Year": round_info.year,
@@ -207,15 +212,19 @@ def test_add_round_selections():
 def test_add_round_results():
     """Test for add_round_results."""
     round_info = RoundInfo(played_round=3, year=2023)
-    results = pd.DataFrame(
-        {
-            "Conference": ["East", "West"],
-            "Series": ["TBL-BOS", "WSH-PIT"],
-            "Team": ["Boston Bruins", "Washington Capitals"],
-            "Duration": [6, 7],
-            "Player": [None, None],
-        },
-    ).astype({"Duration": "Int64"}).set_index(["Conference", "Series"])
+    results = (
+        pd.DataFrame(
+            {
+                "Conference": ["East", "West"],
+                "Series": ["TBL-BOS", "WSH-PIT"],
+                "Team": ["Boston Bruins", "Washington Capitals"],
+                "Duration": [6, 7],
+                "Player": [None, None],
+            },
+        )
+        .astype({"Duration": "Int64"})
+        .set_index(["Conference", "Series"])
+    )
     results.attrs = {
         "Selection Round": round_info.played_round,
         "Year": round_info.year,
@@ -236,15 +245,19 @@ def test_add_round_results():
 
 def test_add_champions_selections():
     """Test for champions_selections."""
-    selections = pd.DataFrame(
-        {
-            "Individual": ["Kyle L"],
-            "East": ["Boston Bruins"],
-            "West": ["Dallas Stars"],
-            "Stanley Cup": ["New York Islanders"],
-            "Duration": [1],
-        },
-    ).astype({"Duration": "Int64"}).set_index("Individual")
+    selections = (
+        pd.DataFrame(
+            {
+                "Individual": ["Kyle L"],
+                "East": ["Boston Bruins"],
+                "West": ["Dallas Stars"],
+                "Stanley Cup": ["New York Islanders"],
+                "Duration": [1],
+            },
+        )
+        .astype({"Duration": "Int64"})
+        .set_index("Individual")
+    )
     selections.attrs = {
         "Selection Round": "Champions",
         "Year": 2019,
@@ -295,12 +308,16 @@ def test_add_champions_results():
 def test_add_overtime_selections():
     """Test for overtime_selections."""
     round_info = RoundInfo(played_round=3, year=2019)
-    selections = pd.Series(
-        {
-            "Brian M": "3",
-            "Jackson L": "More than 3",
-        },
-    ).rename("Overtime").rename_axis("Individual")
+    selections = (
+        pd.Series(
+            {
+                "Brian M": "3",
+                "Jackson L": "More than 3",
+            },
+        )
+        .rename("Overtime")
+        .rename_axis("Individual")
+    )
     selections.attrs = {
         "Selection Round": round_info.played_round,
         "Year": round_info.year,
@@ -321,6 +338,7 @@ def test_add_overtime_selections():
 
 def test_add_overtime_results():
     """Test for overtime_results."""
+
     class TempFile:  # pylint: disable=C0115
         @property
         def selection_round(self):  # pylint: disable=C0116
@@ -342,9 +360,7 @@ def test_add_other_points():
     """Test for other_poitns."""
     round_info = RoundInfo(played_round=1, year=2015)
     other_points = (
-        pd.Series({'Harry L': 50})
-        .rename("Other Points")
-        .rename_axis("Individuals")
+        pd.Series({"Harry L": 50}).rename("Other Points").rename_axis("Individuals")
     )
     other_points.attrs = {
         "Selection Round": round_info.played_round,

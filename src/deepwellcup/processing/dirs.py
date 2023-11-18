@@ -1,7 +1,7 @@
 """Functions for returning useful directories"""
-from pathlib import Path
 import json
 import warnings
+from pathlib import Path
 
 from . import files
 
@@ -40,8 +40,7 @@ def initialize_products_directory() -> None:
         )
     products_dir = _request_products_path()
     _write_products_path_to_file(
-        products_dir=products_dir,
-        file=files.products_dir_file()
+        products_dir=products_dir, file=files.products_dir_file()
     )
     _make_directory(products_dir / "tables")
     _make_directory(products_dir / "figures")

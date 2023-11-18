@@ -1,21 +1,15 @@
 """Tests for files"""
 import pytest
+
 from deepwellcup.processing import files
 
 
 @pytest.mark.parametrize("data_directory", [pytest.test_data_dir, None])
 @pytest.mark.parametrize(
     "selections_round, source_round",
-    [
-        ("Q", "Q"),
-        (1, 1),
-        (2, 2),
-        (3, 3),
-        (4, 4),
-        ("Champions", 1)
-    ]
+    [("Q", "Q"), (1, 1), (2, 2), (3, 3), (4, 4), ("Champions", 1)],
 )
-def test_SelectionsFile(selections_round, source_round, data_directory):
+def test_selections_file(selections_round, source_round, data_directory):
     """Test for SelectionsFile"""
     year = 2017
     if data_directory is None:
@@ -28,7 +22,7 @@ def test_SelectionsFile(selections_round, source_round, data_directory):
 
 @pytest.mark.parametrize("data_directory", [pytest.test_data_dir, None])
 @pytest.mark.parametrize("played_round", ["Q", 1, 2, 3, 4])
-def test_OtherPointsFile(played_round, data_directory):
+def test_other_points_file(played_round, data_directory):
     """Test for OtherPointsFile"""
     year = 2017
     if data_directory is None:

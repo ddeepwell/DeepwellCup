@@ -1,10 +1,12 @@
 """Functions for creating plots"""
 import os
-import pandas as pd
-from matplotlib import rc, patches
+
 import matplotlib.pyplot as plt
-from .scores import Points, IndividualScoring
+import pandas as pd
+from matplotlib import patches, rc
+
 from . import dirs
+from .scores import IndividualScoring, Points
 from .utils import DataStores
 
 # set font to look like Latex
@@ -35,7 +37,7 @@ class Plots:
         self._other_points = self._create_table("other_points")
         self._figure = plt.figure(figsize=(8, 0.5 * len(self.individuals)))
         self._axis = self.figure.add_subplot(111)
-        self._axis_list = []
+        self._axis_list: list = []
         self._patch = None
         self._points = None
 
@@ -119,7 +121,7 @@ class Plots:
         return rounds_to_keep
 
     def _add_column_to_table(self, rnd, category):
-        """Modify returned Series to be the appropriate structure for making a Dataframe"""
+        """Modify Series to be the appropriate structure for making a Dataframe."""
         keep_stanley_cup_winner_points = not (
             self.max_round == 3 and self.plot_champions
         )
@@ -129,7 +131,8 @@ class Plots:
             keep_stanley_cup_winner_points=keep_stanley_cup_winner_points,
             datastores=self._datastores,
         )
-        # warning, do not use self._points as it depends on the last call to this function
+        # warning, do not use self._points as it depends
+        # on the last call to this function
         # it is used here, so that a UML diagram catches the compositional use of Points
         column = getattr(self._points, category)
         if column is None:
@@ -145,22 +148,13 @@ class Plots:
             for rnd in self.rounds_to_plot.keys()
         ]
         df = pd.concat(all_round_series, axis=1).transpose()
-        total = (
-            df
-            .sum()
-            .rename("Total")
-            .to_frame()
-            .transpose()
-        )
+        total = df.sum().rename("Total").to_frame().transpose()
         df_with_total = pd.concat([df, total])
         return (
-            df_with_total
-            .rename_axis(columns="Individuals")
+            df_with_total.rename_axis(columns="Individuals")
             .astype("Int64")
             .sort_values(
-                by=["Total", "Individuals"],
-                axis="columns",
-                ascending=[True, False]
+                by=["Total", "Individuals"], axis="columns", ascending=[True, False]
             )
         )
 
@@ -252,13 +246,7 @@ class Plots:
     def _add_text(self, position, text):
         """Add text to figure"""
         # potentially look into pyplot.bar_label
-        self.axis.text(
-            position[0],
-            position[1],
-            text,
-            ha="center",
-            va="center"
-        )
+        self.axis.text(position[0], position[1], text, ha="center", va="center")
 
     def _add_legend(self):
         """Add the legend"""

@@ -1,22 +1,22 @@
 """Tests for database."""
-from pytest import raises
-import pandas as pd
 import numpy as np
+import pandas as pd
+from pytest import raises
 
 from deepwellcup.processing.database_new import (
-    check_played_round,
-    check_year,
     DataBase,
     DuplicateEntryError,
     PlayedRoundError,
-    YearError
+    YearError,
+    check_played_round,
+    check_year,
 )
 from deepwellcup.processing.utils import RoundInfo
 
 
 def test_individuals(tmp_path):
     """Test for add and get individuals."""
-    database = DataBase(tmp_path / 'individuals.db')
+    database = DataBase(tmp_path / "individuals.db")
     individuals = ["David D"]
     with database as db:
         db.add_individuals(individuals)
@@ -26,7 +26,7 @@ def test_individuals(tmp_path):
 
 def test_add_individuals_error(tmp_path):
     """Test for add and get individuals."""
-    database = DataBase(tmp_path / 'individuals.db')
+    database = DataBase(tmp_path / "individuals.db")
     individuals = ["David D"]
     with database as db:
         db.add_individuals(individuals)
@@ -36,7 +36,7 @@ def test_add_individuals_error(tmp_path):
 
 def test_monikers(tmp_path):
     """Test for add and get monikers."""
-    database = DataBase(tmp_path / 'monikers.db')
+    database = DataBase(tmp_path / "monikers.db")
     round_info = RoundInfo(year=2010, played_round=1)
     monikers = {"David D": "Nazzy", "Brian M": ""}
     with database as db:
@@ -48,7 +48,7 @@ def test_monikers(tmp_path):
 
 def test_preferences(tmp_path):
     """Test for add and get preferences."""
-    database = DataBase(tmp_path / 'monikers.db')
+    database = DataBase(tmp_path / "monikers.db")
     round_info = RoundInfo(year=2010, played_round=1)
     favourite_team = pd.Series({"David D": "Vancouver Canucks"})
     cheering_team = pd.Series({"David D": "Calgary Flames"})
@@ -62,7 +62,7 @@ def test_preferences(tmp_path):
 
 def test_series(tmp_path):
     """Test for add and get series."""
-    database = DataBase(tmp_path / 'series.db')
+    database = DataBase(tmp_path / "series.db")
     round_info = RoundInfo(year=2010, played_round=3)
     series = pd.DataFrame(
         {
@@ -83,7 +83,7 @@ def test_series(tmp_path):
 
 def test_series_ids(tmp_path):
     """Test for add and get series IDs."""
-    database = DataBase(tmp_path / 'series_ids.db')
+    database = DataBase(tmp_path / "series_ids.db")
     round_info = RoundInfo(year=2015, played_round=3)
     series = pd.DataFrame(
         {
@@ -108,7 +108,7 @@ def test_series_ids(tmp_path):
 
 def test_ids_with_series(tmp_path):
     """Test for add and get IDs with series."""
-    database = DataBase(tmp_path / 'series_ids.db')
+    database = DataBase(tmp_path / "series_ids.db")
     round_info = RoundInfo(year=2015, played_round=3)
     series = pd.DataFrame(
         {
@@ -133,7 +133,7 @@ def test_ids_with_series(tmp_path):
 
 def test_round_selections(tmp_path):
     """Test for add and get round selections."""
-    database = DataBase(tmp_path / 'champions_selections.db')
+    database = DataBase(tmp_path / "champions_selections.db")
     round_info = RoundInfo(year=2018, played_round=3)
     series = pd.DataFrame(
         {
@@ -146,16 +146,20 @@ def test_round_selections(tmp_path):
             "Player on Lower Seed": [None, None],
         },
     ).set_index(["Conference", "Series Number"])
-    selections = pd.DataFrame(
-        {
-            "Individual": ["Kyle L", "Kyle L"],
-            "Conference": ["East", "West"],
-            "Series": ["TBL-BOS", "WSH-PIT"],
-            "Team": ["Boston Bruins", "Washington Capitals"],
-            "Duration": [6, 7],
-            "Player": [None, None],
-        },
-    ).astype({"Duration": "Int64"}).set_index(["Individual", "Conference", "Series"])
+    selections = (
+        pd.DataFrame(
+            {
+                "Individual": ["Kyle L", "Kyle L"],
+                "Conference": ["East", "West"],
+                "Series": ["TBL-BOS", "WSH-PIT"],
+                "Team": ["Boston Bruins", "Washington Capitals"],
+                "Duration": [6, 7],
+                "Player": [None, None],
+            },
+        )
+        .astype({"Duration": "Int64"})
+        .set_index(["Individual", "Conference", "Series"])
+    )
     selections.attrs = {
         "Selection Round": round_info.played_round,
         "Year": round_info.year,
@@ -170,7 +174,7 @@ def test_round_selections(tmp_path):
 
 def test_round_results(tmp_path):
     """Test for add and get round results."""
-    database = DataBase(tmp_path / 'test.db')
+    database = DataBase(tmp_path / "test.db")
     round_info = RoundInfo(year=2015, played_round=3)
     series = pd.DataFrame(
         {
@@ -183,15 +187,19 @@ def test_round_results(tmp_path):
             "Player on Lower Seed": [None, None],
         },
     ).set_index(["Conference", "Series Number"])
-    results = pd.DataFrame(
-        {
-            "Conference": ["East", "West"],
-            "Series": ["TBL-BOS", "WSH-PIT"],
-            "Team": ["Boston Bruins", "Washington Capitals"],
-            "Duration": [5, 4],
-            "Player": [None, None],
-        },
-    ).astype({"Duration": "Int64"}).set_index(["Conference", "Series"])
+    results = (
+        pd.DataFrame(
+            {
+                "Conference": ["East", "West"],
+                "Series": ["TBL-BOS", "WSH-PIT"],
+                "Team": ["Boston Bruins", "Washington Capitals"],
+                "Duration": [5, 4],
+                "Player": [None, None],
+            },
+        )
+        .astype({"Duration": "Int64"})
+        .set_index(["Conference", "Series"])
+    )
     results.attrs = {
         "Selection Round": round_info.played_round,
         "Year": round_info.year,
@@ -205,17 +213,21 @@ def test_round_results(tmp_path):
 
 def test_champions_selections(tmp_path):
     """Test for add and get champions selections."""
-    database = DataBase(tmp_path / 'champions_selections.db')
+    database = DataBase(tmp_path / "champions_selections.db")
     round_info = RoundInfo(year=2011, played_round="Champions")
-    champions = pd.DataFrame(
-        {
-            "Individual": ["Kyle L", "David D"],
-            "East": ["Boston Bruins", "Pittsburgh Penguins"],
-            "West": ["Dallas Stars", "Vancouver Canucks"],
-            "Stanley Cup": ["New York Islanders", "Vancouver Canucks"],
-            "Duration": [1, pd.NA],
-        },
-    ).astype({"Duration": "Int64"}).set_index("Individual")
+    champions = (
+        pd.DataFrame(
+            {
+                "Individual": ["Kyle L", "David D"],
+                "East": ["Boston Bruins", "Pittsburgh Penguins"],
+                "West": ["Dallas Stars", "Vancouver Canucks"],
+                "Stanley Cup": ["New York Islanders", "Vancouver Canucks"],
+                "Duration": [1, pd.NA],
+            },
+        )
+        .astype({"Duration": "Int64"})
+        .set_index("Individual")
+    )
     champions.attrs = {
         "Selection Round": round_info.played_round,
         "Year": round_info.year,
@@ -229,7 +241,7 @@ def test_champions_selections(tmp_path):
 
 def test_champions_finalists_results(tmp_path):
     """Test for add and get champions finalist results."""
-    database = DataBase(tmp_path / 'champions_results.db')
+    database = DataBase(tmp_path / "champions_results.db")
     year = 2012
     champions = pd.Series(
         {
@@ -251,7 +263,7 @@ def test_champions_finalists_results(tmp_path):
 
 def test_champions_stanley_cup_results(tmp_path):
     """Test for add and get the Stanley Cup champion results."""
-    database = DataBase(tmp_path / 'champions_results.db')
+    database = DataBase(tmp_path / "champions_results.db")
     year = 2012
     champions = pd.Series(
         {
@@ -274,14 +286,18 @@ def test_champions_stanley_cup_results(tmp_path):
 
 def test_overtime_selections(tmp_path):
     """Test add and get overtime selections."""
-    database = DataBase(tmp_path / 'selections.db')
+    database = DataBase(tmp_path / "selections.db")
     round_info = RoundInfo(year=2019, played_round=3)
-    selections = pd.Series(
-        {
-            "Brian M": "3",
-            "Jackson L": "More than 3",
-        },
-    ).rename("Overtime").rename_axis("Individual")
+    selections = (
+        pd.Series(
+            {
+                "Brian M": "3",
+                "Jackson L": "More than 3",
+            },
+        )
+        .rename("Overtime")
+        .rename_axis("Individual")
+    )
     selections.attrs = {
         "Selection Round": round_info.played_round,
         "Year": round_info.year,
@@ -295,7 +311,7 @@ def test_overtime_selections(tmp_path):
 
 def test_overtime_results(tmp_path):
     """Test add and get overtime results."""
-    database = DataBase(tmp_path / 'results.db')
+    database = DataBase(tmp_path / "results.db")
     round_info = RoundInfo(year=2019, played_round=3)
     result = "1"
     with database as db:
@@ -306,12 +322,10 @@ def test_overtime_results(tmp_path):
 
 def test_other_points(tmp_path):
     """Test add and get overtime results."""
-    database = DataBase(tmp_path / 'other_points.db')
+    database = DataBase(tmp_path / "other_points.db")
     round_info = RoundInfo(year=2021, played_round=1)
     other_points = (
-        pd.Series({'Harry L': 50})
-        .rename("Other Points")
-        .rename_axis("Individuals")
+        pd.Series({"Harry L": 50}).rename("Other Points").rename_axis("Individuals")
     )
     other_points.attrs = {
         "Selection Round": round_info.played_round,

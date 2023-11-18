@@ -1,16 +1,15 @@
 """Class for interacting with the database"""
 import sqlite3
-from pathlib import Path
-import warnings
 import typing
+import warnings
+from pathlib import Path
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 from . import dirs, io, utils
-from .utils import PlayedRound, RoundInfo
 from .nhl_teams import create_series_name
-
+from .utils import PlayedRound, RoundInfo
 
 Monikers = dict[str, str]
 
@@ -43,7 +42,7 @@ class ConferenceError(Exception):
     """Exception for incorrect conference."""
 
 
-class DataBase:
+class DataBase:  # pylint: disable=R0904
     """DataBase handling."""
 
     def __init__(self, database_file: Path | None = None):
@@ -98,7 +97,7 @@ class DataBase:
         """Fetch data."""
         if self._cursor:
             return self._cursor.execute(command).fetchall()
-        warnings.warn("The database has not been openned. Nothing was fetched.")
+        warnings.warn("The database has not been opened. Nothing was fetched.")
         return []
 
     def commit(self, command: str, data: typing.Sequence[tuple]) -> None:
@@ -113,8 +112,8 @@ class DataBase:
 
     def get_individuals_with_ids(self) -> dict[str, int]:
         """Return individuals with IDs."""
-        individuals_and_ids = (
-            self.fetch("SELECT IndividualID, FirstName, LastName FROM Individuals")
+        individuals_and_ids = self.fetch(
+            "SELECT IndividualID, FirstName, LastName FROM Individuals"
         )
         if individuals_and_ids:
             return {
@@ -152,7 +151,7 @@ class DataBase:
                 round_info.year,
                 round_info.played_round,
                 individuals_with_ids[individual],
-                moniker
+                moniker,
             )
             for individual, moniker in monikers.items()
         ]
@@ -188,7 +187,7 @@ class DataBase:
         check_played_round(round_info.year, round_info.played_round)
         if not favourite_team.index.equals(cheering_team.index):
             raise MismatchError(
-                "Favourite team index does not match cheering team indes."
+                "Favourite team index does not match cheering team index."
             )
         individuals_with_ids = self.get_individuals_with_ids()
         series_data = [
@@ -201,9 +200,7 @@ class DataBase:
             )
             for individual in favourite_team.index
         ]
-        self.commit(
-            "INSERT INTO Preferences VALUES (?,?,?,?,?)", series_data
-        )
+        self.commit("INSERT INTO Preferences VALUES (?,?,?,?,?)", series_data)
 
     def get_preferences(self, round_info: RoundInfo) -> tuple[pd.Series, pd.Series]:
         """Return the preferences for played round."""
@@ -240,17 +237,13 @@ class DataBase:
         check_played_round(round_info.year, round_info.played_round)
         series_no_index = series.reset_index()
         for conference in series_no_index["Conference"]:
-            check_conference(
-                round_info.year,
-                round_info.played_round,
-                conference
-            )
+            check_conference(round_info.year, round_info.played_round, conference)
         series_data = [
             tuple([round_info.year, round_info.played_round])
             + tuple(
                 map(
-                    lambda x: int(x) if isinstance(x, np.int64)
-                    else x, series_no_index.loc[index].drop('Name')
+                    lambda x: int(x) if isinstance(x, np.int64) else x,
+                    series_no_index.loc[index].drop("Name"),
                 )
             )
             for index in series_no_index.index
@@ -259,7 +252,8 @@ class DataBase:
             "INSERT INTO Series("
             "Year, Round, Conference, SeriesNumber, "
             "TeamHigherSeed, TeamLowerSeed, PlayerHigherSeed, PlayerLowerSeed) "
-            "VALUES (?,?,?,?,?,?,?,?)", series_data
+            "VALUES (?,?,?,?,?,?,?,?)",
+            series_data,
         )
 
     def get_series(self, round_info: RoundInfo) -> pd.DataFrame:
@@ -270,18 +264,22 @@ class DataBase:
             "SELECT Conference, SeriesNumber, "
             "TeamHigherSeed, TeamLowerSeed, PlayerHigherSeed, PlayerLowerSeed "
             f"FROM Series WHERE Year={round_info.year} "
-            f"AND Round={round_info.played_round}", self._conn
-        ).rename(columns={
+            f"AND Round={round_info.played_round}",
+            self._conn,
+        ).rename(
+            columns={
                 "SeriesNumber": "Series Number",
                 "TeamHigherSeed": "Higher Seed",
                 "TeamLowerSeed": "Lower Seed",
                 "PlayerHigherSeed": "Player on Higher Seed",
-                'PlayerLowerSeed': "Player on Lower Seed",
+                "PlayerLowerSeed": "Player on Lower Seed",
             }
         )
-        series.insert(2, "Name", list(map(
-            create_series_name, series["Higher Seed"], series["Lower Seed"]
-        )))
+        series.insert(
+            2,
+            "Name",
+            list(map(create_series_name, series["Higher Seed"], series["Lower Seed"])),
+        )
         return series.set_index(["Conference", "Series Number"])
 
     def get_series_ids(self, round_info: RoundInfo) -> dict[tuple[str, str], int]:
@@ -296,8 +294,10 @@ class DataBase:
         if not series:
             return {}
         return {
-            (a_series[1], create_series_name(a_series[2], a_series[3])):
-            int(a_series[0]) for a_series in series
+            (a_series[1], create_series_name(a_series[2], a_series[3])): int(
+                a_series[0]
+            )
+            for a_series in series
         }
 
     def get_ids_with_series(self, round_info: RoundInfo) -> dict[int, tuple[str, str]]:
@@ -318,8 +318,11 @@ class DataBase:
         if not series:
             return {}
         return {
-            create_series_name(a_series[2], a_series[3]):
-            (a_series[1], int(a_series[0])) for a_series in series
+            create_series_name(a_series[2], a_series[3]): (
+                a_series[1],
+                int(a_series[0]),
+            )
+            for a_series in series
         }
 
     def add_round_selections(self, selections: pd.DataFrame) -> None:
@@ -336,15 +339,14 @@ class DataBase:
                 series_ids[tuple(series)],  # type: ignore[index]
                 individual_ids[name],
                 selections["Team"][name][tuple(series)],
-                _convert_Int64_to_int(selections['Duration'][name][tuple(series)]),
+                _convert_Int64_to_int(selections["Duration"][name][tuple(series)]),
                 selections["Player"][name][tuple(series)]
-                if "Player" in selections.columns else None
+                if "Player" in selections.columns
+                else None,
             )
             for name, *series in selections.index
         ]
-        self.commit(
-            "INSERT INTO SeriesSelections VALUES (?,?,?,?,?)", data
-        )
+        self.commit("INSERT INTO SeriesSelections VALUES (?,?,?,?,?)", data)
 
     def get_round_selections(self, round_info: RoundInfo) -> pd.DataFrame:
         """Return the selections of a played round."""
@@ -372,8 +374,9 @@ class DataBase:
         ]
         selections["Series"] = [
             create_series_name(higher_seed, lower_seed)
-            for higher_seed, lower_seed
-            in zip(selections["TeamHigherSeed"], selections["TeamLowerSeed"])
+            for higher_seed, lower_seed in zip(
+                selections["TeamHigherSeed"], selections["TeamLowerSeed"]
+            )
         ]
         return (
             selections.set_index(["Individual", "Conference", "Series"])
@@ -385,7 +388,7 @@ class DataBase:
                     "TeamHigherSeed",
                     "TeamLowerSeed",
                 ],
-                axis="columns"
+                axis="columns",
             )
             .astype({"Duration": "Int64"})
         )
@@ -402,15 +405,12 @@ class DataBase:
             (
                 series_ids[index],  # type: ignore[index]
                 results["Team"][index],
-                _convert_Int64_to_int(results['Duration'][index]),
-                results["Player"][index]
-                if "Player" in results.columns else None
+                _convert_Int64_to_int(results["Duration"][index]),
+                results["Player"][index] if "Player" in results.columns else None,
             )
             for index in results.index
         ]
-        self.commit(
-            "INSERT INTO SeriesResults VALUES (?,?,?,?)", data
-        )
+        self.commit("INSERT INTO SeriesResults VALUES (?,?,?,?)", data)
 
     def get_round_results(self, round_info: RoundInfo) -> pd.DataFrame:
         """Return the results of a played round."""
@@ -431,8 +431,9 @@ class DataBase:
         )
         results["Series"] = [
             create_series_name(higher_seed, lower_seed)
-            for higher_seed, lower_seed
-            in zip(results["TeamHigherSeed"], results["TeamLowerSeed"])
+            for higher_seed, lower_seed in zip(
+                results["TeamHigherSeed"], results["TeamLowerSeed"]
+            )
         ]
         return (
             results.set_index(["Conference", "Series"])
@@ -448,8 +449,8 @@ class DataBase:
                 individual_ids[name],
                 selections.attrs["Year"],
                 *tuple(selections.loc[name].values[:-1]),
-                _convert_Int64_to_int(selections.loc[name]['Duration'])
-                )
+                _convert_Int64_to_int(selections.loc[name]["Duration"]),
+            )
             for name in selections.index
         ]
         self.commit(
@@ -466,17 +467,23 @@ class DataBase:
         if not champions:
             return pd.DataFrame()
         ids_with_individuals = self.get_ids_with_individuals()
-        df = pd.DataFrame(
-            {
-                "Individual": [ids_with_individuals[int(row[0])] for row in champions],
-                "East": [row[1] for row in champions],
-                "West": [row[2] for row in champions],
-                "Stanley Cup": [row[3] for row in champions],
-                "Duration": [
-                    int(row[4]) if row[4] is not None else None for row in champions
-                ],
-            }
-        ).astype({"Duration": "Int64"}).set_index("Individual")
+        df = (
+            pd.DataFrame(
+                {
+                    "Individual": [
+                        ids_with_individuals[int(row[0])] for row in champions
+                    ],
+                    "East": [row[1] for row in champions],
+                    "West": [row[2] for row in champions],
+                    "Stanley Cup": [row[3] for row in champions],
+                    "Duration": [
+                        int(row[4]) if row[4] is not None else None for row in champions
+                    ],
+                }
+            )
+            .astype({"Duration": "Int64"})
+            .set_index("Individual")
+        )
         df.attrs = {
             "Selection Round": "Champions",
             "Year": year,
@@ -493,22 +500,19 @@ class DataBase:
         ]
         self.commit(
             "INSERT INTO StanleyCupResults (Year, East, West) VALUES (?,?,?)",
-            stanley_cup_data
+            stanley_cup_data,
         )
 
     def add_stanley_cup_champion_results(self, results: pd.Series) -> None:
         """Add the Stanley Cup Champions result."""
         year = results.attrs["Year"]
         stanley_cup_data = [
-            (
-                results["Stanley Cup"],
-                _convert_Int64_to_int(results['Duration'])
-            )
+            (results["Stanley Cup"], _convert_Int64_to_int(results["Duration"]))
         ]
         self.commit(
             "UPDATE StanleyCupResults "
             f"SET 'Stanley Cup' = ?, Duration = ? WHERE Year = {year}",
-            stanley_cup_data
+            stanley_cup_data,
         )
 
     def get_champions_results(self, year: int) -> pd.Series:
@@ -548,9 +552,7 @@ class DataBase:
             )
             for individual, selection in selections.items()
         ]
-        self.commit(
-            "INSERT INTO OvertimeSelections VALUES (?,?,?,?)", data
-        )
+        self.commit("INSERT INTO OvertimeSelections VALUES (?,?,?,?)", data)
 
     def get_overtime_selections(self, round_info: RoundInfo) -> pd.Series:
         """Return the overtime selections."""
@@ -613,9 +615,7 @@ class DataBase:
             )
             for individual, points in other_points.items()
         ]
-        self.commit(
-            "INSERT INTO OtherPoints VALUES (?,?,?,?)", points_data
-        )
+        self.commit("INSERT INTO OtherPoints VALUES (?,?,?,?)", points_data)
 
     def get_other_points(self, round_info: RoundInfo) -> pd.Series:
         """Return the other points."""
@@ -672,10 +672,10 @@ def check_conference(year: int, played_round: PlayedRound, conference: str) -> N
         if conference != "None":
             raise ConferenceError("The conference must be 'None' in 2021")
         return
-    if (
-        played_round in utils.YearInfo(year).conference_rounds
-        and conference not in ["East", "West"]
-    ):
+    if played_round in utils.YearInfo(year).conference_rounds and conference not in [
+        "East",
+        "West",
+    ]:
         raise ValueError(
             f"The submitted conference ({conference}) is invalid. "
             'It must be either "East" or "West"'

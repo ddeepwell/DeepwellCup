@@ -22,7 +22,10 @@ def test_split_name(name: str, expected_name: tuple[str, str]):
 @pytest.mark.parametrize(
     "name, expected_name",
     [
-        (("David", "D"), "David D",),
+        (
+            ("David", "D"),
+            "David D",
+        ),
         (("David", ""), "David"),
     ],
 )

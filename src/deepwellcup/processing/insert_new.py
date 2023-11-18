@@ -43,13 +43,7 @@ class InsertSelections:
 
     def add_new_individuals(self) -> None:
         """Add new individuals."""
-        new_individuals = sorted(
-            list(
-                set(self.selections.individuals())
-                - set(self.database.get_individuals())
-            )
-        )
-        self.database.add_individuals(new_individuals)
+        add_new_individuals(self.selections.individuals(), self.database)
 
     def add_monikers(self) -> None:
         """Add monikers."""
@@ -214,11 +208,22 @@ class InsertOtherPoints:
     def update_other_points(self) -> None:
         """Add other points."""
         with self.database:
+            self.add_new_individuals()
             self.add_other_points()
+
+    def add_new_individuals(self) -> None:
+        """Add new individuals."""
+        add_new_individuals(list(self.other_points.points().index), self.database)
 
     def add_other_points(self):
         """Add other points."""
         self.database.add_other_points(self.other_points.points())
+
+
+def add_new_individuals(individuals: list[str], database: DataBase) -> None:
+    """Add new individuals."""
+    new_individuals = sorted(list(set(individuals) - set(database.get_individuals())))
+    database.add_individuals(new_individuals)
 
 
 def _selection_round_is_played_round(
