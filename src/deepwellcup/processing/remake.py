@@ -31,8 +31,10 @@ def _insert_data(year: int, played_round: PlayedRound, datastores: DataStores) -
     _insert_other_points(year, played_round, datastores)
     if played_round == 1:
         _insert_selections(year, "Champions", datastores)
+    if played_round == 3:
+        _insert_results(year, "Champions", datastores, champions="finalists")
     if played_round == 4:
-        _insert_results(year, "Champions", datastores)
+        _insert_results(year, "Champions", datastores, champions="champion")
 
 
 def _make_tables_and_plots(
@@ -67,7 +69,10 @@ def _insert_selections(
 
 
 def _insert_results(
-    year: int, selection_round: SelectionRound, datastores: DataStores
+    year: int,
+    selection_round: SelectionRound,
+    datastores: DataStores,
+    champions: str = "",
 ) -> None:
     """Insert results."""
     results = FileResults(
@@ -81,7 +86,12 @@ def _insert_results(
         results=results,
         database=DataBase(datastores.database),  # type: ignore
     )
-    insert.update_results()
+    if selection_round != "Champions":
+        insert.update_played_round_results()
+    if champions == "finalists":
+        insert.update_champions_finalists_results()
+    if champions == "champion":
+        insert.update_stanley_cup_champion_results()
 
 
 def _insert_other_points(

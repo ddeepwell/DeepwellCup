@@ -137,18 +137,21 @@ class InsertResults:
         """Return the database"""
         return self._database
 
-    def update_results(self) -> None:
-        """Add all results."""
+    def update_played_round_results(self) -> None:
+        """Add played round results."""
         with self.database:
-            if _selection_round_is_played_round(
-                self.results.selection_round, self.results.year
-            ):
-                self.add_round_results()
-                self.add_overtime_results()
-                if self.results.selection_round == 3:
-                    self.add_finalists_results()
-            else:
-                self.add_stanley_cup_champion_results()
+            self.add_round_results()
+            self.add_overtime_results()
+
+    def update_champions_finalists_results(self) -> None:
+        """Add champions finalists results."""
+        with self.database:
+            self.add_finalists_results()
+
+    def update_stanley_cup_champion_results(self) -> None:
+        """Add Stanley Cup champion result."""
+        with self.database:
+            self.add_stanley_cup_champion_results()
 
     def add_round_results(self) -> None:
         """Add round results."""
