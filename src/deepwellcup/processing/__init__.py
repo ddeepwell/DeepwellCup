@@ -10,17 +10,16 @@ from . import (
 )
 from .database import DataBaseOperations
 from .database_new import DataBase
-from .process_files import FileSelections, FileResults
 from .insert_new import InsertOtherPoints, InsertResults, InsertSelections
 from .latex import Latex
 from .playoff_round import PlayoffRound
 from .plots import Plots
 from .points import RoundPoints
+from .process_files import FileResults, FileSelections
 from .remake import multi_year_remake
 from .results import Results
-from .scores import Points, IndividualScoring
-from .selections import Selections
 from .round_data import RoundData
+from .selections import Selections
 from .series_results import print_series_results
 from .update_results import update_results
 from .update_selections import update_selections
@@ -30,7 +29,6 @@ __all__ = [
     "DataBaseOperations",
     "files",
     "dirs",
-    "IndividualScoring",
     "FileSelections",
     "FileResults",
     "InsertOtherPoints",
@@ -44,7 +42,6 @@ __all__ = [
     "Plots",
     "points_systems",
     "print_series_results",
-    "Points",
     "Results",
     "round_data",
     "RoundData",

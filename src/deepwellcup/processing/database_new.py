@@ -212,7 +212,7 @@ class DataBase:  # pylint: disable=R0904
             f"AND Round={round_info.played_round}"
         )
         if not preferences:
-            return pd.Series(), pd.Series()
+            return _empty_series(), _empty_series()
         favourite_team = pd.Series(
             {
                 self.get_ids_with_individuals()[int(id)]: favourite_team
@@ -523,7 +523,7 @@ class DataBase:  # pylint: disable=R0904
             f"FROM StanleyCupResults WHERE Year={year}"
         )
         if not champions:
-            return pd.Series()
+            return _empty_series()
         ser = pd.Series(
             {
                 "East": champions[0][0],
@@ -570,7 +570,7 @@ class DataBase:  # pylint: disable=R0904
             self._conn,
         )
         if selections.empty:
-            return pd.Series()
+            return _empty_series()
         selections["Individual"] = [
             utils.merge_name(list(name))
             for name in zip(selections["FirstName"], selections["LastName"])
@@ -633,7 +633,7 @@ class DataBase:  # pylint: disable=R0904
             self._conn,
         )
         if selections.empty:
-            return pd.Series()
+            return _empty_series()
         selections["Individual"] = [
             utils.merge_name(list(name))
             for name in zip(selections["FirstName"], selections["LastName"])
@@ -693,3 +693,9 @@ def _check_length_of_last_name(last_name: str) -> None:
         raise ValueError(
             f"Last name must be only 1 character long, received {last_name}"
         )
+
+
+def _empty_series() -> pd.Series:
+    empty_series = pd.Series()
+    empty_series.index.name = "Individual"
+    return empty_series
