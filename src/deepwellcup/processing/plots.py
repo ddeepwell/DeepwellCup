@@ -1,12 +1,15 @@
 """Functions for creating plots"""
 import os
 
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # type: ignore[import-untyped]
 import pandas as pd
 from matplotlib import patches, rc
 
 from . import dirs
-from .scores import IndividualScoring, Points
+from .database_new import DataBase
+from .points import RoundPoints
+from .points_systems import points_system
+from .round_data import RoundData
 from .utils import DataStores
 
 # set font to look like Latex
@@ -14,10 +17,10 @@ font = {"family": "serif", "size": 12}
 rc("font", **font)
 
 
-class Plots:
+class Plots:  # pylint: disable=R0902
     """Class for creating plots"""
 
-    def __init__(
+    def __init__(  # pylint: disable=R0913
         self,
         year,
         max_round=4,
@@ -32,14 +35,13 @@ class Plots:
         self.save = save
         self.show = show
         self._datastores = datastores
-        self._scoring_system = IndividualScoring(year).scoring_system()
-        self._total_points = self._create_table("total_points")
-        self._other_points = self._create_table("other_points")
+        self._points_system = points_system(year)
+        self._total_points = self._create_table("total")
+        self._other_points = self._create_table("other")
         self._figure = plt.figure(figsize=(8, 0.5 * len(self.individuals)))
         self._axis = self.figure.add_subplot(111)
         self._axis_list: list = []
         self._patch = None
-        self._points = None
 
     @property
     def figure(self):
@@ -115,29 +117,19 @@ class Plots:
         if (
             self.max_round == 3
             and self.plot_champions
-            and "stanley_cup_finalist" in self._scoring_system
+            and "stanley_cup_finalist" in self._points_system
         ):
             rounds_to_keep["Champions"] = "Champions"
         return rounds_to_keep
 
     def _add_column_to_table(self, rnd, category):
         """Modify Series to be the appropriate structure for making a Dataframe."""
-        keep_stanley_cup_winner_points = not (
-            self.max_round == 3 and self.plot_champions
-        )
-        self._points = Points(
-            self.year,
-            rnd,
-            keep_stanley_cup_winner_points=keep_stanley_cup_winner_points,
-            datastores=self._datastores,
-        )
-        # warning, do not use self._points as it depends
-        # on the last call to this function
-        # it is used here, so that a UML diagram catches the compositional use of Points
-        column = getattr(self._points, category)
+        round_data = RoundData(self.year, rnd, DataBase(self._datastores.database))
+        points = RoundPoints(round_data)
+        column = getattr(points, category)
         if column is None:
             return pd.Series(name=self.rounds_to_plot[rnd], dtype="int64")
-        if category == "other_points":
+        if category == "other":
             column.name = self.rounds_to_plot[rnd]
         return column
 
@@ -228,7 +220,7 @@ class Plots:
         if (
             playoff_round != "Champions"
             and individual in self.other_points.columns
-            and not pd.isna(self.other_points[individual][playoff_round])
+            and not pd.isna(self._other_points[individual][playoff_round])
         ):
             if self.year == 2009:
                 point_string += "$\\ast$"

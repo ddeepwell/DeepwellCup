@@ -9,14 +9,18 @@ from sympy.utilities.lambdify import lambdify
 
 from .points_systems import points_system
 from .round_data import (
-    ChampionsSelections,
     ChampionsResults,
-    PlayedSelections,
+    ChampionsSelections,
     PlayedResults,
+    PlayedSelections,
     RoundData,
 )
-from .utils import PlayedRound, RoundInfo, SelectionRound, YearInfo
-
+from .utils import (
+    PlayedRound,
+    RoundInfo,
+    SelectionRound,
+    YearInfo,
+)
 
 SimpleSystem = dict[str, int]
 ComplexSystem = dict[str, int | str]
@@ -78,7 +82,7 @@ class RoundPoints:
         if self.other.empty:
             return self.selection
         return (
-            self.selection.combine(self.other, sum, fill_value=0)
+            self.selection.combine(self.other, _add, fill_value=0)
             .rename(self.selection.name)
             .sort_values(ascending=False)
         )
@@ -253,11 +257,11 @@ def _player_points(
     selections: pd.DataFrame,
     results: pd.DataFrame,
     system: ComplexSystem,
-):
+) -> int:
     if "Player" not in system:
         return 0
     num_correct_players = (selections["Player"].fillna("") == results["Player"]).sum()
-    return num_correct_players * system["Player"]
+    return num_correct_players * int(system["Player"])
     # no points are awarded for ties in points by Players
 
 
@@ -265,17 +269,23 @@ def _overtime_points(
     selection: str,
     result: str,
     system: ComplexSystem,
-):
-    if "Overtime" not in system:
+) -> int:
+    if "Overtime" not in system or result == "":
         return 0
     if selection == result:
-        return system["Overtime"]
+        return int(system["Overtime"])
+    ot_numbers_off_by_one = (
+        selection != "More than 3"
+        and result != "More than three"
+        and abs(int(result) - int(selection)) == 1
+    )
     if (
         (selection == "More than 3" and result == "3")
         or (selection == "3" and result == "More than 3")
-        or abs(int(result) - int(selection)) == 1
+        or ot_numbers_off_by_one
     ):
-        return system["Overtime (1 game off)"]
+        return int(system["Overtime (1 game off)"])
+    return 0
 
 
 def _get_champions_method(system: EitherSystem) -> ChampionsMethod:
@@ -351,7 +361,9 @@ def _number_of_correct_game_7s(picks: pd.Series, correct: pd.Series) -> int:
     )
 
 
-def _create_points_series(points: dict[str, int] | dict[str, int | None], name: str):
+def _create_points_series(
+    points: dict[str, int] | dict[str, int | None], name: str
+) -> pd.Series:
     return (
         pd.Series(points, index=points, name=name)
         .sort_values(ascending=False)
@@ -381,3 +393,8 @@ def _find_runnerup(table: pd.Series) -> str:
     return str(
         [team for team in table[["East", "West"]] if team != table["Stanley Cup"]][0]
     )
+
+
+def _add(a, b):
+    """Add two numbers."""
+    return a + b
