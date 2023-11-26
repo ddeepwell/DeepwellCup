@@ -6,6 +6,7 @@ from . import utils
 from .database_new import DataBase
 from .files import OtherPointsFile, SelectionsFile
 from .insert_new import InsertOtherPoints, InsertResults, InsertSelections
+from .latex import Latex
 from .playoff_round import PlayoffRound
 from .process_files import FileOtherPoints, FileResults, FileSelections
 from .utils import DataStores, PlayedRound, SelectionRound
@@ -46,7 +47,8 @@ def _make_tables_and_plots(
         playoff_round=played_round,
         datastores=datastores,
     )
-    current_round.make_latex_table()
+    latex = Latex(year, played_round, datastores)
+    latex.make_table()
     current_round.make_standings_chart()
 
 

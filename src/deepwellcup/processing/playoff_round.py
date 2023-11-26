@@ -1,5 +1,4 @@
 """Hold all data for a playoff round in a year"""
-from .latex import Latex
 from .plots import Plots
 from .points import RoundPoints
 from .round_data import RoundData
@@ -25,8 +24,6 @@ class PlayoffRound:  # pylint: disable=R0902
         self._selections = round_data.selections
         self._results = round_data.results
         self._other_points = round_data.other_points
-        self._insert = None
-        self._latex = None
         self._plots = None
 
     @property
@@ -76,22 +73,6 @@ class PlayoffRound:  # pylint: disable=R0902
             conference: list(self.results.series.loc[conference].index)
             for conference in conferences
         }
-
-    def _get_latex(self):
-        """Get the LaTeX class"""
-        if self._latex is None:
-            self._latex = Latex(
-                self.year,
-                self.playoff_round,
-                datastores=self._datastores,
-            )
-        return self._latex
-
-    def make_latex_table(self):
-        """Make the LaTeX table of everyone's selections"""
-        latex = self._get_latex()
-        latex.make_table()
-        latex.build_pdf()
 
     def _get_plots(self, playoff_round):
         """Get the plots class"""

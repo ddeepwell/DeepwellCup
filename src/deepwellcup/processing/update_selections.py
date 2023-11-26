@@ -20,7 +20,8 @@ def update_selections(
     )
     # current_round.add_selections_to_database()
     # current_round.add_other_points_to_database()
-    current_round.make_latex_table()
+    # current_round.make_latex_table()
+    print(current_round)
 
 
 def main():
