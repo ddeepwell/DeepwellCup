@@ -64,6 +64,14 @@ class PlayoffRound:
             return db.get_preferences(RoundInfo(self.selection_round, self.year))
 
     @property
+    def monikers(self) -> dict[str, str]:
+        """Return the monikers."""
+        if self.selection_round == "Champions":
+            return {}
+        with self.database as db:
+            return db.get_monikers(RoundInfo(self.selection_round, self.year))
+
+    @property
     def series(self) -> dict[str, list[str]]:
         """Return the series."""
         if self.selection_round == "Champions":
