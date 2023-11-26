@@ -22,7 +22,8 @@ def update_results(
     )
     # if update_database:
     #     current_round.add_results_to_database()
-    current_round.make_standings_chart()
+    # current_round.make_standings_chart()
+    print(current_round)
 
 
 def main_without_database():

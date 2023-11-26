@@ -7,7 +7,7 @@ from .database_new import DataBase
 from .files import OtherPointsFile, SelectionsFile
 from .insert_new import InsertOtherPoints, InsertResults, InsertSelections
 from .latex import Latex
-from .playoff_round import PlayoffRound
+from .plots import Plots
 from .process_files import FileOtherPoints, FileResults, FileSelections
 from .utils import DataStores, PlayedRound, SelectionRound
 
@@ -21,7 +21,8 @@ def multi_year_remake(
         print(f"Starting {year} ... ", end="", flush=True)
         for played_round in utils.YearInfo(year).played_rounds:
             _insert_data(year, played_round, datastores)
-            _make_tables_and_plots(year, played_round, datastores)
+            _make_tables(year, played_round, datastores)
+            _make_plots(year, played_round, datastores)
         print("Finished")
 
 
@@ -38,18 +39,22 @@ def _insert_data(year: int, played_round: PlayedRound, datastores: DataStores) -
         _insert_results(year, "Champions", datastores, champions="champion")
 
 
-def _make_tables_and_plots(
-    year: int, played_round: PlayedRound, datastores: DataStores
-) -> None:
-    """Make tables and plots."""
-    current_round = PlayoffRound(
-        year=year,
-        playoff_round=played_round,
-        datastores=datastores,
-    )
+def _make_tables(year: int, played_round: PlayedRound, datastores: DataStores) -> None:
+    """Make tables."""
     latex = Latex(year, played_round, datastores)
     latex.make_table()
-    current_round.make_standings_chart()
+
+
+def _make_plots(year: int, played_round: PlayedRound, datastores: DataStores) -> None:
+    """Make plots."""
+    plots = Plots(
+        year,
+        max_round=played_round,
+        save=True,
+        datastores=datastores,
+    )
+    plots.standings()
+    plots.close()
 
 
 def _insert_selections(

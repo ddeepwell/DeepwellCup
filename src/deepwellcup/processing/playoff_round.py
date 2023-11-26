@@ -1,5 +1,4 @@
 """Hold all data for a playoff round in a year"""
-from .plots import Plots
 from .points import RoundPoints
 from .round_data import RoundData
 from .utils import DataStores
@@ -24,7 +23,6 @@ class PlayoffRound:  # pylint: disable=R0902
         self._selections = round_data.selections
         self._results = round_data.results
         self._other_points = round_data.other_points
-        self._plots = None
 
     @property
     def selections(self):
@@ -73,20 +71,3 @@ class PlayoffRound:  # pylint: disable=R0902
             conference: list(self.results.series.loc[conference].index)
             for conference in conferences
         }
-
-    def _get_plots(self, playoff_round):
-        """Get the plots class"""
-        if self._plots is None or self._plots.max_round != playoff_round:
-            self._plots = Plots(
-                self.year,
-                max_round=playoff_round,
-                save=True,
-                datastores=self._datastores,
-            )
-        return self._plots
-
-    def make_standings_chart(self):
-        """Create standings chart for the current and previous playoff rounds."""
-        plts = self._get_plots(self.playoff_round)
-        plts.standings()
-        plts.close()
