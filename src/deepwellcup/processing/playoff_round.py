@@ -64,12 +64,22 @@ class PlayoffRound:
             return db.get_preferences(RoundInfo(self.selection_round, self.year))
 
     @property
+    def preferences_selected(self) -> bool:
+        """Return True if preferences were selected."""
+        return not self.preferences[0].empty
+
+    @property
     def monikers(self) -> dict[str, str]:
         """Return the monikers."""
         if self.selection_round == "Champions":
             return {}
         with self.database as db:
             return db.get_monikers(RoundInfo(self.selection_round, self.year))
+
+    @property
+    def monikers_selected(self) -> bool:
+        """Return True if monikers were selected."""
+        return len(self.monikers) > 0
 
     @property
     def series(self) -> dict[str, list[str]]:
@@ -87,7 +97,7 @@ class PlayoffRound:
     @property
     def players(self) -> pd.DataFrame:
         """Return the players."""
-        if self.selection_round == "Champions":
+        if self.selection_round == "Champions" or not self.players_selected:
             return pd.DataFrame()
         conference_list = []
         series_list = []
@@ -112,3 +122,14 @@ class PlayoffRound:
             "Lower Seed": lower_seed_list,
         }
         return pd.DataFrame(players_dict).set_index(["Conference", "Series"])
+
+    @property
+    def players_selected(self) -> bool:
+        """Return True if players were selected."""
+        players = list(set(self.selections.series["Player"]))
+        return not (len(players) == 1 and players[0] is None)
+
+    @property
+    def overtime_selected(self) -> bool:
+        """Return True if overtime was selected."""
+        return not self.selections.overtime.empty
