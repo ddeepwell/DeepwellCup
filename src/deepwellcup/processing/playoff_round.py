@@ -8,7 +8,7 @@ from .nhl_teams import lengthen_team_name as ltn
 from .nhl_teams import team_of_player
 from .points import RoundPoints
 from .round_data import RoundData
-from .utils import SelectionRound
+from .utils import RoundInfo, SelectionRound
 
 
 @dataclass
@@ -54,6 +54,14 @@ class PlayoffRound:
             self.points.other.index.get_level_values("Individual").unique()
         )
         return sorted(selection_players.union(other_players))
+
+    @property
+    def preferences(self) -> tuple[pd.Series, pd.Series]:
+        """Return the preferences."""
+        if self.selection_round == "Champions":
+            return pd.Series(), pd.Series()
+        with self.database as db:
+            return db.get_preferences(RoundInfo(self.selection_round, self.year))
 
     @property
     def series(self) -> dict[str, list[str]]:
