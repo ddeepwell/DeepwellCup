@@ -10,7 +10,6 @@ from .database_new import DataBase
 from .points import RoundPoints
 from .points_systems import points_system
 from .round_data import RoundData
-from .utils import DataStores
 
 # set font to look like Latex
 font = {"family": "serif", "size": 12}
@@ -23,18 +22,18 @@ class Plots:  # pylint: disable=R0902
     def __init__(  # pylint: disable=R0913
         self,
         year,
+        database: DataBase,
         max_round=4,
         plot_champions=True,
         save=False,
         show=False,
-        datastores: DataStores = DataStores(None, None),
     ):
         self.year = year
         self.max_round = max_round
         self.plot_champions = plot_champions
         self.save = save
         self.show = show
-        self._datastores = datastores
+        self._database = database
         self._points_system = points_system(year)
         self._total_points = self._create_table("total")
         self._other_points = self._create_table("other")
@@ -124,7 +123,7 @@ class Plots:  # pylint: disable=R0902
 
     def _add_column_to_table(self, rnd, category):
         """Modify Series to be the appropriate structure for making a Dataframe."""
-        round_data = RoundData(self.year, rnd, DataBase(self._datastores.database))
+        round_data = RoundData(self.year, rnd, self._database)
         points = RoundPoints(round_data)
         column = getattr(points, category)
         if column is None:
