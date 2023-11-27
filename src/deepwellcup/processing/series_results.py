@@ -1,29 +1,30 @@
-"""Print the series results from the CSV file"""
+"""Print the series results from the CSV file."""
 import argparse
 from pathlib import Path
-from .selections import Selections
+
 from . import utils
-from .utils import DataStores
+from .files import SelectionsFile
+from .process_files import FileSelections
 
 
 def print_series_results(
     year,
-    playoff_round,
-    datastores: DataStores = DataStores(None, None),
+    selection_round,
+    directory: Path | None = None,
 ):
-    """Print the series results from the CSV"""
-    selections = Selections(
-        year,
-        playoff_round,
-        datastores=datastores,
-        keep_results=True,
-        use_database_first=False,
+    """Print the series results from the CSV."""
+    selections = FileSelections(
+        SelectionsFile(
+            year=year,
+            selection_round=selection_round,
+            directory=directory,
+        )
     )
-    print(selections.selections.loc["Results"])
+    print(selections.selections(keep_results=True).loc["Results"])
 
 
 def main():
-    """Main argument processing"""
+    """Main argument processing."""
     parser = argparse.ArgumentParser(description="Print series results from CSV file")
     # required arguments
     required = parser.add_argument_group("required arguments")
