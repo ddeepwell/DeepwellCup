@@ -21,7 +21,7 @@ def multi_year_remake(
         print(f"Starting {year} ... ", end="", flush=True)
         for played_round in utils.YearInfo(year).played_rounds:
             _insert_data(year, played_round, datastores)
-            _make_tables(year, played_round, datastores)
+            _make_tables(year, played_round, DataBase(datastores.database))  # type: ignore[arg-type] # noqa: E501 # pylint: disable=C0301
             _make_plots(year, played_round, DataBase(datastores.database))  # type: ignore[arg-type] # noqa: E501 # pylint: disable=C0301
         print("Finished")
 
@@ -39,9 +39,9 @@ def _insert_data(year: int, played_round: PlayedRound, datastores: DataStores) -
         _insert_results(year, "Champions", datastores, champions="champion")
 
 
-def _make_tables(year: int, played_round: PlayedRound, datastores: DataStores) -> None:
+def _make_tables(year: int, played_round: PlayedRound, database: DataBase) -> None:
     """Make tables."""
-    latex = Latex(year, played_round, datastores)
+    latex = Latex(year, played_round, database)
     latex.make_table()
 
 

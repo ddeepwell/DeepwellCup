@@ -86,7 +86,7 @@ class PlayoffRound:
         """Return the series."""
         if self.selection_round == "Champions":
             return {}
-        conferences = list(
+        conferences = sorted(
             set(self.results.series.index.get_level_values("Conference"))
         )
         return {

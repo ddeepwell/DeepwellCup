@@ -167,7 +167,7 @@ class DataBase:  # pylint: disable=R0904
         monikers = self.fetch(
             "SELECT IndividualID, Moniker "
             f"FROM Monikers WHERE Year={round_info.year} "
-            f"AND Round={round_info.played_round}"
+            f"AND Round='{round_info.played_round}'"
         )
         if monikers:
             return {
@@ -209,7 +209,7 @@ class DataBase:  # pylint: disable=R0904
         preferences = self.fetch(
             "SELECT IndividualID, FavouriteTeam, CheeringTeam "
             f"FROM Preferences WHERE Year={round_info.year} "
-            f"AND Round={round_info.played_round}"
+            f"AND Round='{round_info.played_round}'"
         )
         if not preferences:
             return _empty_series(), _empty_series()

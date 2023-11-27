@@ -3,16 +3,16 @@ import os
 
 from jinja2 import Environment, FileSystemLoader
 from numpy import array
-from pandas import isna
+from pandas import NA, isna
 from sympy import latex, symbols
 from sympy.utilities.lambdify import lambdify
 
 from . import dirs, utils
+from .database_new import DataBase
 from .nhl_teams import lengthen_team_name as ltn
 from .nhl_teams import shorten_team_name as stn
+from .playoff_round import PlayoffRound
 from .points_systems import points_system
-from .selections import Selections
-from .utils import DataStores
 
 
 class Latex:
@@ -22,23 +22,15 @@ class Latex:
         self,
         year,
         playoff_round,
-        datastores: DataStores = DataStores(None, None),
+        database: DataBase,
     ):
         self._year = year
         self._playoff_round = playoff_round
-        self._round_selections = Selections(
-            year=year,
-            playoff_round=playoff_round,
-            datastores=datastores,
-        )
+        self._round_facts = PlayoffRound(year, playoff_round, database)
         if playoff_round != "Q":
-            self._champions_selections = Selections(
-                year=year,
-                playoff_round="Champions",
-                datastores=datastores,
-            )
+            self._champions_info = PlayoffRound(year, "Champions", database)
         else:
-            self._champions_selections = None  # type: ignore
+            self._champions_info = None  # type: ignore
         self._system = points_system(self.year)
 
     @property
@@ -88,15 +80,6 @@ class Latex:
         os.system(build_command)
         os.chdir(cwd)
 
-    # class PlayoffRoundTable():
-    #     """Subclass for making the table of selections in a playoff round"""
-
-    #     def __init__(self):
-    #         self.year = Tables.year
-    #         self.playoff_round = Tables.playoff_round
-    #         print(self.playoff_round)
-    #         # self.selections = Tables._selections
-
     @property
     def latex_file(self):
         """Return the name of the LaTex file"""
@@ -143,17 +126,17 @@ class Latex:
     @property
     def _selections(self):
         """Return the selections"""
-        return self._round_selections.selections
+        return self._round_facts.selections.series
 
     @property
     def _series(self):
         """Return the dictionary of series in each conference"""
-        return self._round_selections.series
+        return self._round_facts.series
 
     @property
     def _players(self):
         """Return the dictionary of series in each conference"""
-        return self._round_selections.players
+        return self._round_facts.players
 
     @property
     def _number_of_series_in_round(self):
@@ -163,7 +146,7 @@ class Latex:
     @property
     def _number_of_series_in_round_per_conference(self):
         """Return the number of series in a conference in the playoff round"""
-        return self._number_of_series_in_round // len(self._round_selections.series)
+        return self._number_of_series_in_round // len(self._round_facts.series)
 
     def _make_main_table(self):
         """Create the main table"""
@@ -187,7 +170,7 @@ class Latex:
         elif self.playoff_round == 4:
             table_title = "Round 4: Stanley Cup Finals"
 
-        if self._round_selections.preferences_selected:
+        if self._round_facts.preferences_selected:
             round_table = self._preferences_rows()
         else:
             round_table = self.blank if "None" in self._series.keys() else ""
@@ -195,7 +178,7 @@ class Latex:
         for conference in self._series:
             round_table += self._selections_table_conference(conference)
 
-        if self._round_selections.overtime_selected:
+        if self._round_facts.overtime_selected:
             round_table += self._overtime_rows()
 
         template = self._import_template("main_selections_table.j2")
@@ -212,12 +195,10 @@ class Latex:
         """Create the row with individuals names or monikers"""
         column_header = ""
         for index, individual in enumerate(self.individuals):
+            monikers = self._round_facts.monikers
             name = (
-                self._round_selections.monikers[individual]
-                if (
-                    self._round_selections.monikers
-                    and self._round_selections.monikers[individual] != ""
-                )
+                monikers[individual]
+                if (monikers and monikers[individual] != "")
                 else individual
             )
             if index % 2 == 0:
@@ -232,13 +213,13 @@ class Latex:
         favourite_line = "Favourite Team"
         cheering_line = "Cheering Team"
         for index, individual in enumerate(self.individuals):
-            preferences = self._round_selections.preferences.loc[individual]
+            favourite_teams, cheering_teams = self._round_facts.preferences
             if index % 2 == 0:
-                favourite_line += f" & \\mclg{{{stn(preferences['Favourite Team'])}}}"
-                cheering_line += f" & \\mclg{{{stn(preferences['Cheering Team'])}}}"
+                favourite_line += f" & \\mclg{{{stn(favourite_teams[individual])}}}"
+                cheering_line += f" & \\mclg{{{stn(cheering_teams[individual])}}}"
             else:
-                favourite_line += f" & \\mcl{{{stn(preferences['Favourite Team'])}}}"
-                cheering_line += f" & \\mcl{{{stn(preferences['Cheering Team'])}}}"
+                favourite_line += f" & \\mcl{{{stn(favourite_teams[individual])}}}"
+                cheering_line += f" & \\mcl{{{stn(cheering_teams[individual])}}}"
         final_line = (
             "        " + self.blanker
             if self.playoff_round != 4
@@ -281,7 +262,7 @@ class Latex:
         second_row = f"          {lower_seed} " + " ".join(
             [a_selection(individual) for individual in self.individuals]
         )
-        if self._round_selections.players_selected:
+        if self._round_facts.players_selected:
             second_row += r"\\" + "\n"
         else:
             second_row += r"\\\hline" + "\n"
@@ -289,7 +270,7 @@ class Latex:
 
     def _row_player_selection(self, series_name):
         """Create the player selection component for a row"""
-        if not self._round_selections.players_selected:
+        if not self._round_facts.players_selected:
             return ""
 
         def a_selection(index, individual):
@@ -344,7 +325,7 @@ class Latex:
         """Row for the overtime selections"""
         row = f"{self.blanker}          Overtime"
         for index, individual in enumerate(self.individuals):
-            ot_selection = self._round_selections.selections_overtime[individual]
+            ot_selection = self._round_facts.selections.overtime[individual]
             if index % 2 == 0:
                 row += f" & \\mclg{{{ot_selection}}}"
             else:
@@ -364,7 +345,7 @@ class Latex:
     def _champions_row(self, category):
         """Return a row in the champions table"""
 
-        selections = self._champions_selections.selections
+        selections = self._champions_info.selections.champions
 
         if category in ["East", "West"]:
             row_name = f"{category}ern"
@@ -378,9 +359,9 @@ class Latex:
                 duration = selections.loc[individual]["Duration"]
             else:
                 selection = ""
-                duration = None
+                duration = NA
 
-            if duration is not None and category == "Stanley Cup":
+            if not isna(duration) and category == "Stanley Cup":
                 row += f" & {selection} & {duration}"
             else:
                 if index % 2 == 0:
@@ -518,19 +499,12 @@ class Latex:
 
     def _counts_table_players(self):
         """Create the players counts for the counts table"""
-        if not self._round_selections.players_selected:
+        if not self._round_facts.players_selected:
             return ""
-
         picks_per_player = self._selections["Player"].value_counts()
-        players = [
-            tuple(series_players)
-            for conference_players in self._players.values()
-            for series_players in conference_players
-        ]
-
         higher_seed_line = "        "
         lower_seed_line = "        "
-        for higher_seed, lower_seed in players:
+        for higher_seed, lower_seed in self._round_facts.players.values:
             higher_counts = (
                 picks_per_player[higher_seed] if higher_seed in picks_per_player else 0
             )
@@ -547,10 +521,10 @@ class Latex:
 
     def _counts_table_overtime(self):
         """Create the overtime counts for the counts table"""
-        if not self._round_selections.overtime_selected:
+        if not self._round_facts.overtime_selected:
             return ""
 
-        picks_per_length = self._round_selections.selections_overtime.value_counts()
+        picks_per_length = self._round_facts.selections.overtime.value_counts()
         lengths = ["0", "1", "2", "3", "More than 3"]
         length_line = "\n"
         for length in lengths:
