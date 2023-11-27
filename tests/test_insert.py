@@ -2,8 +2,8 @@
 import numpy as np
 import pandas as pd
 
-from deepwellcup.processing.database_new import Monikers
-from deepwellcup.processing.insert_new import (
+from deepwellcup.processing.database import Monikers
+from deepwellcup.processing.insert import (
     InsertOtherPoints,
     InsertResults,
     InsertSelections,
@@ -74,7 +74,7 @@ class TempDataBase:
 def test_add_new_individuals():
     """Test for add_new_individuals."""
 
-    class TempFileSelections:  # pylint: disable=C0115
+    class TempFileSelections:  # pylint: disable=C0115,R0903
         def individuals(self):  # pylint: disable=C0116
             return ["Alita D", "David D"]
 

@@ -8,7 +8,7 @@ from sympy import latex, symbols
 from sympy.utilities.lambdify import lambdify
 
 from . import dirs, utils
-from .database_new import DataBase
+from .database import DataBase
 from .nhl_teams import lengthen_team_name as ltn
 from .nhl_teams import shorten_team_name as stn
 from .playoff_round import PlayoffRound

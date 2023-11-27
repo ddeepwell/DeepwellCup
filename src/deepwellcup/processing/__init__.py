@@ -8,25 +8,21 @@ from . import (
     round_data,
     utils,
 )
-from .database import DataBaseOperations
-from .database_new import DataBase
-from .insert_new import InsertOtherPoints, InsertResults, InsertSelections
+from .database import DataBase
+from .insert import InsertOtherPoints, InsertResults, InsertSelections
 from .latex import Latex
 from .playoff_round import PlayoffRound
 from .plots import Plots
 from .points import RoundPoints
 from .process_files import FileResults, FileSelections
 from .remake import multi_year_remake
-from .results import Results
 from .round_data import RoundData
-from .selections import Selections
 from .series_results import print_series_results
 from .update_results import update_results
 from .update_selections import update_selections
 
 __all__ = [
     "DataBase",
-    "DataBaseOperations",
     "files",
     "dirs",
     "FileSelections",
@@ -42,11 +38,9 @@ __all__ = [
     "Plots",
     "points_systems",
     "print_series_results",
-    "Results",
     "round_data",
     "RoundData",
     "RoundPoints",
-    "Selections",
     "update_results",
     "update_selections",
     "utils",

@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 
 import pandas as pd
 
-from .database_new import DataBase
+from .database import DataBase
 from .utils import PlayedRound, RoundInfo, SelectionRound
 
 

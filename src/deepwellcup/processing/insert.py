@@ -1,5 +1,5 @@
 """Insert selections into the database."""
-from .database_new import DataBase
+from .database import DataBase
 from .process_files import FileOtherPoints, FileResults, FileSelections
 from .utils import RoundInfo, SelectionRound, YearInfo
 

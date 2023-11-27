@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 import pandas as pd
 
-from .database_new import DataBase
+from .database import DataBase
 from .nhl_teams import lengthen_team_name as ltn
 from .nhl_teams import team_of_player
 from .points import RoundPoints

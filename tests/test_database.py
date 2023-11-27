@@ -1,324 +1,360 @@
-"""Tests for database interactions"""
-import pytest
+"""Tests for database."""
+import numpy as np
 import pandas as pd
-from deepwellcup.processing.database import DataBaseOperations
+from pytest import raises
 
-
-@pytest.fixture(
-    scope="function",
-    name="individuals_database",
+from deepwellcup.processing.database import (
+    DataBase,
+    DuplicateEntryError,
+    PlayedRoundError,
+    YearError,
+    check_played_round,
+    check_year,
 )
-def fixture_individuals_database(nonempty_database_function_conn):
-    """Create and populate the individuals table"""
-    database = DataBaseOperations(database=nonempty_database_function_conn)
+from deepwellcup.processing.utils import RoundInfo
+
+
+def test_individuals(tmp_path):
+    """Test for add and get individuals."""
+    database = DataBase(tmp_path / "individuals.db")
+    individuals = ["David D"]
     with database as db:
-        db.add_new_individual("David", "D")
-        db.add_new_individual("Michael", "D")
-    yield database
-    nonempty_database_function_conn.close()
+        db.add_individuals(individuals)
+        received = db.get_individuals()
+    assert received == individuals
 
 
-@pytest.fixture(
-    scope="function",
-    name="stanley_cup_database",
-)
-def fixture_stanley_cup_database(nonempty_database_function_conn):
-    """Create and populate the Stanley Cup table"""
-    database = DataBaseOperations(database=nonempty_database_function_conn)
-    year = 2011
+def test_add_individuals_error(tmp_path):
+    """Test for add and get individuals."""
+    database = DataBase(tmp_path / "individuals.db")
+    individuals = ["David D"]
     with database as db:
-        db.add_new_individual("David", "D")
-        db.add_new_individual("Michael", "D")
-        picks = [
-            [
-                "David", "D",
-                "Boston Bruins",
-                "San Jose Sharks",
-                "Toronto Maple Leafs"
-            ],
-            [
-                "Michael", "D",
-                "Tampa Bay Lightning",
-                "Vancouver Canucks",
-                "Vancouver Canucks",
-            ],
-        ]
-        db.add_stanley_cup_selection_for_everyone(year, picks)
-        db.add_stanley_cup_results(
-            year, "Boston Bruins", "Vancouver Canucks", "Boston Bruins"
-        )
-    yield database
-    nonempty_database_function_conn.close()
+        db.add_individuals(individuals)
+        with raises(DuplicateEntryError):
+            db.add_individuals(individuals)
 
 
-@pytest.fixture(
-    scope="module",
-    name="series_database",
-)
-def fixture_series_database(nonempty_database_module_conn):
-    """Create and populate the Series table"""
-    database = DataBaseOperations(database=nonempty_database_module_conn)
-    # series
-    year = 2020
-    playoff_round = 3
-    conference = "East"
-    series_list = [
-        ["Toronto Maple Leafs", "Carolina Hurricanes", None, None],
-        ["Montreal Canadiens", "Boston Bruins", "Max Domi", "Brad Marchand"],
-    ]
-    # selections
-    series_number = 1
-    first_name = "David"
-    last_name = "D"
-    team_selection = "Toronto Maple Leafs"
-    game_selection = 6
-    player_selection = None
-    picks = [
-        year,
-        playoff_round,
-        conference,
-        series_number,
-        first_name,
-        last_name,
-        team_selection,
-        game_selection,
-        player_selection,
-    ]
-    # results
-    team_winner = "Toronto Maple Leafs"
-    game_length = 7
-    player_winner = None
-    results = [
-        year,
-        playoff_round,
-        conference,
-        series_number,
-        team_winner,
-        game_length,
-        player_winner,
-    ]
+def test_monikers(tmp_path):
+    """Test for add and get monikers."""
+    database = DataBase(tmp_path / "monikers.db")
+    round_info = RoundInfo(year=2010, played_round=1)
+    monikers = {"David D": "Nazzy", "Brian M": ""}
     with database as db:
-        db.add_new_individual("David", "D")
-        db.add_year_round_series_for_conference(
-            year, playoff_round, conference, series_list
+        db.add_individuals(list(monikers))
+        db.add_monikers(round_info, monikers)
+        received = db.get_monikers(round_info)
+    assert received == monikers
+
+
+def test_preferences(tmp_path):
+    """Test for add and get preferences."""
+    database = DataBase(tmp_path / "monikers.db")
+    round_info = RoundInfo(year=2010, played_round=1)
+    favourite_team = pd.Series({"David D": "Vancouver Canucks"})
+    cheering_team = pd.Series({"David D": "Calgary Flames"})
+    with database as db:
+        db.add_individuals(list(favourite_team.index))
+        db.add_preferences(round_info, favourite_team, cheering_team)
+        received_favourite, received_cheering = db.get_preferences(round_info)
+    assert received_favourite.equals(favourite_team)
+    assert received_cheering.equals(cheering_team)
+
+
+def test_series(tmp_path):
+    """Test for add and get series."""
+    database = DataBase(tmp_path / "series.db")
+    round_info = RoundInfo(year=2010, played_round=3)
+    series = pd.DataFrame(
+        {
+            "Conference": ["East", "West"],
+            "Series Number": [1, 1],
+            "Name": ["BOS-NYI", "DAL-SJS"],
+            "Higher Seed": ["Boston Bruins", "Dallas Stars"],
+            "Lower Seed": ["New York Islanders", "San Jose Sharks"],
+            "Player on Higher Seed": ["Brad Marchand", "Tyler Seguin"],
+            "Player on Lower Seed": ["Matthew Barzal", "Brent Burns"],
+        },
+    ).set_index(["Conference", "Series Number"])
+    with database as db:
+        db.add_series(round_info, series)
+        received = db.get_series(round_info)
+    assert received.equals(series)
+
+
+def test_series_ids(tmp_path):
+    """Test for add and get series IDs."""
+    database = DataBase(tmp_path / "series_ids.db")
+    round_info = RoundInfo(year=2015, played_round=3)
+    series = pd.DataFrame(
+        {
+            "Conference": ["East", "West"],
+            "Series Number": [1, 1],
+            "Name": ["BOS-NYI", "DAL-SJS"],
+            "Higher Seed": ["Boston Bruins", "Dallas Stars"],
+            "Lower Seed": ["New York Islanders", "San Jose Sharks"],
+            "Player on Higher Seed": ["Brad Marchand", "Tyler Seguin"],
+            "Player on Lower Seed": ["Matthew Barzal", "Brent Burns"],
+        },
+    ).set_index(["Conference", "Series Number"])
+    expected = {
+        ("East", "BOS-NYI"): 1,
+        ("West", "DAL-SJS"): 2,
+    }
+    with database as db:
+        db.add_series(round_info, series)
+        received = db.get_series_ids(round_info)
+    assert received == expected
+
+
+def test_ids_with_series(tmp_path):
+    """Test for add and get IDs with series."""
+    database = DataBase(tmp_path / "series_ids.db")
+    round_info = RoundInfo(year=2015, played_round=3)
+    series = pd.DataFrame(
+        {
+            "Conference": ["East", "West"],
+            "Series Number": [1, 1],
+            "Name": ["BOS-NYI", "DAL-SJS"],
+            "Higher Seed": ["Boston Bruins", "Dallas Stars"],
+            "Lower Seed": ["New York Islanders", "San Jose Sharks"],
+            "Player on Higher Seed": ["Brad Marchand", "Tyler Seguin"],
+            "Player on Lower Seed": ["Matthew Barzal", "Brent Burns"],
+        },
+    ).set_index(["Conference", "Series Number"])
+    expected = {
+        1: ("East", "BOS-NYI"),
+        2: ("West", "DAL-SJS"),
+    }
+    with database as db:
+        db.add_series(round_info, series)
+        received = db.get_ids_with_series(round_info)
+    assert received == expected
+
+
+def test_round_selections(tmp_path):
+    """Test for add and get round selections."""
+    database = DataBase(tmp_path / "champions_selections.db")
+    round_info = RoundInfo(year=2018, played_round=3)
+    series = pd.DataFrame(
+        {
+            "Conference": ["East", "West"],
+            "Series Number": [1, 1],
+            "Name": ["TBL-BOS", "WSH-PIT"],
+            "Higher Seed": ["Tampa Bay Lightning", "Washington Capitals"],
+            "Lower Seed": ["Boston Bruins", "Pittsburgh Penguins"],
+            "Player on Higher Seed": [None, None],
+            "Player on Lower Seed": [None, None],
+        },
+    ).set_index(["Conference", "Series Number"])
+    selections = (
+        pd.DataFrame(
+            {
+                "Individual": ["Kyle L", "Kyle L"],
+                "Conference": ["East", "West"],
+                "Series": ["TBL-BOS", "WSH-PIT"],
+                "Team": ["Boston Bruins", "Washington Capitals"],
+                "Duration": [6, 7],
+                "Player": [None, None],
+            },
         )
-        db.add_series_selections(*picks)
-        db.add_series_results(*results)
-    yield database
-    nonempty_database_module_conn.close()
+        .astype({"Duration": "Int64"})
+        .set_index(["Individual", "Conference", "Series"])
+    )
+    selections.attrs = {
+        "Selection Round": round_info.played_round,
+        "Year": round_info.year,
+    }
+    with database as db:
+        db.add_individuals(["Kyle L"])
+        db.add_series(round_info, series)
+        db.add_round_selections(selections)
+        received = db.get_round_selections(round_info)
+    assert received.equals(selections)
 
 
-class TestDatabase:
-    """Class for tests of the database module"""
-
-    def test_check_if_individual_exists_true(self, individuals_database):
-        """a test"""
-        with individuals_database as db:
-            returned_val = db.check_if_individual_exists("David", "D")
-        expected_val = True
-        assert returned_val == expected_val
-
-    def test_check_if_individual_exists_false(self, individuals_database):
-        """a test"""
-        with individuals_database as db:
-            returned_val = db.check_if_individual_exists("Mark", "D")
-        expected_val = False
-        assert returned_val == expected_val
-
-    def test_get_individual(self, individuals_database):
-        """a test"""
-        with individuals_database as db:
-            returned_individuals = db.get_individuals()
-        expected_individuals = [("David", "D"), ("Michael", "D")]
-        assert returned_individuals == expected_individuals
-
-    def test_add_new_individual_length(self, individuals_database):
-        """a test"""
-        with pytest.raises(Exception):
-            with individuals_database as db:
-                db.add_new_individual("David", "Deepwell")
-
-    def test_add_new_individual_exists(self, individuals_database):
-        """a test"""
-        with pytest.warns(UserWarning, match=r"\bis already in the database"):
-            with individuals_database as db:
-                returned_val = db.add_new_individual("David", "D")
-                returned_individuals = db.get_individuals()
-        expected_individuals = [("David", "D"), ("Michael", "D")]
-        assert returned_val is None
-        assert returned_individuals == expected_individuals
-
-    def test_add_new_individual_nonexists(self, individuals_database):
-        """a test"""
-        with individuals_database as db:
-            returned_val = db.add_new_individual("Mark", "D")
-            returned_individuals = db.get_individuals()
-        expected_individuals = [("David", "D"), ("Michael", "D"), ("Mark", "D")]
-        assert returned_val is None
-        assert returned_individuals == expected_individuals
-
-    def test_get_individual_id(self, individuals_database):
-        """a test"""
-        with individuals_database as db:
-            returned_val = db._get_individual_id("David", "D")
-        expected_val = 1
-        assert returned_val == expected_val
-
-    def test_get_individual_id_nonexist(self, individuals_database):
-        """a test"""
-        with pytest.warns(UserWarning, match=r"\bdoes not exist in the database"):
-            with individuals_database as db:
-                db._get_individual_id("Mark", "D")
-
-    def test_get_individual_from_id(self, individuals_database):
-        """a test"""
-        with individuals_database as db:
-            returned_val = db._get_individual_from_id(1)
-        expected_val = "David D"
-        assert returned_val == expected_val
-
-    def test_get_individual_from_id_nonexist(self, individuals_database):
-        """a test"""
-        with pytest.warns(UserWarning, match=r"\bdoes not exist in the database"):
-            with individuals_database as db:
-                db._get_individual_from_id(3)
-
-    def test_get_all_stanley_cup_selections(self, stanley_cup_database):
-        """a test"""
-        with stanley_cup_database as db:
-            received = db.get_all_stanley_cup_selections()
-        data = {
-            "East": ["Boston Bruins", "Tampa Bay Lightning"],
-            "West": ["San Jose Sharks", "Vancouver Canucks"],
-            "Stanley Cup": ["Toronto Maple Leafs", "Vancouver Canucks"],
-            "Duration": [None, None],
-        }
-        index = pd.MultiIndex.from_product(
-            [["David D", "Michael D"], [2011]], names=["Individual", "Year"]
+def test_round_results(tmp_path):
+    """Test for add and get round results."""
+    database = DataBase(tmp_path / "test.db")
+    round_info = RoundInfo(year=2015, played_round=3)
+    series = pd.DataFrame(
+        {
+            "Conference": ["East", "West"],
+            "Series Number": [1, 1],
+            "Name": ["TBL-BOS", "WSH-PIT"],
+            "Higher Seed": ["Tampa Bay Lightning", "Washington Capitals"],
+            "Lower Seed": ["Boston Bruins", "Pittsburgh Penguins"],
+            "Player on Higher Seed": [None, None],
+            "Player on Lower Seed": [None, None],
+        },
+    ).set_index(["Conference", "Series Number"])
+    results = (
+        pd.DataFrame(
+            {
+                "Conference": ["East", "West"],
+                "Series": ["TBL-BOS", "WSH-PIT"],
+                "Team": ["Boston Bruins", "Washington Capitals"],
+                "Duration": [5, 4],
+                "Player": [None, None],
+            },
         )
-        expected = pd.DataFrame(data=data, index=index)
-        assert received.equals(expected)
+        .astype({"Duration": "Int64"})
+        .set_index(["Conference", "Series"])
+    )
+    results.attrs = {
+        "Selection Round": round_info.played_round,
+        "Year": round_info.year,
+    }
+    with database as db:
+        db.add_series(round_info, series)
+        db.add_round_results(results)
+        received = db.get_round_results(round_info)
+    assert received.equals(results)
 
-    def test_stanley_cup_selection(self, stanley_cup_database):
-        """a test"""
-        with stanley_cup_database as db:
-            received = db.get_stanley_cup_selections(2011)
-        data = {
-            "East": ["Boston Bruins", "Tampa Bay Lightning"],
-            "West": ["San Jose Sharks", "Vancouver Canucks"],
-            "Stanley Cup": ["Toronto Maple Leafs", "Vancouver Canucks"],
-            "Duration": [None, None],
-        }
-        index = ["David D", "Michael D"]
-        expected = pd.DataFrame(data=data, index=index)
-        assert received.equals(expected)
 
-    def test_stanley_cup_selections_empty(self, empty_database):
-        """a test"""
-        with empty_database as db:
-            with pytest.raises(Exception):
-                db.get_stanley_cup_selections(2013)
+def test_champions_selections(tmp_path):
+    """Test for add and get champions selections."""
+    database = DataBase(tmp_path / "champions_selections.db")
+    round_info = RoundInfo(year=2011, played_round="Champions")
+    champions = (
+        pd.DataFrame(
+            {
+                "Individual": ["Kyle L", "David D"],
+                "East": ["Boston Bruins", "Pittsburgh Penguins"],
+                "West": ["Dallas Stars", "Vancouver Canucks"],
+                "Stanley Cup": ["New York Islanders", "Vancouver Canucks"],
+                "Duration": [1, pd.NA],
+            },
+        )
+        .astype({"Duration": "Int64"})
+        .set_index("Individual")
+    )
+    champions.attrs = {
+        "Selection Round": round_info.played_round,
+        "Year": round_info.year,
+    }
+    with database as db:
+        db.add_individuals(["Kyle L", "David D"])
+        db.add_champions_selections(champions)
+        received = db.get_champions_selections(round_info.year)
+    assert received.equals(champions)
 
-    def test_get_all_stanley_cup_results(self, stanley_cup_database):
-        """a test"""
-        with stanley_cup_database as db:
-            received = db.get_all_stanley_cup_results()
-        data = {
-            "East": ["Boston Bruins"],
-            "West": ["Vancouver Canucks"],
-            "Stanley Cup": ["Boston Bruins"],
-            "Duration": [None],
-        }
-        index = [2011]
-        expected = pd.DataFrame(data=data, index=index)
-        assert received.equals(expected)
 
-    def test_stanley_cup_results(self, stanley_cup_database):
-        """a test"""
-        with stanley_cup_database as db:
-            received_data = db.get_stanley_cup_results(2011)
-        data = ["Boston Bruins", "Vancouver Canucks", "Boston Bruins", None]
-        index = ["East", "West", "Stanley Cup", "Duration"]
-        expected_data = pd.Series(data=data, index=index, name=2011)
-        assert received_data.equals(expected_data)
+def test_champions_finalists_results(tmp_path):
+    """Test for add and get champions finalist results."""
+    database = DataBase(tmp_path / "champions_results.db")
+    year = 2012
+    champions = pd.Series(
+        {
+            "East": "Boston Bruins",
+            "West": "Dallas Stars",
+            "Stanley Cup": None,
+            "Duration": pd.NA,
+        },
+    )
+    champions.attrs = {
+        "Selection Round": "Champions",
+        "Year": year,
+    }
+    with database as db:
+        db.add_finalists_results(champions)
+        received = db.get_champions_results(year)
+    assert received.equals(champions)
 
-    def test_stanley_cup_results_empty(self, empty_database):
-        """a test"""
-        with empty_database as db:
-            with pytest.raises(Exception):
-                db.get_stanley_cup_results(2013)
 
-    def test_series(self, series_database):
-        """a test"""
-        year = 2020
-        playoff_round = 3
-        conference = "East"
-        series_number = 1
-        team_higher_seed = "Toronto Maple Leafs"
-        team_lower_seed = "Carolina Hurricanes"
-        expected_list = [
-            year,
-            playoff_round,
-            conference,
-            series_number,
-            team_higher_seed,
-            team_lower_seed,
-            None,
-            None,
-        ]
-        with series_database as db:
-            series_raw = db.get_year_round_series(
-                year, playoff_round, conference, series_number
-            )
-        series = list(series_raw.loc[0])
-        assert series == expected_list
+def test_champions_stanley_cup_results(tmp_path):
+    """Test for add and get the Stanley Cup champion results."""
+    database = DataBase(tmp_path / "champions_results.db")
+    year = 2012
+    champions = pd.Series(
+        {
+            "East": "Boston Bruins",
+            "West": "Dallas Stars",
+            "Stanley Cup": "New York Islanders",
+            "Duration": np.int64(5),
+        },
+    )
+    champions.attrs = {
+        "Selection Round": "Champions",
+        "Year": year,
+    }
+    with database as db:
+        db.add_finalists_results(champions)
+        db.add_stanley_cup_champion_results(champions)
+        received = db.get_champions_results(year)
+    assert received.equals(champions)
 
-    def test_series_selections(self, series_database):
-        """a test"""
-        year = 2020
-        playoff_round = 3
-        conference = "East"
-        series_number = 1
-        first_name = "David"
-        last_name = "D"
-        team_selection = "Toronto Maple Leafs"
-        game_selection = 6
-        player_selection = None
-        expected_list = [
-            year,
-            playoff_round,
-            conference,
-            series_number,
-            first_name,
-            last_name,
-            team_selection,
-            game_selection,
-            player_selection,
-        ]
-        with series_database as db:
-            series_raw = db.get_series_selections(*expected_list[:6])
-        series = list(series_raw.loc[0])
-        assert series == expected_list[6:]
 
-    def test_series_results(self, series_database):
-        """a test"""
-        year = 2020
-        playoff_round = 3
-        conference = "East"
-        series_number = 1
-        team_winner = "Toronto Maple Leafs"
-        game_length = 7
-        player_winner = None
-        expected_list = [
-            year,
-            playoff_round,
-            conference,
-            series_number,
-            team_winner,
-            game_length,
-            player_winner,
-        ]
-        with series_database as db:
-            series_raw = db.get_series_results(*expected_list[:4])
-        series = list(series_raw.loc[0])
-        assert series == expected_list[4:]
+def test_overtime_selections(tmp_path):
+    """Test add and get overtime selections."""
+    database = DataBase(tmp_path / "selections.db")
+    round_info = RoundInfo(year=2019, played_round=3)
+    selections = (
+        pd.Series(
+            {
+                "Brian M": "3",
+                "Jackson L": "More than 3",
+            },
+        )
+        .rename("Overtime")
+        .rename_axis("Individual")
+    )
+    selections.attrs = {
+        "Selection Round": round_info.played_round,
+        "Year": round_info.year,
+    }
+    with database as db:
+        db.add_individuals(["Brian M", "Jackson L"])
+        db.add_overtime_selections(selections)
+        received = db.get_overtime_selections(round_info)
+    assert received.equals(selections)
+
+
+def test_overtime_results(tmp_path):
+    """Test add and get overtime results."""
+    database = DataBase(tmp_path / "results.db")
+    round_info = RoundInfo(year=2019, played_round=3)
+    result = "1"
+    with database as db:
+        db.add_overtime_results(round_info=round_info, result=result)
+        received = db.get_overtime_results(round_info)
+    assert received == result
+
+
+def test_other_points(tmp_path):
+    """Test add and get overtime results."""
+    database = DataBase(tmp_path / "other_points.db")
+    round_info = RoundInfo(year=2021, played_round=1)
+    other_points = (
+        pd.Series({"Harry L": 50}).rename("Other Points").rename_axis("Individuals")
+    )
+    other_points.attrs = {
+        "Selection Round": round_info.played_round,
+        "Year": round_info.year,
+    }
+    with database as db:
+        db.add_individuals(["Harry L"])
+        db.add_other_points(other_points)
+        received = db.get_other_points(round_info)
+    assert received.equals(other_points)
+
+
+def test_check_year():
+    """Test for check_year."""
+    check_year(2009)
+
+
+def test_check_year_error():
+    """Test for check_year."""
+    with raises(YearError):
+        check_year(2002)
+
+
+def test_check_played_round():
+    """Test for check_played_round."""
+    check_played_round(2009, 4)
+
+
+def test_check_played_round_error():
+    """Test for check_played_round."""
+    with raises(PlayedRoundError):
+        check_played_round(2009, 5)

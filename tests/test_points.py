@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import pandas as pd
 import pytest
 
-from deepwellcup.processing.database_new import DataBase
+from deepwellcup.processing.database import DataBase
 from deepwellcup.processing.points import RoundPoints
 from deepwellcup.processing.round_data import BasePlayedRound
 

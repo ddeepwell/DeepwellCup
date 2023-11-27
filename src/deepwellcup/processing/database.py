@@ -1,525 +1,360 @@
-"""Class for interacting with the databae"""
+"""Class for interacting with the database"""
 import sqlite3
-import os
-import math
+import typing
 import warnings
 from pathlib import Path
+
+import numpy as np
 import pandas as pd
+
 from . import dirs, io, utils
-from .nhl_teams import shorten_team_name as stn
+from .nhl_teams import create_series_name
+from .utils import PlayedRound, RoundInfo
+
+Monikers = dict[str, str]
 
 
-class DataBaseOperations:
-    """Class for functions to work with the database"""
+class DuplicateEntryError(Exception):
+    """Exception for duplicate database data."""
 
-    def __init__(self, database=None):
-        self._is_in_memory_database = False
-        self.conn = None
-        self.cursor = None
-        if database is None:
-            database_path = dirs.products() / "DeepwellCup.db"
-        elif isinstance(database, Path):
-            database_path = dirs.products() / database
-        elif isinstance(database, sqlite3.Connection):
-            self._is_in_memory_database = True
-            database_path = database
-        elif database[0] == "/":
-            database_path = database
-        else:
-            raise Exception(f"Database ({database}) was not understood.")
-        self.path = database_path
-        if not self.database_exists():
+
+class MissingIndividual(Exception):
+    """Exception of missing individual."""
+
+
+class PlayedRoundError(Exception):
+    """Exception for invalid played round."""
+
+
+class ChampionsRoundError(Exception):
+    """Exception for invalid Champions round."""
+
+
+class YearError(Exception):
+    """Exception for invalid year."""
+
+
+class MismatchError(Exception):
+    """Exception for mismatched objects."""
+
+
+class ConferenceError(Exception):
+    """Exception for incorrect conference."""
+
+
+class DataBase:  # pylint: disable=R0904
+    """DataBase handling."""
+
+    def __init__(self, database_file: Path | None = None):
+        self._conn: sqlite3.Connection | None = None
+        self._cursor: sqlite3.Cursor | None = None
+        self._path = self._database_path(database_file)
+        if not self._path.exists():
             self.create_database()
 
+    @property
+    def path(self) -> Path:
+        """Return the database path."""
+        return self._path
+
+    def _database_path(self, database_file: Path | None) -> Path:
+        """Return the path to the database."""
+        if database_file is None:
+            return dirs.products() / "DeepwellCup.db"
+        if database_file.is_absolute():
+            return database_file
+        return dirs.products() / database_file
+
     def __enter__(self):
-        self.conn = self._connect()
-        self.cursor = self.conn.cursor()
+        self._conn = self.connect()
+        self._cursor = self._conn.cursor()
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        if not self._is_in_memory_database:
-            self.conn.close()
+        self._conn.close()
+        self._conn = None
+        self._cursor = None
 
-    def _connect(self):
-        if self._is_in_memory_database:
-            return self.path
-        try:
-            return sqlite3.connect(self.path, uri=True)
-        except sqlite3.Error as err:
-            print("ERROR: ", err)
+    def connect(self) -> sqlite3.Connection:
+        """Connect to database."""
+        return sqlite3.connect(self.path, uri=True)
 
-    def database_exists(self):
-        """Check if the database exists"""
-        if self._is_in_memory_database:
-            if self._tables_exists():
-                return True
-            return False
-        return os.path.exists(self.path)
-
-    def _tables_exists(self):
-        """Check if a table exists in the in-memory database"""
-        conn = self._connect()
-        cur = conn.cursor()
-        cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
-        return ("Individuals",) in cur.fetchall()
-
-    def create_database(self):
-        """Create the database"""
-        conn = self._connect()
+    def create_database(self) -> None:
+        """Create database."""
+        conn = self.connect()
         cursor = conn.cursor()
         files = txt_files_in_dir(dirs.database())
         for file in files:
-            create_table(cursor, file)
-        if not self._is_in_memory_database:
-            conn.close()
+            self.create_table(cursor, file)
+        conn.close()
 
-    def check_if_individual_exists(self, first_name, last_name):
-        """Check if individual exists in the database"""
-        sql_cmd = (
-            "SELECT COUNT(*) FROM Individuals "
-            f'WHERE FirstName="{first_name}" and LastName="{last_name}"'
+    def create_table(self, cursor: sqlite3.Cursor, table_file: Path) -> None:
+        """Add a table."""
+        command = io.read_file_to_string(table_file)
+        cursor.execute(command)
+
+    def fetch(self, command: str) -> list[tuple[str, ...]]:
+        """Fetch data."""
+        if self._cursor:
+            return self._cursor.execute(command).fetchall()
+        warnings.warn("The database has not been opened. Nothing was fetched.")
+        return []
+
+    def commit(self, command: str, data: typing.Sequence[tuple]) -> None:
+        """Commit data."""
+        if self._cursor and self._conn:
+            self._cursor.executemany(command, data)
+            self._conn.commit()
+
+    def get_individuals(self) -> list[str]:
+        """Return individuals."""
+        return list(self.get_individuals_with_ids())
+
+    def get_individuals_with_ids(self) -> dict[str, int]:
+        """Return individuals with IDs."""
+        individuals_and_ids = self.fetch(
+            "SELECT IndividualID, FirstName, LastName FROM Individuals"
         )
-        name_count = self.cursor.execute(sql_cmd).fetchall()[0][0]
-        if name_count == 0:
-            exists = False
-        else:
-            exists = True
-        return exists
+        if individuals_and_ids:
+            return {
+                utils.merge_name(name): int(id) for id, *name in individuals_and_ids
+            }
+        return {}
 
-    def check_playoff_round(self, year, playoff_round):
-        """Check for valid playoff round"""
-        played_rounds = utils.YearInfo(year).played_rounds
-        if playoff_round not in played_rounds:
-            raise ValueError(f"The playoff round must be one of {played_rounds}.")
+    def get_ids_with_individuals(self) -> dict[int, str]:
+        """Return IDs with individuals."""
+        return {id: name for name, id in self.get_individuals_with_ids().items()}
 
-    def check_conference(self, year, playoff_round, conference):
-        """Check for valid conference"""
-        if playoff_round == 4 and conference != "None":
-            raise ValueError("The conference in the 4th round must be 'None'")
-        if year == 2021 and conference != "None":
-            raise ValueError("The conference must be 'None' in 2021")
-        if (
-            playoff_round in utils.YearInfo(year).conference_rounds
-            and conference not in ["East", "West"]
-            and year != 2021
-        ):
-            raise ValueError(
-                f"The submitted conference ({conference}) is invalid. "
-                'It must be either "East" or "West"'
-            )
-
-    def check_if_selections_are_valid(
-        self,
-        year,
-        playoff_round,
-        conference,
-        series_number,
-        team_selection,
-        game_selection,
-        player_selection,
-    ):
-        """Check if the selections match those of the series"""
-        series_data = self.get_year_round_series(
-            year,
-            playoff_round,
-            conference,
-            series_number,
-        )
-        # get series and, shortened form of the teams in the series
-        series_str = ",".join(
-            series_data[["TeamHigherSeed", "TeamLowerSeed"]].values[0]
-        )
-        series = series_str.split(",")
-        series_acronym = list(map(stn, series))
-
-        if team_selection not in series:
-            if team_selection is not None:
-                raise ValueError(
-                    f"The selected team, {team_selection}, "
-                    f"is invalid for the series, {series_acronym}"
-                )
-        possible_lengths = utils.RoundInfo(playoff_round, year).series_duration_options
-        if game_selection not in possible_lengths:
-            if game_selection is not None:
-                raise ValueError(
-                    f"The series length, {game_selection}, is invalid. "
-                    f"It must be in {possible_lengths} or None"
-                )
-        if player_selection not in (
-            series_data[["PlayerHigherSeed", "PlayerLowerSeed"]].values[0].tolist()
-        ) + [None, "tie"]:
-            raise ValueError(
-                f"The selected player, {player_selection}, "
-                f"is invalid for the series, {series_acronym}"
-            )
-
-    def get_individuals(self):
-        """Return a list of all individuals from the database
-        The name will be a pair of the first name and last initial"""
-        return self.cursor.execute(
-            "SELECT FirstName, LastName FROM Individuals"
-        ).fetchall()
-
-    def add_new_individual(self, first_name, last_name):
-        """Add a new individual to the database"""
-        if len(last_name) > 1:
-            raise ValueError("Last name must be only 1 character long")
-        if self.check_if_individual_exists(first_name, last_name):
-            warnings.warn(f"{first_name} {last_name} is already in the database")
-        else:
-            self.cursor.executemany(
-                "INSERT INTO Individuals(FirstName, LastName) VALUES (?,?)",
-                [(first_name, last_name)],
-            )
-            self.conn.commit()
-
-    def _get_individual_id(self, first_name, last_name):
-        """Return the primary key from the database for the individual"""
-        try:
-            individual_id = self.cursor.execute(
-                "SELECT individualID FROM Individuals "
-                f'WHERE FirstName="{first_name}" and LastName="{last_name}"'
-            ).fetchall()[0][0]
-        except IndexError:
-            individual_id = None
-            warnings.warn(f"{first_name} {last_name} does not exist in the database")
-        return individual_id
-
-    def _get_individual_from_id(self, individual_id):
-        """Return the individual's name from their individual ID in the database"""
-        try:
-            first_name, last_name = self.cursor.execute(
-                "SELECT FirstName, LastName FROM Individuals "
-                f"WHERE IndividualID={individual_id}"
-            ).fetchall()[0]
-            individual = f"{first_name} {last_name}".strip()
-        except IndexError:
-            individual = None
-            warnings.warn(
-                f"Individual ID of {individual_id} does not exist in the database"
-            )
-        return individual
-
-    def year_round_in_database(self, year, playoff_round):
-        """Check if the playoff round for the year is in the database"""
-        series_data = self.get_all_series_in_round(year, playoff_round)
-        return len(series_data) > 0
-
-    def year_round_results_in_database(self, year, playoff_round):
-        """Check if the results for a playoff round for a year are in the database"""
-        if playoff_round == "Champions":
-            try:
-                results_data = self.get_stanley_cup_results(year)
-            except ValueError:
-                results_data = []
-        else:
-            results_data = self.get_all_round_results(year, playoff_round)
-        return len(results_data) > 0
-
-    def year_round_other_points_in_database(self, year, playoff_round):
-        """Check if the playoff round has other points for the year is in the database"""
-        data = self.get_other_points(year, playoff_round)
-        return len(data) > 0
-
-    def champions_round_in_database(self, year):
-        """Check if the Champions round for the year is in the database"""
-        try:
-            data = self.get_stanley_cup_selections(year)
-        except ValueError:
-            data = []
-        return len(data) > 0
-
-    def add_stanley_cup_selection(
-        self,
-        year,
-        first_name,
-        last_name,
-        east_pick,
-        west_pick,
-        stanley_pick,
-        games_pick=None,
-    ):
-        """Add the Stanley Cup pick for an individual to the database"""
-        # checks on inputs
-        check_if_year_is_valid(year)
-        self.check_if_individual_exists(first_name, last_name)
-        # add checks for valid team names
-
-        individual_id = self._get_individual_id(first_name, last_name)
-        stanley_cup_data = [
-            (individual_id, year, east_pick, west_pick, stanley_pick, games_pick)
-        ]
-        self.cursor.executemany(
-            "INSERT INTO StanleyCupSelections VALUES (?,?,?,?,?,?)", stanley_cup_data
-        )
-        self.conn.commit()
-
-    def add_stanley_cup_selection_for_everyone(self, year, stanley_cup_list):
-        """Add everyone's stanley cup selections for the year to the database"""
-        for stanley_cup_item in stanley_cup_list:
-            self.add_stanley_cup_selection(year, *stanley_cup_item)
-
-    def add_stanley_cup_results(
-        self,
-        year,
-        east_winner,
-        west_winner,
-        stanley_winner,
-        games_length=None
-    ):
-        """Add the Stanley Cup results for a year to the database"""
-        # checks on inputs
-        check_if_year_is_valid(year)
-        # add checks for valid team names
-
-        stanley_cup_data = [
-            (year, east_winner, west_winner, stanley_winner, games_length)
-        ]
-        self.cursor.executemany(
-            "INSERT INTO StanleyCupResults VALUES (?,?,?,?,?)", stanley_cup_data
-        )
-        self.conn.commit()
-
-    def get_all_stanley_cup_selections(self):
-        """Return all Stanley Cup picks in a pandas dataframe"""
-        selections = pd.read_sql_query("SELECT * FROM StanleyCupSelections", self.conn)
-        individuals = selections.loc[:, "IndividualID"].apply(
-            self._get_individual_from_id
-        )
-        selections.insert(0, "Individual", individuals)
-        return (
-            selections.drop(["IndividualID"], axis="columns")
-            .set_index(["Individual", "Year"])
-            .replace(to_replace=math.nan, value=None)
+    def add_individuals(self, individuals: list[str]) -> None:
+        """Add individuals."""
+        for individual in individuals:
+            _check_length_of_last_name(utils.last_name(individual))
+        existing_individuals = self.get_individuals()
+        if set(individuals).intersection(existing_individuals):
+            raise DuplicateEntryError("Individuals are already in the database.")
+        new_individuals = [utils.split_name(individual) for individual in individuals]
+        self.commit(
+            "INSERT INTO Individuals(FirstName, LastName) VALUES (?,?)",
+            new_individuals,
         )
 
-    def get_stanley_cup_selections(self, year):
-        """Return the Stanley Cup picks for the requested year
-        in a pandas dataframe"""
-        check_if_year_is_valid(year)
-        all_selections = self.get_all_stanley_cup_selections()
-        if year not in all_selections.index.get_level_values("Year"):
-            raise ValueError(
-                f"The year ({year}) was not in the StanleyCupSelections Table"
-            )
-        year_selections = all_selections.loc[pd.IndexSlice[:, year], :]
-        year_selections.reset_index(level="Year", drop=True, inplace=True)
-        if any(year_selections["Duration"].notnull()):
-            year_selections.astype("Int64")
-        return year_selections
-
-    def get_all_stanley_cup_results(self):
-        """Return all Stanley Cup results in a pandas dataframe"""
-        return pd.read_sql_query(
-            "SELECT * FROM StanleyCupResults",
-            self.conn,
-            index_col="Year",
-        )
-
-    def get_stanley_cup_results(self, year):
-        """Return the Stanley Cup results for the requested year
-        in a pandas dataframe"""
-        check_if_year_is_valid(year)
-        all_results = self.get_all_stanley_cup_results()
-        if year not in all_results.index:
-            raise ValueError(
-                f"The year ({year}) was not in the StanleyCupResults Table"
-            )
-        return all_results.loc[year]
-
-    def add_year_round_series(
-        self,
-        year,
-        playoff_round,
-        conference,
-        series_number,
-        team_higher_seed,
-        team_lower_seed,
-        player_higher_seed=None,
-        player_lower_seed=None,
-    ):
-        """Add a series ID to the database"""
-        # checks on inputs
-        check_if_year_is_valid(year)
-        self.check_playoff_round(year, playoff_round)
-        self.check_conference(year, playoff_round, conference)
-        # add checks for valid team names
-
+    def add_monikers(self, round_info: RoundInfo, monikers: Monikers) -> None:
+        """Add monikers."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        individuals_with_ids = self.get_individuals_with_ids()
+        missing_individuals = set(monikers) - set(individuals_with_ids)
+        if missing_individuals:
+            raise MissingIndividual(f"{missing_individuals} are not in the database.")
         series_data = [
             (
-                year,
-                playoff_round,
-                conference,
-                series_number,
-                team_higher_seed,
-                team_lower_seed,
-                player_higher_seed,
-                player_lower_seed,
+                round_info.year,
+                round_info.played_round,
+                individuals_with_ids[individual],
+                moniker,
             )
+            for individual, moniker in monikers.items()
         ]
-        self.cursor.executemany(
+        self.commit(
+            "INSERT INTO Monikers VALUES (?,?,?,?)",
+            series_data,
+        )
+
+    def get_monikers(self, round_info: RoundInfo) -> Monikers:
+        """Return the moniker for played round."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        monikers = self.fetch(
+            "SELECT IndividualID, Moniker "
+            f"FROM Monikers WHERE Year={round_info.year} "
+            f"AND Round='{round_info.played_round}'"
+        )
+        if monikers:
+            return {
+                self.get_ids_with_individuals()[int(id)]: moniker
+                for id, moniker in monikers
+            }
+        return {}
+
+    def add_preferences(
+        self,
+        round_info: RoundInfo,
+        favourite_team: pd.Series,
+        cheering_team: pd.Series,
+    ) -> None:
+        """Add preferences."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        if not favourite_team.index.equals(cheering_team.index):
+            raise MismatchError(
+                "Favourite team index does not match cheering team index."
+            )
+        individuals_with_ids = self.get_individuals_with_ids()
+        series_data = [
+            (
+                round_info.year,
+                round_info.played_round,
+                individuals_with_ids[individual],
+                favourite_team[individual],
+                cheering_team[individual],
+            )
+            for individual in favourite_team.index
+        ]
+        self.commit("INSERT INTO Preferences VALUES (?,?,?,?,?)", series_data)
+
+    def get_preferences(self, round_info: RoundInfo) -> tuple[pd.Series, pd.Series]:
+        """Return the preferences for played round."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        preferences = self.fetch(
+            "SELECT IndividualID, FavouriteTeam, CheeringTeam "
+            f"FROM Preferences WHERE Year={round_info.year} "
+            f"AND Round='{round_info.played_round}'"
+        )
+        if not preferences:
+            return _empty_series(), _empty_series()
+        favourite_team = pd.Series(
+            {
+                self.get_ids_with_individuals()[int(id)]: favourite_team
+                for id, favourite_team, _ in preferences
+            }
+        )
+        cheering_team = pd.Series(
+            {
+                self.get_ids_with_individuals()[int(id)]: cheering_team
+                for id, _, cheering_team in preferences
+            }
+        )
+        return favourite_team, cheering_team
+
+    def add_series(
+        self,
+        round_info: RoundInfo,
+        series: pd.DataFrame,
+    ) -> None:
+        """Add series information."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        series_no_index = series.reset_index()
+        for conference in series_no_index["Conference"]:
+            check_conference(round_info.year, round_info.played_round, conference)
+        series_data = [
+            tuple([round_info.year, round_info.played_round])
+            + tuple(
+                map(
+                    lambda x: int(x) if isinstance(x, np.int64) else x,
+                    series_no_index.loc[index].drop("Name"),
+                )
+            )
+            for index in series_no_index.index
+        ]
+        self.commit(
             "INSERT INTO Series("
             "Year, Round, Conference, SeriesNumber, "
             "TeamHigherSeed, TeamLowerSeed, PlayerHigherSeed, PlayerLowerSeed) "
             "VALUES (?,?,?,?,?,?,?,?)",
             series_data,
         )
-        self.conn.commit()
 
-    def get_year_round_series(self, year, playoff_round, conference, series_number):
-        """Return the series data for the series
-        in a pandas dataframe"""
-        check_if_year_is_valid(year)
-        self.check_playoff_round(year, playoff_round)
-        self.check_conference(year, playoff_round, conference)
-        series_id = self._get_series_id(year, playoff_round, conference, series_number)
-        series_data = pd.read_sql_query(
-            f"SELECT * FROM Series WHERE YearRoundSeriesID={series_id}", self.conn
+    def get_series(self, round_info: RoundInfo) -> pd.DataFrame:
+        """Return the series information for a played round."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        series = pd.read_sql_query(
+            "SELECT Conference, SeriesNumber, "
+            "TeamHigherSeed, TeamLowerSeed, PlayerHigherSeed, PlayerLowerSeed "
+            f"FROM Series WHERE Year={round_info.year} "
+            f"AND Round={round_info.played_round}",
+            self._conn,
+        ).rename(
+            columns={
+                "SeriesNumber": "Series Number",
+                "TeamHigherSeed": "Higher Seed",
+                "TeamLowerSeed": "Lower Seed",
+                "PlayerHigherSeed": "Player on Higher Seed",
+                "PlayerLowerSeed": "Player on Lower Seed",
+            }
         )
-        return series_data.drop("YearRoundSeriesID", axis="columns")
+        series.insert(
+            2,
+            "Name",
+            list(map(create_series_name, series["Higher Seed"], series["Lower Seed"])),
+        )
+        return series.set_index(["Conference", "Series Number"])
 
-    def add_year_round_series_for_conference(
-        self, year, playoff_round, conference, series_list
-    ):
-        """Add all the series for the conference to the database"""
-        for index, series_item in enumerate(series_list, start=1):
-            self.add_year_round_series(
-                year, playoff_round, conference, index, *series_item
+    def get_series_ids(self, round_info: RoundInfo) -> dict[tuple[str, str], int]:
+        """Return the series information with IDs for a played round."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        series = self.fetch(
+            "SELECT YearRoundSeriesID, Conference, TeamHigherSeed, TeamLowerSeed "
+            f"FROM Series WHERE Year={round_info.year} "
+            f"AND Round='{round_info.played_round}'"
+        )
+        if not series:
+            return {}
+        return {
+            (a_series[1], create_series_name(a_series[2], a_series[3])): int(
+                a_series[0]
             )
+            for a_series in series
+        }
 
-    def _get_series_id(self, year, playoff_round, conference, series_number):
-        """Return the primary key from the database for the series"""
-        check_if_year_is_valid(year)
-        self.check_playoff_round(year, playoff_round)
-        self.check_conference(year, playoff_round, conference)
-        try:
-            if conference is None:
-                series_id = self.cursor.execute(
-                    "SELECT YearRoundSeriesID FROM Series "
-                    f'WHERE Year="{year}" and Round="{playoff_round}" '
-                    f'and Conference IS NULL and SeriesNumber="{series_number}"'
-                ).fetchall()[0][0]
-            else:
-                series_id = self.cursor.execute(
-                    "SELECT YearRoundSeriesID FROM Series "
-                    f'WHERE Year="{year}" and Round="{playoff_round}" '
-                    f'and Conference="{conference}" and SeriesNumber="{series_number}"'
-                ).fetchall()[0][0]
-        except IndexError:
-            series_id = None
-            warnings.warn("The series does not exist in the database")
-        return series_id
+    def get_ids_with_series(self, round_info: RoundInfo) -> dict[int, tuple[str, str]]:
+        """Return IDs with series."""
+        return {id: series for series, id in self.get_series_ids(round_info).items()}
 
-    def get_all_series_in_round(self, year, playoff_round):
-        """Return all the series data for the playoff round in the given year"""
-        check_if_year_is_valid(year)
-        series_data = pd.read_sql_query(
-            f'SELECT * FROM Series WHERE Year="{year}" and Round="{playoff_round}"',
-            self.conn,
-        ).sort_values(by=["Conference", "SeriesNumber"])
-        return series_data
-
-    def get_teams_in_year_round(self, year, playoff_round):
-        """Get list of team pairs for each series in each conference"""
-        series_data = self.get_all_series_in_round(year, playoff_round)
-        if playoff_round in utils.YearInfo(year).conference_rounds:
-            full_east_data = series_data.query('Conference=="East"')
-            full_west_data = series_data.query('Conference=="West"')
-            east_data = full_east_data[
-                ["TeamHigherSeed", "TeamLowerSeed"]
-            ].values.tolist()
-            west_data = full_west_data[
-                ["TeamHigherSeed", "TeamLowerSeed"]
-            ].values.tolist()
-            return [east_data, west_data]
-        elif playoff_round == 4:
-            finals_data = series_data[
-                ["TeamHigherSeed", "TeamLowerSeed"]
-            ].values.tolist()
-            return finals_data
-
-    def add_series_selections(
-        self,
-        year,
-        playoff_round,
-        conference,
-        series_number,
-        first_name,
-        last_name,
-        team_selection,
-        game_selection,
-        player_selection=None,
-    ):
-        """Add series selections to the database"""
-        # checks on inputs
-        if pd.isna(game_selection):
-            game_selection = None
-        check_if_year_is_valid(year)
-        self.check_playoff_round(year, playoff_round)
-        self.check_conference(year, playoff_round, conference)
-        self.check_if_selections_are_valid(
-            year,
-            playoff_round,
-            conference,
-            series_number,
-            team_selection,
-            game_selection,
-            player_selection,
+    def get_series_with_number(
+        self, round_info: RoundInfo
+    ) -> dict[str, tuple[str, int]]:
+        """Return the series information with its conference number."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        series = self.fetch(
+            "SELECT SeriesNumber, Conference, TeamHigherSeed, TeamLowerSeed "
+            f"FROM Series WHERE Year={round_info.year} "
+            f"AND Round={round_info.played_round}"
         )
-        # add checks for valid team names
+        if not series:
+            return {}
+        return {
+            create_series_name(a_series[2], a_series[3]): (
+                a_series[1],
+                int(a_series[0]),
+            )
+            for a_series in series
+        }
 
-        series_id = self._get_series_id(year, playoff_round, conference, series_number)
-        individual_id = self._get_individual_id(first_name, last_name)
-
-        series_data = [
-            (series_id, individual_id, team_selection, game_selection, player_selection)
+    def add_round_selections(self, selections: pd.DataFrame) -> None:
+        """Add played round selections."""
+        individual_ids = self.get_individuals_with_ids()
+        series_ids = self.get_series_ids(
+            RoundInfo(
+                played_round=selections.attrs["Selection Round"],
+                year=selections.attrs["Year"],
+            )
+        )
+        data = [
+            (
+                series_ids[tuple(series)],  # type: ignore[index]
+                individual_ids[name],
+                selections["Team"][name][tuple(series)],
+                _convert_Int64_to_int(selections["Duration"][name][tuple(series)]),
+                selections["Player"][name][tuple(series)]
+                if "Player" in selections.columns
+                else None,
+            )
+            for name, *series in selections.index
         ]
-        self.cursor.executemany(
-            "INSERT INTO SeriesSelections VALUES (?,?,?,?,?)", series_data
-        )
-        self.conn.commit()
+        self.commit("INSERT INTO SeriesSelections VALUES (?,?,?,?,?)", data)
 
-    def add_series_selections_for_conference(
-        self, year, playoff_round, conference, all_players_selections
-    ):
-        """Add everyone's series selections for the conference to the database"""
-        for player_selections in all_players_selections:
-            first_name = player_selections[0]
-            last_name = player_selections[1]
-            for index, series_items in enumerate(player_selections[2:], start=1):
-                self.add_series_selections(
-                    year,
-                    playoff_round,
-                    conference,
-                    index,
-                    first_name,
-                    last_name,
-                    *series_items,
-                )
-
-    def get_series_selections(
-        self, year, playoff_round, conference, series_number, first_name, last_name
-    ):
-        """Return the series selection data for the series in a pandas dataframe"""
-        check_if_year_is_valid(year)
-        self.check_playoff_round(year, playoff_round)
-        self.check_conference(year, playoff_round, conference)
-        series_id = self._get_series_id(year, playoff_round, conference, series_number)
-        individual_id = self._get_individual_id(first_name, last_name)
-        series_data = pd.read_sql_query(
-            "SELECT * FROM SeriesSelections "
-            f"WHERE YearRoundSeriesID={series_id} "
-            f"AND IndividualID={individual_id}",
-            self.conn,
-        )
-        return series_data.drop(["YearRoundSeriesID", "IndividualID"], axis="columns")
-
-    def get_all_round_selections(self, year, playoff_round):
-        """Return all the selections for a playoff round in a pandas dataframe"""
-        check_if_year_is_valid(year)
-        series_data = pd.read_sql_query(
+    def get_round_selections(self, round_info: RoundInfo) -> pd.DataFrame:
+        """Return the selections of a played round."""
+        check_year(round_info.year)
+        selections = pd.read_sql_query(
             f"""
             SELECT Ser.Conference, Ser.SeriesNumber,
+                Ser.TeamHigherSeed, Ser.TeamLowerSeed,
                 Ind.FirstName, Ind.LastName,
                 SS.Team, SS.Duration, SS.Player
             FROM Individuals as Ind
@@ -527,326 +362,340 @@ class DataBaseOperations:
                 Inner JOIN Series as Ser
                 ON Ser.YearRoundSeriesID = SS.YearRoundSeriesID)
             ON Ind.IndividualID = SS.IndividualID
-            WHERE Ser.Year = {year}
-            AND Ser.Round = "{playoff_round}"
+            WHERE Ser.Year = {round_info.year}
+            AND Ser.Round = "{round_info.played_round}"
             ORDER BY FirstName, LastName, Conference, SeriesNumber
             """,
-            self.conn,
+            self._conn,
         )
-        series_data["Individual"] = (
-            series_data["FirstName"] + " " + series_data["LastName"]
-        ).apply(lambda x: x.strip())
-        return series_data.set_index("Individual").drop(
-            ["FirstName", "LastName"], axis="columns"
-        )
-
-    def add_series_results(
-        self,
-        year,
-        playoff_round,
-        conference,
-        series_number,
-        team_winner,
-        game_length,
-        player_winner=None,
-    ):
-        """Add series results to the database"""
-        # checks on inputs
-        check_if_year_is_valid(year)
-        self.check_playoff_round(year, playoff_round)
-        self.check_conference(year, playoff_round, conference)
-        self.check_if_selections_are_valid(
-            year,
-            playoff_round,
-            conference,
-            series_number,
-            team_winner,
-            game_length,
-            player_winner,
-        )
-        # add checks for valid team names
-
-        series_id = self._get_series_id(year, playoff_round, conference, series_number)
-
-        series_data = [(series_id, team_winner, game_length, player_winner)]
-        self.cursor.executemany(
-            "INSERT INTO SeriesResults VALUES (?,?,?,?)", series_data
-        )
-        self.conn.commit()
-
-    def add_series_results_for_conference(
-        self, year, playoff_round, conference, series_results
-    ):
-        """Add all the series results for the conference to the database"""
-        for index, series_items in enumerate(series_results, start=1):
-            self.add_series_results(
-                year, playoff_round, conference, index, *series_items
+        selections["Individual"] = [
+            utils.merge_name(list(name))
+            for name in zip(selections["FirstName"], selections["LastName"])
+        ]
+        selections["Series"] = [
+            create_series_name(higher_seed, lower_seed)
+            for higher_seed, lower_seed in zip(
+                selections["TeamHigherSeed"], selections["TeamLowerSeed"]
             )
-
-    def get_series_results(self, year, playoff_round, conference, series_number):
-        """Return the series result data for the series in a pandas dataframe"""
-        check_if_year_is_valid(year)
-        self.check_playoff_round(year, playoff_round)
-        self.check_conference(year, playoff_round, conference)
-        series_id = self._get_series_id(year, playoff_round, conference, series_number)
-        series_data = pd.read_sql_query(
-            f"SELECT * FROM SeriesResults WHERE YearRoundSeriesID={series_id}",
-            self.conn,
+        ]
+        return (
+            selections.set_index(["Individual", "Conference", "Series"])
+            .drop(
+                [
+                    "FirstName",
+                    "LastName",
+                    "SeriesNumber",
+                    "TeamHigherSeed",
+                    "TeamLowerSeed",
+                ],
+                axis="columns",
+            )
+            .astype({"Duration": "Int64"})
         )
-        return series_data.drop("YearRoundSeriesID", axis="columns")
 
-    def get_all_round_results(self, year, playoff_round):
-        """Return all the results for a playoff round in a pandas dataframe"""
-        check_if_year_is_valid(year)
-        return pd.read_sql_query(
+    def add_round_results(self, results: pd.DataFrame) -> None:
+        """Add played round results."""
+        series_ids = self.get_series_ids(
+            RoundInfo(
+                played_round=results.attrs["Selection Round"],
+                year=results.attrs["Year"],
+            )
+        )
+        data = [
+            (
+                series_ids[index],  # type: ignore[index]
+                results["Team"][index],
+                _convert_Int64_to_int(results["Duration"][index]),
+                results["Player"][index] if "Player" in results.columns else None,
+            )
+            for index in results.index
+        ]
+        self.commit("INSERT INTO SeriesResults VALUES (?,?,?,?)", data)
+
+    def get_round_results(self, round_info: RoundInfo) -> pd.DataFrame:
+        """Return the results of a played round."""
+        check_year(round_info.year)
+        results = pd.read_sql_query(
             f"""
             SELECT Ser.Conference, Ser.SeriesNumber,
-                SR.Team, SR.Duration, Sr.Player
-            FROM SeriesResults as SR
-            Inner JOIN Series as Ser
-            ON Ser.YearRoundSeriesID = SR.YearRoundSeriesID
-            WHERE Ser.Year = {year}
-            AND Ser.Round = "{playoff_round}"
+                Ser.TeamHigherSeed, Ser.TeamLowerSeed,
+                SR.Team, SR.Duration, SR.Player
+            FROM (SeriesResults as SR
+                Inner JOIN Series as Ser
+                ON Ser.YearRoundSeriesID = SR.YearRoundSeriesID)
+            WHERE Ser.Year = {round_info.year}
+            AND Ser.Round = "{round_info.played_round}"
             ORDER BY Conference, SeriesNumber
             """,
-            self.conn,
+            self._conn,
         )
-
-    def add_other_points(self, year, playoff_round, first_name, last_name, points):
-        """Add other point values for an individual in a round to the database"""
-        # checks on inputs
-        check_if_year_is_valid(year)
-        self.check_if_individual_exists(first_name, last_name)
-
-        individual_id = self._get_individual_id(first_name, last_name)
-        points_data = [(year, playoff_round, individual_id, points)]
-        self.cursor.executemany(
-            "INSERT INTO OtherPoints VALUES (?,?,?,?)", points_data
-        )
-        self.conn.commit()
-
-    def get_other_points(self, year, playoff_round):
-        """Return the list of other points in a pandas dataframe"""
-        check_if_year_is_valid(year)
-        points_data = pd.read_sql_query(
-            f'''
-            SELECT * FROM OtherPoints
-            WHERE Year={year}
-            AND Round="{playoff_round}"''',
-            self.conn,
-        )
-        individuals = points_data.loc[:, "IndividualID"].apply(
-            self._get_individual_from_id
-        )
-        points_data.insert(0, "Individual", individuals)
-        return points_data.drop(["IndividualID"], axis="columns").set_index(
-            "Individual"
-        )
-
-    def add_overtime_selections(
-        self, year, playoff_round, first_name, last_name, overtime
-    ):
-        """Add overtime selection for an individual in a round to the database"""
-        check_if_year_is_valid(year)
-        self.check_if_individual_exists(first_name, last_name)
-        individual_id = self._get_individual_id(first_name, last_name)
-        overtime_data = [(individual_id, year, playoff_round, overtime)]
-        self.cursor.executemany(
-            "INSERT INTO OvertimeSelections VALUES (?,?,?,?)", overtime_data
-        )
-        self.conn.commit()
-
-    def add_overtime_results(self, year, playoff_round, overtime):
-        """Add overtime selection for an individual in a round to the database"""
-        check_if_year_is_valid(year)
-        overtime_data = [(year, playoff_round, overtime)]
-        self.cursor.executemany(
-            "INSERT INTO OvertimeResults VALUES (?,?,?)", overtime_data
-        )
-        self.conn.commit()
-
-    def get_overtime_selections(self, year, playoff_round):
-        """Return the list of overtime selections in a pandas dataframe"""
-        check_if_year_is_valid(year)
-        overtime_data = pd.read_sql_query(
-            f'''
-            SELECT * FROM OvertimeSelections
-            WHERE Year={year}
-            AND Round="{playoff_round}"''',
-            self.conn,
-        )
-        if overtime_data.empty:
-            return None
-        individuals = overtime_data.loc[:, "IndividualID"].apply(
-            self._get_individual_from_id
-        )
-        overtime_data.insert(0, "Individual", individuals)
+        results["Series"] = [
+            create_series_name(higher_seed, lower_seed)
+            for higher_seed, lower_seed in zip(
+                results["TeamHigherSeed"], results["TeamLowerSeed"]
+            )
+        ]
         return (
-            overtime_data.drop(["IndividualID", "Year", "Round"], axis="columns")
+            results.set_index(["Conference", "Series"])
+            .drop(["TeamHigherSeed", "TeamLowerSeed", "SeriesNumber"], axis="columns")
+            .astype({"Duration": "Int64"})
+        )
+
+    def add_champions_selections(self, selections: pd.DataFrame) -> None:
+        """Add the champions round selections."""
+        individual_ids = self.get_individuals_with_ids()
+        stanley_cup_data = [
+            (
+                individual_ids[name],
+                selections.attrs["Year"],
+                *tuple(selections.loc[name].values[:-1]),
+                _convert_Int64_to_int(selections.loc[name]["Duration"]),
+            )
+            for name in selections.index
+        ]
+        self.commit(
+            "INSERT INTO StanleyCupSelections VALUES (?,?,?,?,?,?)", stanley_cup_data
+        )
+
+    def get_champions_selections(self, year: int) -> pd.DataFrame:
+        """Return the champions round selections."""
+        check_year(year)
+        champions = self.fetch(
+            "SELECT IndividualID, East, West, [Stanley Cup], Duration "
+            f"FROM StanleyCupSelections WHERE Year={year}"
+        )
+        if not champions:
+            return pd.DataFrame()
+        ids_with_individuals = self.get_ids_with_individuals()
+        df = (
+            pd.DataFrame(
+                {
+                    "Individual": [
+                        ids_with_individuals[int(row[0])] for row in champions
+                    ],
+                    "East": [row[1] for row in champions],
+                    "West": [row[2] for row in champions],
+                    "Stanley Cup": [row[3] for row in champions],
+                    "Duration": [
+                        int(row[4]) if row[4] is not None else None for row in champions
+                    ],
+                }
+            )
+            .astype({"Duration": "Int64"})
+            .set_index("Individual")
+        )
+        df.attrs = {
+            "Selection Round": "Champions",
+            "Year": year,
+        }
+        return df
+
+    def add_finalists_results(self, results: pd.Series) -> None:
+        """Add the Champion round finalist results."""
+        stanley_cup_data = [
+            (
+                results.attrs["Year"],
+                *list(results[["East", "West"]]),
+            )
+        ]
+        self.commit(
+            "INSERT INTO StanleyCupResults (Year, East, West) VALUES (?,?,?)",
+            stanley_cup_data,
+        )
+
+    def add_stanley_cup_champion_results(self, results: pd.Series) -> None:
+        """Add the Stanley Cup Champions result."""
+        year = results.attrs["Year"]
+        stanley_cup_data = [
+            (results["Stanley Cup"], _convert_Int64_to_int(results["Duration"]))
+        ]
+        self.commit(
+            "UPDATE StanleyCupResults "
+            f"SET 'Stanley Cup' = ?, Duration = ? WHERE Year = {year}",
+            stanley_cup_data,
+        )
+
+    def get_champions_results(self, year: int) -> pd.Series:
+        """Return the champions round results."""
+        check_year(year)
+        champions = self.fetch(
+            "SELECT East, West, [Stanley Cup], Duration "
+            f"FROM StanleyCupResults WHERE Year={year}"
+        )
+        if not champions:
+            return _empty_series()
+        ser = pd.Series(
+            {
+                "East": champions[0][0],
+                "West": champions[0][1],
+                "Stanley Cup": champions[0][2],
+                "Duration": (
+                    np.int64(champions[0][3]) if champions[0][3] is not None else pd.NA
+                ),
+            }
+        )
+        ser.attrs = {
+            "Selection Round": "Champions",
+            "Year": year,
+        }
+        return ser
+
+    def add_overtime_selections(self, selections: pd.Series) -> None:
+        """Add overtime selections."""
+        individual_ids = self.get_individuals_with_ids()
+        data = [
+            (
+                individual_ids[str(individual)],
+                selections.attrs["Year"],
+                selections.attrs["Selection Round"],
+                selection,
+            )
+            for individual, selection in selections.items()
+        ]
+        self.commit("INSERT INTO OvertimeSelections VALUES (?,?,?,?)", data)
+
+    def get_overtime_selections(self, round_info: RoundInfo) -> pd.Series:
+        """Return the overtime selections."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        selections = pd.read_sql_query(
+            f"""
+            SELECT Ind.FirstName, Ind.LastName, OT.Overtime
+            FROM (Individuals as Ind
+                Inner JOIN OvertimeSelections as OT
+                ON OT.IndividualID = Ind.IndividualID)
+            WHERE OT.Year = {round_info.year}
+            AND OT.Round = "{round_info.played_round}"
+            """,
+            self._conn,
+        )
+        if selections.empty:
+            return _empty_series()
+        selections["Individual"] = [
+            utils.merge_name(list(name))
+            for name in zip(selections["FirstName"], selections["LastName"])
+        ]
+        return (
+            selections.drop(["FirstName", "LastName"], axis="columns")
             .set_index("Individual")
             .squeeze()
             .sort_index()
             .astype("str")
         )
 
-    def get_overtime_results(self, year, playoff_round):
-        """Return the overtime result"""
-        check_if_year_is_valid(year)
-        overtime_data = pd.read_sql_query(
-            f'''
-            SELECT * FROM OvertimeResults
-            WHERE Year={year}
-            AND Round="{playoff_round}"''',
-            self.conn,
-        )
-        return None if overtime_data.empty else str(overtime_data["Overtime"][0])
+    def add_overtime_results(self, round_info: RoundInfo, result: str) -> None:
+        """Add overtime results."""
+        data = [(round_info.year, round_info.played_round, result)]
+        self.commit("INSERT INTO OvertimeResults VALUES (?,?,?)", data)
 
-    def add_moniker_in_series(
-        self, year, playoff_round, first_name, last_name, moniker
-    ):
-        """Add an individual's moniker in a series to the database"""
-        # checks on inputs
-        check_if_year_is_valid(year)
-        self.check_playoff_round(year, playoff_round)
-
-        individual_id = self._get_individual_id(first_name, last_name)
-
-        series_data = [(year, playoff_round, individual_id, moniker)]
-        self.cursor.executemany("INSERT INTO Monikers VALUES (?,?,?,?)", series_data)
-        self.conn.commit()
-
-    def get_moniker_in_series(self, year, playoff_round, first_name, last_name):
-        """Return the moniker for an individual for a series"""
-        check_if_year_is_valid(year)
-        self.check_playoff_round(year, playoff_round)
-        individual_id = self._get_individual_id(first_name, last_name)
-        series_data = pd.read_sql_query(
-            "SELECT * FROM Monikers "
-            f"WHERE Year={year} "
-            f"AND Round={playoff_round} "
-            f"AND IndividualID={individual_id}",
-            self.conn,
-        )
-        return series_data["Moniker"][0]
-
-    def get_all_round_monikers(self, year, playoff_round):
-        """Return all the monikers for a playoff round in a pandas dataframe"""
-        check_if_year_is_valid(year)
-        series_data = pd.read_sql_query(
+    def get_overtime_results(self, round_info: RoundInfo) -> str:
+        """Return the overtime selections in a pandas dataframe"""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        results = self.fetch(
             f"""
-            SELECT Ind.FirstName, Ind.LastName,
-                Mnkr.Moniker
-            FROM Individuals as Ind
-            LEFT JOIN Monikers as Mnkr
-            ON Ind.IndividualID = Mnkr.IndividualID
-            WHERE Mnkr.Year = {year}
-            AND Mnkr.Round = "{playoff_round}"
-            ORDER BY FirstName, LastName
-            """,
-            self.conn,
+            SELECT Overtime FROM OvertimeResults
+            WHERE Year = {round_info.year} AND Round = "{round_info.played_round}"
+            """
         )
-        series_data["Individual"] = (
-            series_data["FirstName"] + " " + series_data["LastName"]
-        ).apply(lambda x: x.strip())
-        monikers = (
-            series_data.set_index("Individual")
-            .drop(["FirstName", "LastName"], axis="columns")
-            .squeeze()
-            .sort_index()
-            .to_dict()
-        )
-        return monikers if monikers else None
+        if not results:
+            return ""
+        return str(results[0][0])
 
-    def add_preferences(
-        self, year, playoff_round, first_name, last_name, favourite_team, cheering_team
-    ):
-        """Add an individuals preferences to the database"""
-        # checks on inputs
-        check_if_year_is_valid(year)
-        self.check_playoff_round(year, playoff_round)
-
-        individual_id = self._get_individual_id(first_name, last_name)
-
-        series_data = [
+    def add_other_points(self, other_points: pd.Series) -> None:
+        """Add other points."""
+        check_year(other_points.attrs["Year"])
+        individual_ids = self.get_individuals_with_ids()
+        points_data = [
             (
-                year,
-                playoff_round,
-                individual_id,
-                favourite_team,
-                cheering_team,
+                other_points.attrs["Year"],
+                other_points.attrs["Selection Round"],
+                individual_ids[str(individual)],
+                points,
             )
+            for individual, points in other_points.items()
         ]
-        self.cursor.executemany(
-            "INSERT INTO Preferences VALUES (?,?,?,?,?)", series_data
-        )
-        self.conn.commit()
+        self.commit("INSERT INTO OtherPoints VALUES (?,?,?,?)", points_data)
 
-    def get_preferences(self, year, playoff_round, first_name, last_name):
-        """Return the preferences for an individual"""
-        check_if_year_is_valid(year)
-        self.check_playoff_round(year, playoff_round)
-        individual_id = self._get_individual_id(first_name, last_name)
-        series_data = pd.read_sql_query(
-            "SELECT * FROM Preferences "
-            f"WHERE Year={year} "
-            f"AND Round={playoff_round} "
-            f"AND IndividualID={individual_id}",
-            self.conn,
-        )
-        return series_data.loc[0][["FavouriteTeam", "CheeringTeam"]].values.tolist()
-
-    def get_all_round_preferences(self, year, playoff_round):
-        """Return all the preferences for a playoff round in a pandas dataframe"""
-        check_if_year_is_valid(year)
-        series_data = pd.read_sql_query(
+    def get_other_points(self, round_info: RoundInfo) -> pd.Series:
+        """Return the other points."""
+        check_year(round_info.year)
+        check_played_round(round_info.year, round_info.played_round)
+        selections = pd.read_sql_query(
             f"""
-            SELECT Ind.FirstName, Ind.LastName,
-                Pref.FavouriteTeam, Pref.CheeringTeam
-            FROM Individuals as Ind
-            LEFT JOIN Preferences as Pref
-            ON Ind.IndividualID = Pref.IndividualID
-            WHERE Pref.Year = {year}
-            AND Pref.Round = "{playoff_round}"
-            ORDER BY FirstName, LastName
+            SELECT Ind.FirstName, Ind.LastName, OP.Points
+            FROM (Individuals as Ind
+                Inner JOIN OtherPoints as OP
+                ON OP.IndividualID = Ind.IndividualID)
+            WHERE OP.Year = {round_info.year}
+            AND OP.Round = "{round_info.played_round}"
             """,
-            self.conn,
+            self._conn,
         )
-        series_data["Individual"] = (
-            series_data["FirstName"] + " " + series_data["LastName"]
-        ).apply(lambda x: x.strip())
-        preferences = (
-            series_data.set_index("Individual")
-            .drop(["FirstName", "LastName"], axis="columns")
-            .rename(
-                columns={
-                    "FavouriteTeam": "Favourite Team",
-                    "CheeringTeam": "Cheering Team",
-                }
-            )
-            .squeeze()
+        if selections.empty:
+            return _empty_series()
+        selections["Individual"] = [
+            utils.merge_name(list(name))
+            for name in zip(selections["FirstName"], selections["LastName"])
+        ]
+        return (
+            selections.drop(["FirstName", "LastName"], axis="columns")
+            .set_index("Individual")
+            .squeeze(axis="columns")
             .sort_index()
         )
-        return preferences if not preferences.empty else None
 
 
-def check_if_year_is_valid(year):
-    """Check if the year is valid"""
-    if not isinstance(year, int):
-        raise TypeError("Type must be int")
+def _convert_Int64_to_int(duration) -> int | None:  # pylint: disable=C0103
+    """Convert Int64 to int type."""
+    return int(duration) if not isinstance(duration, type(pd.NA)) else None
+
+
+def check_year(year: int) -> None:
+    """Check if the year is valid."""
     if year < 2006:
+        raise YearError(f"The year, {year}, is invalid. It must be >= 2006.")
+
+
+def check_played_round(year: int, played_round: PlayedRound) -> None:
+    """Check for valid played round."""
+    played_rounds = utils.YearInfo(year).played_rounds
+    if played_round not in played_rounds:
+        raise PlayedRoundError(f"The played round must be one of {played_rounds}.")
+
+
+def check_conference(year: int, played_round: PlayedRound, conference: str) -> None:
+    """Check for valid conference."""
+    if played_round == 4 and conference != "None":
+        raise ConferenceError("The conference in the 4th round must be 'None'")
+    if year == 2021:
+        if conference != "None":
+            raise ConferenceError("The conference must be 'None' in 2021")
+        return
+    if played_round in utils.YearInfo(year).conference_rounds and conference not in [
+        "East",
+        "West",
+    ]:
         raise ValueError(
-            f"The year {year} is invalid.\n"
-            "The year must be greater than 2006 "
-            "and less than or equal to the current year"
+            f"The submitted conference ({conference}) is invalid. "
+            'It must be either "East" or "West"'
         )
 
 
-def create_table(cursor, table_file):
-    """Add a table to a database"""
-    sql_command = io.read_file_to_string(table_file)
-    cursor.execute(sql_command)
+def txt_files_in_dir(path: Path) -> list[Path]:
+    """List the text files in a directory."""
+    return list(path.glob("*.txt"))
 
 
-def txt_files_in_dir(path):
-    """Find the text files in a directory"""
-    return list(Path(path).glob("*.txt"))
+def _check_length_of_last_name(last_name: str) -> None:
+    """Check the length of the last name."""
+    if len(last_name) > 1:
+        raise ValueError(
+            f"Last name must be only 1 character long, received {last_name}"
+        )
+
+
+def _empty_series() -> pd.Series:
+    empty_series = pd.Series()
+    empty_series.index.name = "Individual"
+    return empty_series

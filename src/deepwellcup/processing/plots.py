@@ -6,7 +6,7 @@ import pandas as pd
 from matplotlib import patches, rc
 
 from . import dirs
-from .database_new import DataBase
+from .database import DataBase
 from .points import RoundPoints
 from .points_systems import points_system
 from .round_data import RoundData

@@ -3,9 +3,9 @@ import argparse
 from pathlib import Path
 
 from . import utils
-from .database_new import DataBase
+from .database import DataBase
 from .files import OtherPointsFile, SelectionsFile
-from .insert_new import InsertOtherPoints, InsertResults, InsertSelections
+from .insert import InsertOtherPoints, InsertResults, InsertSelections
 from .latex import Latex
 from .plots import Plots
 from .process_files import FileOtherPoints, FileResults, FileSelections
