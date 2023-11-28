@@ -1,105 +1,98 @@
-"""Populate the database with the results and make the standings plot
-for a specific playoff round"""
-import argparse
-from pathlib import Path
-
-from . import utils
-from .playoff_round import PlayoffRound
-from .utils import DataStores
+"""End of round updates and file generation."""
+from .database import DataBase
+from .files import OtherPointsFile, SelectionsFile
+from .insert import InsertOtherPoints, InsertResults
+from .plots import Plots
+from .process_files import FileOtherPoints, FileResults
+from .update_argparse import modify_and_check_arguments, parse_arguments
+from .utils import DataStores, PlayedRound, SelectionRound
 
 
 def update_results(
-    year,
-    playoff_round,
-    update_database=True,
+    year: int,
+    played_round: PlayedRound,
     datastores: DataStores = DataStores(None, None),
 ) -> None:
-    """Add results to database and make new stanings plot"""
-    current_round = PlayoffRound(
-        playoff_round=playoff_round,
-        year=year,
-        datastores=datastores,
-    )
-    # if update_database:
-    #     current_round.add_results_to_database()
-    # current_round.make_standings_chart()
-    print(current_round)
+    """Update database with results and create the standings plot."""
+    _insert_data(year, played_round, datastores)
+    _make_plots(year, played_round, DataBase(datastores.database))
 
 
-def main_without_database():
-    """Main function with default to not update database"""
-    parser = parse_arguments()
-    args = parser.parse_args()
-    args = modify_and_check_arguments(args)
-    datastores = DataStores(args.raw_data_directory, args.database)
-    update_results(
-        args.year, args.playoff_round, update_database=False, datastores=datastores
+def _insert_data(year: int, played_round: PlayedRound, datastores: DataStores) -> None:
+    """Insert data."""
+    _insert_results(year, played_round, datastores)
+    _insert_other_points(year, played_round, datastores)
+    if played_round == 3:
+        _insert_results(year, "Champions", datastores, champions="finalists")
+    if played_round == 4:
+        _insert_results(year, "Champions", datastores, champions="champion")
+
+
+def _insert_results(
+    year: int,
+    selection_round: SelectionRound,
+    datastores: DataStores,
+    champions: str = "",
+) -> None:
+    """Insert results."""
+    results = FileResults(
+        SelectionsFile(
+            year=year,
+            selection_round=selection_round,
+            directory=datastores.raw_data_directory,
+        )
     )
+    insert = InsertResults(
+        results=results,
+        database=DataBase(datastores.database),
+    )
+    if selection_round == "Champions":
+        if champions == "finalists":
+            insert.update_champions_finalists_results()
+        if champions == "champion":
+            insert.update_stanley_cup_champion_results()
+    insert.update_played_round_results()
+
+
+def _insert_other_points(
+    year: int, played_round: PlayedRound, datastores: DataStores
+) -> None:
+    """Insert other points."""
+    other_points_file = OtherPointsFile(
+        year=year, played_round=played_round, directory=datastores.raw_data_directory
+    )
+    if other_points_file.file.exists():
+        other_points = FileOtherPoints(other_points_file)
+        insert = InsertOtherPoints(
+            other_points=other_points,
+            database=DataBase(datastores.database),
+        )
+        insert.update_other_points()
+
+
+def _make_plots(year: int, played_round: PlayedRound, database: DataBase) -> None:
+    """Make plots."""
+    plots = Plots(
+        year,
+        database=database,
+        max_round=played_round,
+        save=True,
+    )
+    plots.standings()
+    plots.close()
 
 
 def main():
     """Main argument processing"""
     parser = parse_arguments()
-    parser.add_argument(
-        "-n",
-        "--no-database-update",
-        action="store_true",
-        help="If used, do not add data to database",
-    )
     args = parser.parse_args()
     args = modify_and_check_arguments(args)
-    update_database = not args.no_database_update
     datastores = DataStores(args.raw_data_directory, args.database)
     update_results(
         args.year,
         args.playoff_round,
-        update_database=update_database,
         datastores=datastores,
     )
-
-
-def parse_arguments():
-    """Argument parsing"""
-    parser = argparse.ArgumentParser(description="Import data into database")
-    # required arguments
-    required = parser.add_argument_group("required arguments")
-    required.add_argument(
-        "-y",
-        "--year",
-        type=int,
-        help="Year to update",
-        required=True,
-    )
-    required.add_argument(
-        "-r",
-        "--playoff_round",
-        help="Playoff round to update",
-        required=True,
-    )
-    # optional arguments
-    parser.add_argument(
-        "-d",
-        "--database",
-        type=str,
-        help="Database to import data into",
-    )
-    parser.add_argument(
-        "-w",
-        "--raw-data-directory",
-        type=Path,
-        help="directory with raw data",
-    )
-    return parser
-
-
-def modify_and_check_arguments(args):
-    """Modify arguments"""
-    if args.playoff_round.isdigit():
-        args.playoff_round = int(args.playoff_round)
-    played_rounds = utils.YearInfo(args.year).played_rounds
-    if args.playoff_round not in played_rounds:
-        raise ValueError(f"The playoff round must be one of {played_rounds}")
-    return args
 
 
 if __name__ == "__main__":

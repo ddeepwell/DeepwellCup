@@ -87,10 +87,12 @@ class PlayoffRound:
         if self.selection_round == "Champions":
             return {}
         conferences = sorted(
-            set(self.results.series.index.get_level_values("Conference"))
+            set(self.selections.series.index.get_level_values("Conference"))
         )
+        first_individual = self.individuals[0]
+        first_selections = self.selections.series.loc[first_individual]
         return {
-            conference: list(self.results.series.loc[conference].index)
+            conference: list(first_selections.loc[conference].index)
             for conference in conferences
         }
 

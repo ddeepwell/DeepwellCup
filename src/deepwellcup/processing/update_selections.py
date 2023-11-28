@@ -1,57 +1,59 @@
-"""Populate the database and make the selections table for a specific playoff round"""
-import argparse
-from pathlib import Path
-
-from . import utils
-from .playoff_round import PlayoffRound
-from .utils import DataStores
+"""Start of round updates and file generation."""
+from .database import DataBase
+from .files import SelectionsFile
+from .insert import InsertSelections
+from .latex import Latex
+from .process_files import FileSelections
+from .update_argparse import modify_and_check_arguments, parse_arguments
+from .utils import DataStores, PlayedRound, SelectionRound
 
 
 def update_selections(
-    year,
-    playoff_round,
+    year: int,
+    played_round: PlayedRound,
     datastores: DataStores = DataStores(None, None),
 ) -> None:
-    """Update the database and selections table"""
-    current_round = PlayoffRound(
-        year=year,
-        playoff_round=playoff_round,
-        datastores=datastores,
+    """Update database with selections and create the selections table."""
+    _insert_data(year, played_round, datastores)
+    _make_tables(year, played_round, DataBase(datastores.database))
+
+
+def _insert_data(year: int, played_round: PlayedRound, datastores: DataStores) -> None:
+    """Insert data."""
+    _insert_selections(year, played_round, datastores)
+    if played_round == 1:
+        _insert_selections(year, "Champions", datastores)
+
+
+def _insert_selections(
+    year: int, selection_round: SelectionRound, datastores: DataStores
+) -> None:
+    """Insert selections."""
+    selections = FileSelections(
+        SelectionsFile(
+            year=year,
+            selection_round=selection_round,
+            directory=datastores.raw_data_directory,
+        )
     )
-    # current_round.add_selections_to_database()
-    # current_round.add_other_points_to_database()
-    # current_round.make_latex_table()
-    print(current_round)
+    insert = InsertSelections(
+        selections=selections,
+        database=DataBase(datastores.database),  # type: ignore
+    )
+    insert.update_selections()
+
+
+def _make_tables(year: int, played_round: PlayedRound, database: DataBase) -> None:
+    """Make selections tables file."""
+    latex = Latex(year, played_round, database)
+    latex.make_table()
 
 
 def main():
-    """Main argument processing"""
-    parser = argparse.ArgumentParser(description="Import data into database")
-    # required arguments
-    required = parser.add_argument_group("required arguments")
-    required.add_argument(
-        "-y", "--year", type=int, help="Year to update", required=True
-    )
-    required.add_argument(
-        "-r", "--playoff_round", help="Playoff round to update", required=True
-    )
-    # optional arguments
-    parser.add_argument(
-        "-d", "--database", type=str, help="Database to import data into"
-    )
-    parser.add_argument(
-        "-w",
-        "--raw-data-directory",
-        type=Path,
-        help="directory with raw data",
-    )
-    # parse the arguments
+    """Main argument processing."""
+    parser = parse_arguments()
     args = parser.parse_args()
-    if args.playoff_round.isdigit():
-        args.playoff_round = int(args.playoff_round)
-    played_rounds = utils.YearInfo(args.year).played_rounds
-    if args.playoff_round not in played_rounds:
-        raise ValueError(f"The playoff round must be one of {played_rounds}")
+    args = modify_and_check_arguments(args)
     datastores = DataStores(args.raw_data_directory, args.database)
     update_selections(args.year, args.playoff_round, datastores)
 
