@@ -1,5 +1,4 @@
-"""Utility functions"""
-import sqlite3
+"""Utility functions."""
 import typing
 from dataclasses import dataclass
 from pathlib import Path
@@ -99,4 +98,4 @@ class DataStores(typing.NamedTuple):
     """Data storage locations."""
 
     raw_data_directory: Path | None
-    database: str | sqlite3.Connection | None | Path
+    database: Path | None

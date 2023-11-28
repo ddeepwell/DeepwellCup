@@ -21,8 +21,8 @@ def multi_year_remake(
         print(f"Starting {year} ... ", end="", flush=True)
         for played_round in utils.YearInfo(year).played_rounds:
             _insert_data(year, played_round, datastores)
-            _make_tables(year, played_round, DataBase(datastores.database))  # type: ignore[arg-type] # noqa: E501 # pylint: disable=C0301
-            _make_plots(year, played_round, DataBase(datastores.database))  # type: ignore[arg-type] # noqa: E501 # pylint: disable=C0301
+            _make_tables(year, played_round, DataBase(datastores.database))
+            _make_plots(year, played_round, DataBase(datastores.database))
         print("Finished")
 
 
@@ -70,7 +70,7 @@ def _insert_selections(
     )
     insert = InsertSelections(
         selections=selections,
-        database=DataBase(datastores.database),  # type: ignore
+        database=DataBase(datastores.database),
     )
     insert.update_selections()
 
@@ -91,7 +91,7 @@ def _insert_results(
     )
     insert = InsertResults(
         results=results,
-        database=DataBase(datastores.database),  # type: ignore
+        database=DataBase(datastores.database),
     )
     if selection_round != "Champions":
         insert.update_played_round_results()
@@ -112,7 +112,7 @@ def _insert_other_points(
         other_points = FileOtherPoints(other_points_file)
         insert = InsertOtherPoints(
             other_points=other_points,
-            database=DataBase(datastores.database),  # type: ignore
+            database=DataBase(datastores.database),
         )
         insert.update_other_points()
 
