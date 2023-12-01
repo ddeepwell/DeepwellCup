@@ -5,14 +5,14 @@ from dataclasses import dataclass
 import pandas as pd
 import pytest
 
-from deepwellcup.processing.process_files import (
+from deepwellcup.ingest.process_files import (
     CleanUpRawChampionsData,
     CleanUpRawPlayedData,
     FileOtherPoints,
     FileResults,
     FileSelections,
 )
-from deepwellcup.processing.utils import SelectionRound
+from deepwellcup.utils.utils import SelectionRound
 
 
 def build_file(

@@ -2,13 +2,9 @@
 import numpy as np
 import pandas as pd
 
-from deepwellcup.processing.database import Monikers
-from deepwellcup.processing.insert import (
-    InsertOtherPoints,
-    InsertResults,
-    InsertSelections,
-)
-from deepwellcup.processing.utils import RoundInfo
+from deepwellcup.core.database import Monikers
+from deepwellcup.ingest.insert import InsertOtherPoints, InsertResults, InsertSelections
+from deepwellcup.utils.utils import RoundInfo
 
 
 class TempDataBase:

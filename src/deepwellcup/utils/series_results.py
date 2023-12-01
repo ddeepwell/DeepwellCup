@@ -2,9 +2,10 @@
 import argparse
 from pathlib import Path
 
+from deepwellcup.ingest.files import SelectionsFile
+from deepwellcup.ingest.process_files import FileSelections
+
 from . import utils
-from .files import SelectionsFile
-from .process_files import FileSelections
 
 
 def print_series_results(

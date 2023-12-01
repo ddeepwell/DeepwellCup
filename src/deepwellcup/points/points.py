@@ -7,20 +7,21 @@ import pandas as pd
 from sympy import symbols
 from sympy.utilities.lambdify import lambdify
 
-from .points_systems import points_system
-from .round_data import (
+from deepwellcup.utils.round_data import (
     ChampionsResults,
     ChampionsSelections,
     PlayedResults,
     PlayedSelections,
     RoundData,
 )
-from .utils import (
+from deepwellcup.utils.utils import (
     PlayedRound,
     RoundInfo,
     SelectionRound,
     YearInfo,
 )
+
+from .points_systems import points_system
 
 SimpleSystem = dict[str, int]
 ComplexSystem = dict[str, int | str]

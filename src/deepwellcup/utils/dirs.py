@@ -3,7 +3,7 @@ import json
 import warnings
 from pathlib import Path
 
-from . import files
+from deepwellcup.ingest.files import products_dir_file
 
 
 def src():
@@ -33,15 +33,13 @@ def templates():
 
 def initialize_products_directory() -> None:
     """Ask for and save the products directory"""
-    if files.products_dir_file().exists():
+    if products_dir_file().exists():
         warnings.warn(
             "The products directory already exists and contains the path "
             f"{products()}. It will be overwritten if you continue."
         )
     products_dir = _request_products_path()
-    _write_products_path_to_file(
-        products_dir=products_dir, file=files.products_dir_file()
-    )
+    _write_products_path_to_file(products_dir=products_dir, file=products_dir_file())
     _make_directory(products_dir / "tables")
     _make_directory(products_dir / "figures")
 
@@ -86,7 +84,7 @@ def _read_products_path_from_file(file: Path) -> Path:
 
 def products() -> Path:
     """Return the path for the products directory"""
-    return _read_products_path_from_file(files.products_dir_file())
+    return _read_products_path_from_file(products_dir_file())
 
 
 def print_products_path() -> None:

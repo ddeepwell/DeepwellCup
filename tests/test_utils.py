@@ -3,8 +3,8 @@ from contextlib import nullcontext as does_not_raise
 
 import pytest
 
-from deepwellcup.processing import utils
-from deepwellcup.processing.utils import PlayedRound, SelectionRound
+from deepwellcup.utils import utils
+from deepwellcup.utils.utils import PlayedRound, SelectionRound
 
 
 @pytest.mark.parametrize(
@@ -23,13 +23,13 @@ def test_split_name(name: str, expected_name: tuple[str, str]):
     "name, expected_name",
     [
         (
-            ("David", "D"),
+            ["David", "D"],
             "David D",
         ),
-        (("David", ""), "David"),
+        (["David", ""], "David"),
     ],
 )
-def test_merge_name(name: tuple[str, str], expected_name: str):
+def test_merge_name(name: list[str], expected_name: str):
     """Test for merge_name"""
     assert expected_name == utils.merge_name(name)
 

@@ -2,7 +2,7 @@
 from argparse import ArgumentParser, Namespace, _ArgumentGroup
 from pathlib import Path
 
-from . import utils
+from deepwellcup.utils import utils
 
 
 def parse_arguments() -> ArgumentParser:

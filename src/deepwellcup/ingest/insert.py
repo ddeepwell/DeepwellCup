@@ -1,7 +1,8 @@
 """Insert selections into the database."""
-from .database import DataBase
+from deepwellcup.core.database import DataBase
+from deepwellcup.utils.utils import RoundInfo
+
 from .process_files import FileOtherPoints, FileResults, FileSelections
-from .utils import RoundInfo
 
 
 class InsertSelections:

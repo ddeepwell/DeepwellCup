@@ -4,14 +4,15 @@ import re
 
 import pandas as pd
 
-from . import nhl_teams
-from .files import OtherPointsFile, SelectionsFile
-from .utils import (
+from deepwellcup.utils import nhl_teams
+from deepwellcup.utils.utils import (
     Conference,
     PlayedRound,
     RoundInfo,
     SelectionRound,
 )
+
+from .files import OtherPointsFile, SelectionsFile
 
 
 class FileSelections:

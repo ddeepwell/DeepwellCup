@@ -1,11 +1,11 @@
 """Specifying the file containing selections and results"""
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
 
 import pandas as pd
 
-from . import dirs
-from .utils import PlayedRound, SelectionRound
+from deepwellcup.utils import dirs
+from deepwellcup.utils.utils import PlayedRound, SelectionRound
 
 
 @dataclass(frozen=True)

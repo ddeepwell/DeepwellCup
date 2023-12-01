@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "deepwellcup"
-version = "0.1.0"
+version = "0.2.0"
 authors = [
   { name="David Deepwell", email="dsdeepwell@gmail.com" },
 ]
@@ -45,10 +45,9 @@ dev = [
 where = ["src"]
 
 [project.scripts]
-initialize = "deepwellcup.processing.dirs:initialize_products_directory"
-products_directory = "deepwellcup.processing.dirs:print_products_path"
-remake = "deepwellcup.processing.remake:main"
-update_selections = "deepwellcup.processing.update_selections:main"
-update_results = "deepwellcup.processing.update_results:main"
-update_standings_plot = "deepwellcup.processing.update_results:main_without_database"
-series_results = "deepwellcup.processing.series_results:main"
+initialize = "deepwellcup.utils.dirs:initialize_products_directory"
+products_directory = "deepwellcup.utils.dirs:print_products_path"
+remake = "deepwellcup.ingest.remake:main"
+update_selections = "deepwellcup.ingest.update_selections:main"
+update_results = "deepwellcup.ingest.update_results:main"
+series_results = "deepwellcup.utils.series_results:main"

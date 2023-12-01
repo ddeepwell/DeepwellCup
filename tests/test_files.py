@@ -1,7 +1,7 @@
 """Tests for files"""
 import pytest
 
-from deepwellcup.processing import files
+from deepwellcup.ingest import files
 
 
 @pytest.mark.parametrize("data_directory", [pytest.test_data_dir, None])

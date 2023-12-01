@@ -7,9 +7,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from . import dirs, io, utils
-from .nhl_teams import create_series_name
-from .utils import PlayedRound, RoundInfo
+from deepwellcup.utils import dirs, io, utils
+from deepwellcup.utils.nhl_teams import create_series_name
+from deepwellcup.utils.utils import PlayedRound, RoundInfo
 
 Monikers = dict[str, str]
 

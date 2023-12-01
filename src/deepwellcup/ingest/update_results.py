@@ -1,11 +1,12 @@
 """End of round updates and file generation."""
-from .database import DataBase
+from deepwellcup.core.database import DataBase
+from deepwellcup.core.plots import Plots
+from deepwellcup.utils.utils import DataStores, PlayedRound, SelectionRound
+
 from .files import OtherPointsFile, SelectionsFile
 from .insert import InsertOtherPoints, InsertResults
-from .plots import Plots
 from .process_files import FileOtherPoints, FileResults
 from .update_argparse import modify_and_check_arguments, parse_arguments
-from .utils import DataStores, PlayedRound, SelectionRound
 
 
 def update_results(

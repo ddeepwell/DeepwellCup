@@ -1,7 +1,7 @@
 """Tests for nhl_teams."""
 import pytest
 
-from deepwellcup.processing import nhl_teams
+from deepwellcup.utils import nhl_teams
 
 
 @pytest.mark.parametrize(

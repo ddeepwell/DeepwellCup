@@ -1,11 +1,12 @@
 """Start of round updates and file generation."""
-from .database import DataBase
+from deepwellcup.core.database import DataBase
+from deepwellcup.core.latex import Latex
+from deepwellcup.utils.utils import DataStores, PlayedRound, SelectionRound
+
 from .files import SelectionsFile
 from .insert import InsertSelections
-from .latex import Latex
 from .process_files import FileSelections
 from .update_argparse import modify_and_check_arguments, parse_arguments
-from .utils import DataStores, PlayedRound, SelectionRound
 
 
 def update_selections(

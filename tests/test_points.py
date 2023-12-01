@@ -4,9 +4,9 @@ from dataclasses import dataclass
 import pandas as pd
 import pytest
 
-from deepwellcup.processing.database import DataBase
-from deepwellcup.processing.points import RoundPoints
-from deepwellcup.processing.round_data import BasePlayedRound
+from deepwellcup.core.database import DataBase
+from deepwellcup.points.points import RoundPoints
+from deepwellcup.utils.round_data import BasePlayedRound
 
 
 class TempDataBase:  # pylint: disable=C0115,R0903

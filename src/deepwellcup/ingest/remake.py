@@ -1,11 +1,12 @@
 """Remake everything."""
 from argparse import ArgumentParser
 
-from . import utils
+from deepwellcup.utils import utils
+from deepwellcup.utils.utils import DataStores
+
 from .update_argparse import add_database_option, add_raw_data_dir_option
 from .update_results import update_results
 from .update_selections import update_selections
-from .utils import DataStores
 
 
 def multi_year_remake(

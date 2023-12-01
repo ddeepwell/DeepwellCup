@@ -5,11 +5,12 @@ import matplotlib.pyplot as plt  # type: ignore[import-untyped]
 import pandas as pd
 from matplotlib import patches, rc
 
-from . import dirs
+from deepwellcup.points.points import RoundPoints
+from deepwellcup.points.points_systems import points_system
+from deepwellcup.utils import dirs
+from deepwellcup.utils.round_data import RoundData
+
 from .database import DataBase
-from .points import RoundPoints
-from .points_systems import points_system
-from .round_data import RoundData
 
 # set font to look like Latex
 font = {"family": "serif", "size": 12}

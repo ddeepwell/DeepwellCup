@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from pytest import raises
 
-from deepwellcup.processing.database import (
+from deepwellcup.core.database import (
     DataBase,
     DuplicateEntryError,
     PlayedRoundError,
@@ -11,7 +11,7 @@ from deepwellcup.processing.database import (
     check_played_round,
     check_year,
 )
-from deepwellcup.processing.utils import RoundInfo
+from deepwellcup.utils.utils import RoundInfo
 
 
 def test_individuals(tmp_path):

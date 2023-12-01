@@ -7,12 +7,13 @@ from pandas import NA, isna
 from sympy import latex, symbols
 from sympy.utilities.lambdify import lambdify
 
-from . import dirs, utils
+from deepwellcup.points.points_systems import points_system
+from deepwellcup.utils import dirs, utils
+from deepwellcup.utils.nhl_teams import lengthen_team_name as ltn
+from deepwellcup.utils.nhl_teams import shorten_team_name as stn
+
 from .database import DataBase
-from .nhl_teams import lengthen_team_name as ltn
-from .nhl_teams import shorten_team_name as stn
 from .playoff_round import PlayoffRound
-from .points_systems import points_system
 
 
 class Latex:

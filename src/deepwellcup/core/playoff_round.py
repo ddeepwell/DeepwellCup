@@ -3,12 +3,13 @@ from dataclasses import dataclass
 
 import pandas as pd
 
+from deepwellcup.points.points import RoundPoints
+from deepwellcup.utils.nhl_teams import lengthen_team_name as ltn
+from deepwellcup.utils.nhl_teams import team_of_player
+from deepwellcup.utils.round_data import RoundData
+from deepwellcup.utils.utils import RoundInfo, SelectionRound
+
 from .database import DataBase
-from .nhl_teams import lengthen_team_name as ltn
-from .nhl_teams import team_of_player
-from .points import RoundPoints
-from .round_data import RoundData
-from .utils import RoundInfo, SelectionRound
 
 
 @dataclass

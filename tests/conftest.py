@@ -1,7 +1,7 @@
 """Default test database configuration."""
 import pytest
 
-from deepwellcup.processing import dirs
+from deepwellcup.utils import dirs
 
 
 def pytest_configure():
