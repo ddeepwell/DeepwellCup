@@ -5,26 +5,12 @@ def points_system(year: int):
     """Return scoring system for a year."""
     if year in [2006, 2007]:
         return points_system_2006_2007()
-    if year == 2008:
-        return points_system_2008()
     if year in range(2009, 2014 + 1):
         return points_system_2009_2014()
     if year in [2015, 2016]:
         return points_system_2015_2016()
-    if year == 2017:
-        return points_system_2017()
-    if year == 2018:
-        return points_system_2018()
-    if year == 2019:
-        return points_system_2019()
-    if year == 2020:
-        return points_system_2020()
-    if year == 2021:
-        return points_system_2021()
-    if year == 2022:
-        return points_system_2022()
-    if year == 2023:
-        return points_system_2023()
+    if year == 2008 or 2017 <= year <= 2023:
+        return globals()[f"points_system_{year}"]()
     raise NotImplementedError(f"Scoring system for {year} is not implemented.")
 
 
