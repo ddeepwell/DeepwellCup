@@ -5,7 +5,7 @@ from deepwellcup.utils.utils import DataStores, PlayedRound, SelectionRound
 
 from .files import SelectionsFile
 from .insert import InsertSelections
-from .process_files import FileSelections
+from .parse_files.files import FileSelections
 from .update_argparse import modify_and_check_arguments, parse_arguments
 
 

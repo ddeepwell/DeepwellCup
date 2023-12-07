@@ -3,7 +3,7 @@ import argparse
 from pathlib import Path
 
 from deepwellcup.ingest.files import SelectionsFile
-from deepwellcup.ingest.process_files import FileSelections
+from deepwellcup.ingest.parse_files.files import FileSelections
 
 from . import utils
 

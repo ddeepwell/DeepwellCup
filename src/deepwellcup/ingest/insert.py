@@ -2,7 +2,7 @@
 from deepwellcup.core.database import DataBase
 from deepwellcup.utils.utils import RoundInfo
 
-from .process_files import FileOtherPoints, FileResults, FileSelections
+from .parse_files.files import FileOtherPoints, FileResults, FileSelections
 
 
 class InsertSelections:

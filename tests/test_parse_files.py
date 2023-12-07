@@ -5,14 +5,13 @@ from dataclasses import dataclass
 import pandas as pd
 import pytest
 
-from deepwellcup.ingest.process_files import (
-    CleanUpRawChampionsData,
-    CleanUpRawPlayedData,
+from deepwellcup.ingest.parse_files import parse_champions_round, parse_played_round
+from deepwellcup.ingest.parse_files.files import (
     FileOtherPoints,
     FileResults,
     FileSelections,
 )
-from deepwellcup.utils.utils import SelectionRound
+from deepwellcup.utils.utils import RoundInfo, SelectionRound
 
 
 def build_file(
@@ -277,9 +276,10 @@ def test_series(selection_round, raw_data, expected):
 @pytest.mark.parametrize("selection_round", [3, 4])
 def test_played_selections(selection_round, raw_data, selections):
     """Test for Played rounds selections."""
-    pdata = CleanUpRawPlayedData(2006, selection_round, raw_data)
-    assert pdata.selections().equals(selections)
-    assert pdata.selections().attrs == {
+    round_info = RoundInfo(selection_round, 2006)
+    pdata = parse_played_round.selections(round_info, raw_data)
+    assert pdata.equals(selections)
+    assert pdata.attrs == {
         "Selection Round": selection_round,
         "Year": 2006,
     }
@@ -288,9 +288,9 @@ def test_played_selections(selection_round, raw_data, selections):
 @pytest.mark.parametrize("selection_round", ["Champions"])
 def test_champions_selections(raw_data, selections):
     """Test for Champions round selections."""
-    cdata = CleanUpRawChampionsData(2016, raw_data)
-    assert cdata.selections().equals(selections)
-    assert cdata.selections().attrs == {"Selection Round": "Champions", "Year": 2016}
+    cdata = parse_champions_round.selections(2016, raw_data)
+    assert cdata.equals(selections)
+    assert cdata.attrs == {"Selection Round": "Champions", "Year": 2016}
 
 
 def test_overtime_selections():
