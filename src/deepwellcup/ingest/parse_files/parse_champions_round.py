@@ -37,6 +37,8 @@ def _select_conference_team(year: int, row: pd.Series, conference: str) -> str:
     if conference == "Stanley Cup":
         return row["Who will win the Stanley Cup?"]
     teams = row.values.tolist()
+    if pd.isna(teams[0]) or pd.isna(teams[1]):
+        return teams[0]
     return teams[0] if nhl_teams.conference(teams[0], year) == conference else teams[1]
 
 

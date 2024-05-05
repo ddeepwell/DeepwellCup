@@ -48,6 +48,7 @@ def _make_tables(year: int, played_round: PlayedRound, database: DataBase) -> No
     """Make selections tables file."""
     latex = Latex(year, played_round, database)
     latex.make_table()
+    latex.build_pdf()
 
 
 def main():
