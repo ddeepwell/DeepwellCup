@@ -410,7 +410,8 @@ class DataBase:  # pylint: disable=R0904
             )
             for index in results.index
         ]
-        self.commit("INSERT INTO SeriesResults VALUES (?,?,?,?)", data)
+        complete_series_data = [series for series in data if series[2] is not None]
+        self.commit("INSERT INTO SeriesResults VALUES (?,?,?,?)", complete_series_data)
 
     def get_round_results(self, round_info: RoundInfo) -> pd.DataFrame:
         """Return the results of a played round."""

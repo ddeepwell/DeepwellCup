@@ -216,7 +216,14 @@ def _gradient_team_points(
 ) -> tuple[int, int]:
     f_correct, f_incorrect = _get_correct_gradient_functions(played_round, system)
 
-    comparison = selections.compare(
+    finished_series = results.index
+    if len(finished_series) < 8:
+        series = selections.index
+        unfinished_series = list(set(series) - set(finished_series))
+        filtered_selections = selections.drop(unfinished_series)
+    else:
+        filtered_selections = selections
+    comparison = filtered_selections.compare(
         results,
         keep_shape=True,
         keep_equal=True,
