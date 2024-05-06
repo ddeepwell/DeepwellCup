@@ -9,8 +9,10 @@ def points_system(year: int):
         return points_system_2009_2014()
     if year in [2015, 2016]:
         return points_system_2015_2016()
-    if year == 2008 or 2017 <= year <= 2023:
+    if year == 2008 or 2017 <= year <= 2022:
         return globals()[f"points_system_{year}"]()
+    if 2023 <= year <= 2024:
+        return points_system_2023_2024()
     raise NotImplementedError(f"Scoring system for {year} is not implemented.")
 
 
@@ -124,8 +126,8 @@ def points_system_2022() -> dict[str, int | str]:
     }
 
 
-def points_system_2023() -> dict[str, int | str]:
-    """Return system used in 2023."""
+def points_system_2023_2024() -> dict[str, int | str]:
+    """Return system used in 2023 and 2024."""
     return {
         "stanley_cup_winner": 16,
         "stanley_cup_finalist": 8,
