@@ -1,6 +1,5 @@
 CREATE TABLE Series (
     YearRoundSeriesID INTEGER      PRIMARY KEY
-                                   UNIQUE
                                    NOT NULL,
     Year              INTEGER (4)  NOT NULL,
     Round             INTEGER (1)  NOT NULL,
@@ -9,5 +8,6 @@ CREATE TABLE Series (
     TeamHigherSeed    VARCHAR (40) NOT NULL,
     TeamLowerSeed     VARCHAR (40) NOT NULL,
     PlayerHigherSeed  VARCHAR (40),
-    PlayerLowerSeed   VARCHAR (40)
+    PlayerLowerSeed   VARCHAR (40),
+    CONSTRAINT YearRoundSeries UNIQUE (Year, Round, Conference, SeriesNumber)
 );

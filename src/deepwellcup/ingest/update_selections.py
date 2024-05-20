@@ -15,18 +15,18 @@ def update_selections(
     datastores: DataStores = DataStores(None, None),
 ) -> None:
     """Update database with selections and create the selections table."""
-    _insert_data(year, played_round, datastores)
-    _make_tables(year, played_round, DataBase(datastores.database))
+    insert_data(year, played_round, datastores)
+    make_tables(year, played_round, DataBase(datastores.database))
 
 
-def _insert_data(year: int, played_round: PlayedRound, datastores: DataStores) -> None:
+def insert_data(year: int, played_round: PlayedRound, datastores: DataStores) -> None:
     """Insert data."""
-    _insert_selections(year, played_round, datastores)
+    insert_selections(year, played_round, datastores)
     if played_round == 1:
-        _insert_selections(year, "Champions", datastores)
+        insert_selections(year, "Champions", datastores)
 
 
-def _insert_selections(
+def insert_selections(
     year: int, selection_round: SelectionRound, datastores: DataStores
 ) -> None:
     """Insert selections."""
@@ -44,7 +44,7 @@ def _insert_selections(
     insert.update_selections()
 
 
-def _make_tables(year: int, played_round: PlayedRound, database: DataBase) -> None:
+def make_tables(year: int, played_round: PlayedRound, database: DataBase) -> None:
     """Make selections tables file."""
     latex = Latex(year, played_round, database)
     latex.make_table()
