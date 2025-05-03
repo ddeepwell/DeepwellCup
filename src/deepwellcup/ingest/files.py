@@ -91,8 +91,3 @@ class OtherPointsFile:
         return contents.rename(
             columns={"Name:": "Individual", "Points": "Other Points"}
         )
-
-
-def products_dir_file() -> Path:
-    """Return the file containing the products directory"""
-    return dirs.data() / "products_dir.json"

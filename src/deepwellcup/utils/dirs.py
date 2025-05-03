@@ -3,8 +3,6 @@ import json
 import warnings
 from pathlib import Path
 
-from deepwellcup.ingest.files import products_dir_file
-
 
 def src():
     """Return the path to the source directory"""
@@ -29,6 +27,11 @@ def database():
 def templates():
     """Return the path to the templates directory"""
     return data() / "templates"
+
+
+def products_dir_file() -> Path:
+    """Return the file containing the products directory"""
+    return data() / "products_dir.json"
 
 
 def initialize_products_directory() -> None:
