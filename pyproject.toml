@@ -44,6 +44,10 @@ dev = [
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.pylint."MESSAGES CONTROL"]
+disable = [ "duplicate-code" ]
+
+
 [project.scripts]
 initialize = "deepwellcup.utils.dirs:initialize_products_directory"
 products_directory = "deepwellcup.utils.dirs:print_products_path"
