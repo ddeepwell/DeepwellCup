@@ -58,7 +58,7 @@ repos:
         name: "check type hints"
         files: src
         language: python
-        language_version: 3.10.16
+        language_version: "3.10"
         additional_dependencies:
           [
             jinja2>=3.1,
