@@ -11,7 +11,7 @@ def points_system(year: int):
         return points_system_2015_2016()
     if year == 2008 or 2017 <= year <= 2022:
         return globals()[f"points_system_{year}"]()
-    if 2023 <= year <= 2024:
+    if 2023 <= year <= 2025:
         return points_system_2023_2024()
     raise NotImplementedError(f"Scoring system for {year} is not implemented.")
 
